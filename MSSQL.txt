@@ -1,0 +1,3 @@
+MSSQL的dbo权限就可以进行差异备份获取shell。判断数据库权限的语句：and 1=(select IS_SRVROLEMEMBER('sysadmin'))和and 1=(select IS_MEMBER('db_owner'))
+
+在2005以后加入了SQL Server Browser。

@@ -1,0 +1,16 @@
+我用emacs整十年了，一直是用左手掌外侧按压CTRL键，这样的好处是手可以一直处于标准键盘布局上（左手四指asdf，右手四指jkl;），基本不移动。除了按Ctrl+Z有点不方便外，其它都特别快捷。
+    但最近在知乎上看到不少用户是用小手指按CTRL键的，或CTRL与CAPS LOCK互换。试了一下非常不方便，比如CTRL+A，我的按键方式手不需要移动，只需要手掌压CTRL，小拇指按A就行了。如果小拇指按CTRL，手就必须移动，用无名指或其它按A。这样长久下来效率会低，手也会累。
+
+dips设置：
+http://elitekeyboards.com/products.php?sub=topre_keyboards,rftenkeyless&pid=rf_se1700
+DIP 开关，共有四个按键，用于调整功能键
+DIP Switch	Key/Function	SW OFF	SW ON
+SW1	Left Ctrl Key	     Left Ctrl	Caps Lock
+       Caps Lock Key	    Caps Lock	Left Ctrl
+SW2	Windows/Context Key	Enable	Disable
+SW3	Numeric Keypad (Numlock)	Enable	Disable
+SW4	Firmware Update Mode	Disable	Enable
+需要热拔插后调整啊，才能生效。
+
+https://geekhack.org/index.php?topic=32190.0
+

@@ -1,0 +1,13 @@
+google：
++a -b 要求搜索结果有a但是没有b，相当于a -b
+"a   b"
+intitle:
+intext:
+inurl:
+site:
+filetype:
+特殊：
+site:fr 把网站限定在法国
+
+世界第四大搜索引擎：
+www.yandex.com

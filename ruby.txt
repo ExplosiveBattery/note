@@ -1,0 +1,71 @@
+ruby的终端交互模式程序叫irb。
+ruby和py一样是不会指定类型
+ruby遇到的都是对象方法，而没系统函数。
+比较著名的：ruby on rails（ROR），Metasploit中ruby 扩展（REX）
+
+
+irb(main):019:0> str='123  456  789\t'
+=> "123  456  789\\t"
+irb(main):020:0> str="123  456  789\t"
+=> "123  456  789\t"
+
+irb(main):024:0> range =0...9
+=> 0...9
+irb(main):025:0> range.include?(4)
+=> true
+
+irb(main):026:0> n ='Hello world'
+=> "Hello world"
+irb(main):027:0> r =/world/
+=> /world/
+irb(main):028:0> r.match n
+=> #<MatchData "world">
+irb(main):029:0> n =~ r #=~是个独立的运算符，这个表达式会告诉匹配位置
+=> 6
+
+
+ruby的方法：.nil?、.empty?
+rails的方法 ：.blank?
+用法的区别：
+.nil?    :   判断对象是否存在。
+.empty? :   是对象已经存在，判断是否为空字段。
+.blank?  :   相当于同时满足 .nil? 和 .empty? 。
+
+函数的定义：
+def method_name [(  [arg [=default]]...[,*arg [, &expr]]   )]
+expr #没有py那样的indent要求，还是自己加上吧
+end
+irb(main):005:0> def fun
+irb(main):006:1> test_in_fun =1
+irb(main):007:1> puts(test_in_fun)
+irb(main):008:1> end
+=> :fun
+irb(main):009:0> fun
+1
+=> nil
+irb(main):010:0> fun()
+
+ruby的输出函数是puts()与print()，当涉及到Metasploit Framework就是用print_line函数。
+输入函数是gets，使用：num=gets
+
+split函数：
+irb(main):016:0> str ='123 456'
+=> "123 456"
+irb(main):017:0> str.split(' ')
+=> ["123", "456"]
+
+squeeze函数：
+去除重复空格
+irb(main):020:0> str="123  456  789\t"
+=> "123  456  789\t"
+irb(main):021:0> str.squeeze()
+=> "123 456 789\t" #数字之间两空格被改成一个了
+
+字符串转数字：to_i
+数字转字符串：to_s
+
+RailGun：（有些任务Metasploit不能胜任，但是RailGun可以做到）
+client.railgun.dll_name.function(parameters)
+client.railgun.add_dll('viarable', 'path') //创建一个dll并设置对象viarable
+client.railgun.add_function('viarable', 'funcion_name', ......)后面不写了
+client.railgun.就可以用刚刚编写的dll了

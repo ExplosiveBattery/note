@@ -1,0 +1,14 @@
+Nmap scan report for admisist-1e9d69.lan (192.168.1.224)
+Host is up (0.00029s latency).
+Not shown: 991 closed ports
+PORT     STATE SERVICE
+80/tcp   open  http
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+1025/tcp open  NFS-or-IIS
+1433/tcp open  ms-sql-s
+2383/tcp open  ms-olap4
+3306/tcp open  mysql
+8080/tcp open  http-proxy
+MAC Address: 00:0C:29:23:21:DE (VMware)

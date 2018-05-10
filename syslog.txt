@@ -1,0 +1,171 @@
+LOG_DEG日志输出/var/log/messages。
+
+linux下的syslog通用日志：
+	  1.这个日志除了可以记在本地文件，也可以通过网络发往其他主机，甚至看样子存在专门的syslog服务器（重视存储能力）。这个日志在多个系统下都是通用的，我还没见过有什么日志是不通用的，感觉就是编码关系。
+	  这个日志没有标准，有建议RFC。在建议（约定）里面，设置它为PRI+HEADER+MSG，大多数都包含PRI和MSG，HEADER可能没有。 示例：
+<30>Oct 9 22:33:20 hlfedora auditd[1787]: The audit daemon is exiting.
+    其中“<30>”是PRI部分（除了0以外，不允许出现以0开头的），“Oct 9 22:33:20 hlfedora”是HEADER部分，“auditd[1787]: The audit daemon is exiting.”是MSG部分。
+	  PRI部分由尖括号包含的一个数字构成，这个数字包含了程序模块（Facility）（前面5位）、严重性（Severity）（后面3位）。syslog的Facility是早期为Unix操作系统定义的，不过它预留了UserMessage（1），Local0～7 （16～23）给其他程序使用。 
+	  HEADER部分包括两个字段，时间和主机名（或IP）。时间紧跟在PRI后面，中间没有空格，格式必须是“Mmm dd hh:mm:ss”，不包括年份。“日”的数字如果是1～9，前面会补一个空格（也就是月份后面有两个空格），而“小时”、“分”、“秒”则在前面补“0”。月份取值就是英文单词的前三个字母。
+	  MSG部分又分为两个部分，TAG和Content。其中TAG部分是可选的。在前面的例子中（“<30>Oct 9 22:33:20 From Battery[1787]: The audit daemon is exiting.”），“auditd[1787]”是TAG部分，包含了进程名称和进程PID。PID可以没有，这个时候中括号也是没有的。
+	2.Linux C中提供一套系统日记写入接口，包括三个函数：openlog，syslog和closelog。
+#include <syslog.h>（这个库在linux的sys目录下）
+void openlog (char*ident, int option, int facility); 
+ident是每一个放在消息日志前的字符串
+options参数：（控制输出方向与套接字）
+LOG_CONS若无法发送到syslog守护进程则登记到控制台
+LOG_NDELAY不延迟打开，立即建立套接字（哦，居然还可以不立即创建）
+LOG_PERROR发送到syslogd守护进程，并登记到标准错误输出
+LOG_PID随日志登记进程ID
+facility      
+该参数用来指定何种程式在记录讯息，这可让设定档来设定何种讯息如何处理。      
+LOG_AUTH   :   安全/授权讯息(别用这个，请改用LOG_AUTHPRIV)      
+LOG_AUTHPRIV   :   安全/授权讯息      
+LOG_CRON   :   时间守护神专用(cron及at)      
+LOG_DAEMON   :   其它系统守护神  句柄还会自动设置继承
+LOG_KERN   :   核心讯息      
+LOG_LOCAL0到LOG_LOCAL7   :   保留      
+LOG_LPR   : line   printer次系统      
+LOG_MAIL   :   mail次系统      
+LOG_NEWS   :   USENET   news次系统      
+LOG_SYSLOG   :   syslogd内部所产生的讯息      
+LOG_USER(default)   :   一般使用者等级讯息      
+LOG_UUCP   :   UUCP次系统      
+LOG_FTP FTP守护进程
+
+void syslog(int priority, char*format,……);如果之前没有调用openlog创建套接字，那么使用这个函数的时候就会自动创建调用openlog函数。
+priority是由level和facility相或而成：
+LOG_DAEMON系统守护进程
+lecel参数:
+LOG_EMERG系统不可用	0
+LOG_ALERT必须立即采取行动	1
+LOG_CRIT临界条件	2
+LOG_ERR错误条件		3
+LOG_WARNNING警告	4
+LOG_NOTICE正常且重要的条件	5
+LOG_DEBUG调试级消息	6
+
+
+
+
+void closelog(); 关闭openlog创建的（我们没法管理的）套接字
+
+setlogmask函数可以使后面调用syslog时忽略某些等级与syslog.conf中配置的不同, 如果被setlogmask函数忽略掉的日志，永远不会被发送至syslog它的原型为：
+int setlogmask (int mask)；
+
+#include <syslog.h>
+int main(void) {
+	openlog("From Battery", LOG_CONS|LOG_PID, LOG_USER);
+	syslog(LOG_ERR, "error!pid=%d", getpid() );
+	
+	closelog();
+	return 0;
+}
+	3.syslog采用可配置的、统一的系统登记程序，随时从系统各处接受log请求，然后根据配置文件syslog.conf中的预先设定把log信息写入到相应文件中、邮寄给特定用户或直接以消息的方式发往控制台，为了防止入侵者修改、删除messages里的记录信息，可以采用打印机记录或采用方式来挫败入侵者的企图。
+
+
+syslog.conf的格式
+/etc/syslog.conf文件中的一项配置记录由“选项”(selector)和“动作”(action)两部分组成，两者间用tab制表符进行分隔（使用空格间隔是无效的）。而“选项”又有一个或多个形如“类型.级别”格式的保留字段组合而成，各保留字段间用分号分隔。如下所示：
+
+类型.级别[；类型.级别] 'TAB' 动作
+
+类型：
+    保留字段中的“类型”代表信息产生的源头，可以是：
+    auth    认证系统，即询问用户名和口令
+    cron    系统定时系统执行定时任务时发出的信息
+    daemon  某些系统的守护程序的syslog,如由in.ftpd产生的log
+    kern    内核的syslog信息
+    lpr     打印机的syslog信息
+    mail    邮件系统的syslog信息
+    mark    定时发送消息的时标程序
+    news    新闻系统的syslog信息
+    user    本地用户应用程序的syslog信息
+    uucp    uucp子系统的syslog信息
+    local0..7 种本地类型的syslog信息,这些信息可以又用户来定义
+    *       代表以上各种设备
+级别：
+   保留字段中的“级别”代表信息的重要性，可以是：
+    emerg   紧急，处于Panic状态。通常应广播到所有用户； 
+    alert   告警，当前状态必须立即进行纠正。例如，系统数据库崩溃； 
+    crit    关键状态的警告。例如，硬件故障； 
+    err     其它错误； 
+    warning 警告； 
+    notice  注意；非错误状态的报告，但应特别处理； 
+    info    通报信息； 
+    debug   调试程序时的信息； 
+    none    通常调试程序时用，指示带有none级别的类型产生的信息无需送出。如*.debug;mail.none表示调试时除邮件信息外其它信息都送出。
+动作：
+  “动作”域指示信息发送的目的地。可以是： 
+    /filename   日志文件。由绝对路径指出的文件名，此文件必须事先建立； 
+    @host       远程主机； @符号后面可以是ip,也可以是域名，默认在/etc/hosts文件下loghost这个别名已经指定给了本机。
+    user1,user2 指定用户。如果指定用户已登录，那么他们将收到信息； 
+    *           所有用户。所有已登录的用户都将收到信息。
+具体实例：
+   我们来看看/etc/syslog.conf文件中的实例： 
+    …… 
+    *.err;kern.debug;daemon.notice;mail.crit    [TAB]   /var/adm/messages 
+    ……
+    这行中的“action”就是我们常关心的那个/var/adm/messages文件，输出到它的信息源头“selector”是： 
+    *.err - 所有的一般错误信息； 
+    kern.debug - 核心产生的调试信息； 
+    daemon.notice - 守护进程的注意信息； 
+    mail.crit - 邮件系统的关键警告信息
+
+
+
+守护进程在/etc/syslogd
+日志一般都是写到/var目录下面
+
+
+
+
+
+
+
+syslog的使用(LOG_LOCAL(0-7) )：
+1.在/etc/syslog.conf下加入一行localN.*  pathname
+ 例  local5.*    /root/Desktop/test.log
+
+2.重新启动syslog /etc/init.d/syslog   restart   restart
+
+3.使用syslog
+实例
+#include<stdio.h>
+#include<stdlib.h>
+#include <syslog.h>
+#define SYSNAME "wohawoha"
+void Info(void)
+{
+ openlog("info",LOG_PID,LOG_LOCAL5);/*注意这里的数字5与第一条里面提到的local5.*里的5必须相同，并且这个数字的范围为0--7*/
+ syslog(LOG_INFO, "hello %s","woring");
+}
+
+void Woring(void)
+{
+ openlog("woring",LOG_PID,LOG_LOCAL5);
+ syslog(LOG_WARNING, "hello %s","test");
+}
+
+int main()
+{
+ Info();
+ Woring();
+ closelog();
+ return 0; 
+}
+ 
+
+4.进入目录查看内容
+例如：进入/root/Desktop/test.log这个文件查看里面的内容
+
+Dec 13 12:31:21 localhost info[11750]: hello woring
+Dec 13 12:31:21 localhost woring[11750]: hello test
+
+	4.由于守护进程没有控制终端，它们不能把消fprintf到stderr上。从守护进程中登记消息的常用技巧就是调用syslog函数。原来我上次在终端中开启了守护进程的运行文件，所以怪不得上次可以输出到我这个终端，可是守护进程它的作用是再开机时启动，所以要设置的估计是/etc/rc.local这类，然后没有终端，所以没法显示。
+	5.syslog需要busybox支持，所以我安装了一个busybox-syslogd。不过syslogd -h或者加help参数（syslogd help）显示出来一些东西，我选几句关键的话：
+Note that this version of syslogd ignores /etc/syslog.conf.  
+Usage: syslogd [OPTIONS]  
+-O FILE         Log to given file (default:/var/log/messages)指定本地输出位置
+-R HOST[:PORT]  Log to IP or hostname on PORT (default PORT=514/UDP)输出到网络
+-L              Log locally and via network (default is network only if -R)输出到本地
+	6.

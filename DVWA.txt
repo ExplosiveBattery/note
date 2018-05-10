@@ -1,0 +1,8 @@
+DVWA 已经被封装到Docker环境中   https://github.com/ethicalhack3r/DVWA
+有人看了源码知道了：
+	DVWA默认的用户有5个，用户名密码如下（一个足以）：
+	admin/password
+	gordonb/abc123
+	1337/charley
+	pablo/letmein
+	smithy/password

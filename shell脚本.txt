@@ -1,0 +1,269 @@
+通常以.sh结尾
+shell的开头用#!/bin/bash而不是#!/bin/shell（虽然可能有时候没给你报错gedit的时候还可能带有变色），kali的shell实际上是在/usr/bin/gnome-shell。执行脚本的时候其实相当于重新开了个进程bash，所以语句...变量...是这样
+``反引号等价于$(..)
+
+
+#!/bin/bash
+for i in seq 9
+do
+	echo $i
+done
+#输出：
+seq
+9
+
+#!/bin/bash
+#9*9乘法表
+for m in `seq 9` #注意这里不是单引号，而是反引号，单引号是字符串
+do
+ for n in `seq $m`
+ do
+  echo -n "$m*$n="$(($m*$n))" "#-n是避免echo自带的换行用的 #$后面必须是两层小括号，里面那层是为了表明这是个表达式而不是个命令
+ done
+ echo #换行
+done
+#$((算术表达式)) 或者 $[算术表达式]
+#`expr $m \* $n`也可以，注意\*两边的空格，否则会被视为字符串。$(expr $m \* $n)也是可以的
+
+
+#!/bin/bash
+#在桌面上有存放了ip，port的文本文件，我们要用shell进行扫描，文件格式是
+#192.168.1.1
+#22
+#
+#162.114.114.144
+#23
+#
+#...
+# wc - print newline, word, and byte counts for each file
+text=`cat /root/Desktop/b` #A kongge
+for str in $text #由此过滤空白字符
+do
+	length=`echo $str | wc -L` #注释前面一定要有空格，不然就不会被认为是注释
+	if [ $length -gt 6 ] ;  then #[]里面左右两侧一定要有空格 如果没有;那么then是要换行的
+		ip=$str
+	else
+		port=$str
+		nmap -p$port -sV $ip|grep -v Starting|grep -v Host|grep -v PORT #管道后面的命令是为了去除掉几个行
+	fi
+done
+
+
+
+#!/bin/bash
+#每次开机都需要的电源保护
+currentMode=$(cat /proc/sys/vm/laptop_mode)
+
+if[ $currentMode -eq 0 ]
+then
+echo "5" > /proc/sys/vm/laptop_mode
+echo "Laptop Mode Enabled"
+else
+echo "0" > /proc/sys/vm/laptop_mode
+echo "Laptop Mode Disabled"
+fi
+
+
+
+arping的升级功能脚本：
+对255.255.255.0  IP/24为子网掩码的网段进行arp存货查询
+#!/bin/bash
+if[ "$#" -ne 1 ];then	# $#表示在终端中的命令有几个部分，即C语言中的argc，用不用双引号括起来都一样
+	echo "Usage xxxxx"
+	ehco "xxxx"
+	exit
+fi
+
+interface=$1  $1表示输入的第一个参数
+prefix=$(ifconfig $interface | grep "inet" | cut -d " " -f 2 | cut -d "." -f 1-3)
+for addr in $(seq 1 254);do
+	arping -c 1 $prefix.$addr | grep "ARPING" | cut -d " " -f 2 > /root/Desktop/arp.txt
+done
+#root@kali:~/Desktop# echo 192.168.2.1 | cut -d '.' -f 1-3
+#输出192.168.2
+
+
+
+#!/bin/bash
+
+nmap -iL add.txt -p- --open >> scan.result  ###add.txt要扫描的地址范围
+
+cat scan.result | grep -v ^Host | grep -v Not | grep -v PORT | cut -d / -f1 | cut -d "(" -f2 | cut -d ")" -f1 | cut -d " " -f5 > ip.port
+
+while read line
+
+    do
+
+        [[ -z $line ]] && continue
+
+        n=`echo $line | wc -L`
+
+        echo $n
+
+        if [ $n -gt 6 ]; then
+
+            ip=$line
+
+        else
+
+            port=$line
+
+            nmap -p$port -sV $ip | grep -v Starting | grep -v Host | grep -v PORT | grep -v Service | grep -v "done"  >> services
+
+        fi
+
+    done 
+###-z代表的是该变量是否有值。
+
+###-d代表的是判断制定的是否是一个目录！
+
+
+
+
+
+#!/bin/sh
+folder="/var/www/"
+file="/var/www/log"
+ 
+# -x 参数判断 $folder 是否存在并且是否具有可执行权限
+if [ ! -x "$folder"]; then
+ mkdir "$folder"
+fi
+ 
+# -d 参数判断 $folder 是否存在
+if [ ! -d "$folder"]; then
+ mkdir "$folder"
+fi
+ 
+# -f 参数判断 $file 是否存在
+if [ ! -f "$file" ]; then
+ touch "$file"
+fi
+ 
+# -n 判断一个变量是否有值
+if [ ! -n "$var" ]; then
+ echo "$var is empty"
+ exit 0
+fi
+ 
+# 判断两个变量是否相等
+if [ "$var1" = "$var2" ]; then
+ echo '$var1 eq $var2'
+else
+ echo '$var1 not eq $var2'
+fi
+
+-e和-f的区别是，-f代表常规文件（regular file），-e代表所有任何类型文件
+参考如下：
+-e filename 如果 filename存在，则为真
+-d filename 如果 filename为目录，则为真 
+-f filename 如果 filename为常规文件，则为真
+-L filename 如果 filename为符号链接，则为真。不能用于管道
+-r filename 如果 filename可读，则为真 
+-w filename 如果 filename可写，则为真 
+-x filename 如果 filename可执行，则为真
+-s filename 如果文件长度不为0，则为真
+-h filename 如果文件是软链接，则为真
+
+
+#/bin/bash
+if [ ! -e "/tmp/fifoGst" ];then
+	mkfifo /tmp/fifoGst
+fi
+
+if [ ! -e /tmp/fifoFfmpeg ];then
+	mkfifo /tmp/fifoFfmpeg
+fi
+
+echo 123 | tee /tmp/fifoGst > /tmp/fifoFfmpeg
+
+
+
+#!/bin/bash
+while [ true ]
+do
+	echo -n 1
+	sleep 3 #是bash被sleep而不是进程，所以输出到bush上的东西，使用popen和fread就会读取不到。
+
+done
+
+
+#!/bin/sh
+dir=/home/luozhigang
+file=$dir/file #等号左边右边都不能有空格
+
+if [ -e $dir ];then
+        rm -rf $dir
+fi
+mkdir $dir
+touch $file
+ln $file $dir/fileHard
+ln -s $file $dir/fileSoft
+ls -l $dir
+rm -rf $dir
+
+
+
+#$?返回0表示程序正常执行了，如果[ -e xxx ]对一个不存在的文件检测那么程序就会return 1，表示不正常执行。而这个和在if中利用的值相反。
+if [ -e /home/battery/a ];then
+	echo 1
+	echo $? #output is zero
+else
+	echo 2
+fi
+
+
+
+
+撰写一支程序，他的作用是: 1.) 先查看一下 /root/test/logical 这个名称是否存在； 2.) 若不存在，则建立一个档案，使用 touch 来建立，建立完成后离开； 3.) 如果存在的话，判断该名称是否为档案，若为档案则将之初除后建立一个目录，文件名为 logical ，之后离开； 4.) 如果存在的话，而且该名称为目录，则移除此目录！
+#!/bin/sh
+
+directory=/root/test
+
+file=$directory/logical
+
+
+
+
+#判断并处理/root/test是否存在的问题
+
+if [ ! -d $directory ];then #“”严格的if写在前面
+      	if [ -e $directory ];then
+
+		rm -f $directory
+
+	fi
+	mkdir $directory
+fi
+
+
+
+#判断并处理/root/test/logical是否存在的问题
+
+if [ -e $file ];then
+
+	if [ ! -d $file ];then
+
+		rm -f $file
+
+		mkdir $file
+
+	else
+
+		rm -rf $file
+
+	fi
+
+else
+
+	touch $file
+
+
+fi	
+
+$RANDOM %254
+
+
+死循环要用：
+while true 而不是while 1
+for((i=0;i<10;))

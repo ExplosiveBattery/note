@@ -1,0 +1,47 @@
+作用描述：
+ COM即组件对象模型，是Component ObjectModel 取前三个字母的缩写，这三个字母在当今Windows的世界中随处可见。简单地说，COM是一种跨应用和语言共享二进制代码的方法。 Windows使用DLLs在二进制级共享代码。COM通过定义二进制标准解决了这些问题，即COM明确指出二进制模块（DLLs和EXEs）必须被编译成与指定的结构匹配。这个标准也确切规定了在内存中如何组织COM对象。COM定义的二进制标准还必须独立于任何编程语言（如C++中的命名修饰）。一旦满足了这些条件，就可以轻松地从任何编程语言中存取这些模块。由编译器负责所产生的二进制代码与标准兼容。这样使后来的人就能更容易地使用这些二进制代码。此外，COM不是Win32特有的。从理论上讲，它可以被移植到Unix或其它操作系统。但是我好像还从来没有在Windows以外的地方听说过COM。
+
+
+基本介绍：
+coclass（简称组件对象类――componentobject class）被包含在DLL或EXE中，并且包含着一个或者多个接口的代码。COM对象在内存中表现为组件对象类（coclasss）的一个实例。注册（Registration）是创建注册表入口的一个过程，告诉Windows 操作系统COM服务器放在什么位置。取消注册（Unregistration）则相反――从注册表删除这些注册入口。
+GUID（谐音为“fluid”，意思是全球唯一标示符――globally unique identifier）是个128位的数字。它是一种独立于COM编程语言的标示方法。每一个接口和coclass有一个GUID。因为每一个GUID都是全球唯一的，所以避免了名字冲突（只要你用COM API创建它们）。有时你还会碰到另一个术语UUID（意思也是全球唯一标示符――universally unique identifier）。COM开发人员可以创建自己特有的GUIDs而不会与其它开发人员所创建的GUIDs有冲突。这样就消除了集中授权发布GUIDs的必要。为保证空间的唯一性，每个UUID使用了一个48位的值来记录，一般是计算机的网卡地址。为保证时间上的唯一性，每个UUID具有一个60位的时间戳（timestamp）。这个时间戳表示自公元1582年（绝对不是1852，这是《COM技术内幕》，1999年3月第1版第89页中的一个错误）10月15号00：00：00：00以来的时间，是以100纳秒为单位的时间间隔。1纳秒（ns）=10-9秒（s）
+PS：手机上的设备标识也称为UUID。
+
+
+COM中，所有的对象保持它们自己的引用计数。调用者必须通知对象什么时候用完这个对象。当引用计数为零时，COM对象将自己从内存中释放。
+typedef struct _uuid_t
+{
+     unsigned long      Data1;       
+     unsigned short     Data2;
+     unsigned short     Data3;
+     unsigned char      Data4[8];
+} uuid_t;
+使用CoCreateGuid(&uuid);获取UUID会变，废话因为UUID就是算上时间的。
+
+代码详解：
+Windows下提供了函数CoCreateGuid用于生成GUID。需要使用的头文件是”objbase.h”，需要链接的库是ole32.lib，函数原型为：
+HRESULT CoCreateGuid(GUID *pguid);
+通过COM API的UUID来获取MAC，和机器实现UUID的方式有关系，有的机器是指将MAC地址加入UUID的默认2-7索引部分
+//Cygwin  g++ main.c -lole32
+#include "objbase.h"
+#include <windows.h>
+#include <iostream>
+#include <cstdio>
+#pragma comment(lib, "ole32.lib")
+using namespace std;
+int main()
+{
+	cout << "MAC address is: ";
+	// 向COM要求一个UUID。如果机器中有以太网卡，
+	// UUID最后的六个字节(Data4的2－7字节)应该是本地以太网卡的MAC地址。
+	GUID uuid;
+	CoCreateGuid(&uuid);
+	// Spit the address out
+	char mac_addr[18];
+	sprintf(mac_addr,"%02X:%02X:%02X:%02X:%02X:%02X",
+	uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],
+	uuid.Data4[5],uuid.Data4[6],uuid.Data4[7]);
+	cout << mac_addr << endl;
+	
+	return 0;
+}

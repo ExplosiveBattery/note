@@ -1,0 +1,11 @@
+基于Token的
+	MOSS：Plagiarism Detection
+	JPLAG : JPlag
+	SIM:The software and text similarity tester SIM
+其他的方法可以直接（基于树、图）
+	https://faculty.ist.psu.edu/wu/papers/spd-survey-16.pdf
+基于Python的Winnowing的思路
+	http://blog.csdn.net/chichoxian/article/details/53115067（基于K-gram的winnowing特征提取剽窃查重检测技术）
+https://www.zhihu.com/question/53401092/answer/134840559 里面有一个匿名用户实现了代码查重工具
+
+Moss 是斯坦福开发查重在线工具，同归对代码进行语义分析和特征分析，所以对原始代码进行简单的重命名和重构是根本没有用的。相似度还是能达到50%以上。

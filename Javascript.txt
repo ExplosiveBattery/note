@@ -1,0 +1,1446 @@
+	-1.历史上唯一特例IE可以支持多个前端语言是因为语言引擎并不包含在浏览器中而是在OS中
+	0.代码风格：
+for (campus in time) for,while,if,else后面空格
+等号两边都空格
+获取到的element变量名字都使用$开头。
+
+	1.不过注意的是都要有<script type="text/javascript"> </script>包着，简写<script></script>
+type 和 language 属性都可用来指定 <script> 标签中的脚本的类型。
+<script src="//url"></script> 这种写法没有指定协议，所以如果浏览器使用http就会按照http协议去请求对应的js文件，如果使用https就会使用https请求文件。
+
+	2.对于alter()上的字符，要复制只好Ctrl+C，用不了右键
+	  你也可以使用console.log()来代替alter()
+	3.eval(string)
+	  这个函数的作用是把string里面的当做命令运行一遍，并返回内部执行的值。
+	  例如：eval("2+2");返回的值就是4.
+          eval函数可以用来sql,最后就不要出现在代码里面，可以用new funciton代替
+	4.<script type="text/javascript">
+		alter('\u0053\u0069\u006d\u0043\u0054\u0046\u007b\u006a\u0073\u005f\u0065\u006e\u0063\u006f\u0064\u0065\u007d');
+	  </script>这个标签是html中的双标签，不能整合成为一个。
+	  字符串里面的\u加上四个数字是javascript里面的unicode编码。可以用来解码。不要只记得用弹框，你还可以输出到控制台呀，输出到html中。
+	5.console.log产生的输出可以被选取复制。firefox的自带F12分析器还能性能分析，快照保存，堆栈查看什么的，但是控制台部分不能进行交互。
+	  alter要用C-C（Ctrl+C）就可以直接复制，倒是没有将被选择的部分标称蓝色。
+	6.Cookie：
+	当系统在处理cookie的时候，JavaScript就把它保存为document对象的一个属性，其属性名称是cookie，利用这个属性可以创建和读取cookie。alter(document.cookie)就是调用当前页面的cookie数据项值。document是整个网页文档。
+	通过Cookie操作能够将名字、密码、本次访问日期等存储，服务器端代码控制的是session
+function setCookie(c_name,value,expiredays) //名称、值以及过期天数
+{
+	var exdate=new Date()
+	exdate.setDate(exdate.getDate()+expiredays)
+	document.cookie=c_name+ "=" +escape(value)+
+	((expiredays==null) ? "" : ";expires="+exdate.toGMTString())
+}
+function getCookie(c_name)
+{
+if (document.cookie.length<=0) return "";
+
+  c_start=document.cookie.indexOf(c_name + "=")
+  if (c_start!=-1)
+    { 
+    c_start=c_start + c_name.length+1 
+    c_end=document.cookie.indexOf(";",c_start)
+    if (c_end==-1) c_end=document.cookie.length
+    return unescape(document.cookie.substring(c_start,c_end))
+    } 
+
+}
+function checkCookie()
+{
+	username=getCookie('username')
+	if (username!=null && username!="")
+	  {alert('Welcome again '+username+'!')}
+	else 
+ 	 {
+	  username=prompt('Please enter your name:',"")
+	  if (username!=null && username!="")
+	    {
+	    setCookie('username',username,365)
+	    }
+	 }
+}
+	7.escape()将字符串中所有的非字母数字字符转换为用字母数字表示的等价字符串。一般情况下，cookie通常由服务器端的程序通过HTTP响应头发给浏览器，因为在注入的时候可能出现逗号、空格，所以要用这个函数进行转化。其实就是URL编码%加两位十六进制。空格变成%20。
+使用encodeURI() 对 进行URI编码，不过我记得一些注入字符不会被编码。
+ - _ . ! ~ * ' ( )这几个ASCII标点符号不会被escape()和encodeURI()转化。
+;/?:@&=+$,# encodeURI由于是URI编码所以这些在URI中有特殊含义的也不会编码。
+
+
+	8.
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>菜鸟教程(runoob.com)</title>
+<script>
+function displayDate(){
+	document.getElementById("demo").innerHTML=Date();
+}
+</script>
+</head>
+<body>
+
+<h1>我的第一个 JavaScript 程序</h1>
+<p id="demo">这是一个段落</p>
+
+<button type="button" onclick="displayDate()">显示日期</button>
+
+</body>
+</html>
+效果：一旦点击button，就会把id为demo的“这是一个段落”变为“Fri Feb 10 2017 07:38:47 GMT+0800 (中国标准时间)”。不停地点击就会不停地显示当前时间。
+	9.您只能在 HTML 输出中使用 document.write。如果您在文档加载后使用该方法，会覆盖整个文档。document.write("<p>这是一个段落。</p>");就相当于插入了一个这个标签。
+	10.通过点击灯泡，改变图片来“开关”灯泡。不过我觉得这个图片的命名不错。
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8"> 
+<title>菜鸟教程(runoob.com)</title> 
+</head>
+<body>
+	
+<script>
+function changeImage()
+{
+	element=document.getElementById('myimage')
+	if (element.src.match("bulbon"))  //估计就是/images/pic_bulbon.gif和他一样的静态图
+ 	{
+  		element.src="/images/pic_bulboff.gif";
+  	}
+	else
+   {
+  		element.src="/images/pic_bulbon.gif"; 
+   }
+}
+</script>
+<img id="myimage" onclick="changeImage()"
+src="/images/pic_bulboff.gif" width="100" height="180">
+<p>点击灯泡就可以打开或关闭这盏灯</p>
+	11.javascript可以对内容有影响，还可以对样式有影响。
+<script>
+function myFunction()
+{
+	x=document.getElementById("demo") // 找到元素
+	x.style.color="#ff0000";          // 改变样式
+}
+</script>
+会变红。	
+	12.
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8"> 
+<title>菜鸟教程(runoob.com)</title> 
+</head>
+<body>
+	
+<h1>我的第一段 JavaScript</h1>
+<p>请输入数字。如果输入值不是数字，浏览器会弹出提示框。</p>
+<input id="demo" type="text">
+<script>
+function myFunction()
+{
+	var x=document.getElementById("demo").value; #获取<input>的值
+	if(x==""||isNaN(x))
+	{
+		alert("为空或不是数字");
+	}
+}
+</script>
+<button type="button" onclick="myFunction()">点击这里</button>
+<!--onclick="myFunction('Harry Potter','Wizard')"这是加了调用参数的-->
+</body>
+</html>
+虽然没有设置form，但是我觉得可以在js脚本中提交。
+
+element的成员
+innerHTML
+src  value
+style（CSS）
+	13.使用 <script> 标签的 "src" 属性来导入外部文件的js script。外部脚本不能包含 <script> 标签。也就是直接写。
+	14.JavaScript 可以通过不同的方式来输出数据：
+使用 window.alert() 弹出警告框。
+使用 document.write() 方法将内容写到 HTML 文档中。写入到document
+使用 innerHTML 写入到 HTML 元素。写入到element
+使用 console.log() 写入到浏览器的控制台。
+	15.在<html></html>中的<script></script>如果其中的js语句不是被包含在函数里面，那么就会被执行
+	16.
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8"> 
+<title>菜鸟教程(runoob.com)</title> 
+</head>
+<body>
+	
+<h1>我的第一个 Web 页面</h1>
+<p>
+浏览器中(Chrome, IE, Firefox) 使用 F12 来启用调试模式， 在调试窗口中点击 "Console" 菜单。
+</p>
+<script>
+a = 5;
+b = 6;
+c = a + b;
+console.log(c);
+</script>
+	
+</body>
+</html>
+浏览器的控制台就像是Python的交互模式，不过代码中的a、b、c在控制台中却是未定义的。
+	17.
+糟糕的语法：（继续读取的换行与最后的分号）
+在 JavaScript 中，分号是可选的 。觉得语句不够就会继续读取。
+可以这么换行：
+var x =
+"Hello World!";	
+语句使用;来结束，不过在console中可以省略一下最后一条语句的分号（如果语句一条条执行的话那么每一条语句都是最后一条执行）。
+JavaScript 默认是在代码的最后一行自动结束，所以最后一行命令可以没有分号的必要
+
+支持for和for...in（php里面是foreach as）
+变量名字可以用$开头
+不过字符串支持单引号和双引号
+注释和C语言里面一样
+使用反斜杠对代码行进行折行
+
+表达式的值：
+1e3和1E3得到的是整数，不过1e-5是浮点数。
+length;2;3
+3 //length 在chrome中的console 居然已经有22这个值。console还有其他自定义变量。
+变量可以在使用的过程中自己定义，同时也可以使用var VariableName来进行定义，var lastname="Doe", age=30, job="carpenter";可以这样不同类型的放在一条语句里进行声明（因为前缀都是var）。
+
+{firstName:"John", lastName:"Doe", age:50, eyeColor:"blue"}对象。访问成员：person.lastName;或者person["lastName"];
+对象不就是字典类型么，用的都是冒号。
+
+var cars=["Saab","Volvo","BMW"];数组
+var cars=new Array();
+cars[0]="Saab";
+cars[1]="Volvo";
+cars[2]="BMW"; //不能对object这么用
+或者 (condensed array):
+var cars=new Array("Saab","Volvo","BMW");
+a =new Array;
+[]
+	typeof(a)
+"object"
+用 typeof 检测 null 返回是object。曾以为{}就是null，但是null和其他对象都可以比较就是不能和{}进行比较。
+不是typedef
+
+
+function myFunction(a, b) { return a * b }函数
+function 也视为一种数据类型。
+return;       // 分号结束，返回 undefined
+
+Undefined 这个值表示变量不含有值。
+可以通过将变量的值设置为 null 来清空变量。
+
+
+var carname=new String;
+var x=      new Number; #没有分int和double，这内部规则是能用int就用int，比如1e5
+var y=      new Boolean;
+var cars=   new Array;
+var person= new Object;
+	18.console中：
+typeof(1000) //没有双括号也可以，读起来不上爽
+"number"
+typeof new Date()             // 返回 object
+typeof NaN                    // 返回 number //NaN应该是个在各个方面都做了处理的object。其实所有都是对象，只是看给你开了什么你可以做的实现。
+typeof myCar                  // 返回 undefined (如果 myCar 没有声明)
+typeof null                   // 返回 object
+没有双括号是因为这个是一种语法，有双括号其实有点像函数。建议统一全部双括号
+
+	19.JavaScript 中，常见的是驼峰法的命名规则，如 lastName (而不是lastname)。
+	20.Js由浏览器逐行读取执行
+	21.允许重新声明 JavaScript 变量
+如果重新声明 JavaScript 变量，该变量的值不会丢失：
+在以下两条语句执行后，变量 carname 的值依然是 "Volvo"：
+var carname="Volvo"; 
+var carname;
+	22.
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"> 
+<title>菜鸟教程(runoob.com)</title> 
+</head>
+<body>
+
+<p>创建和使用对象方法。</p>
+<p>对象方法是一个函数定义,并作为一个属性值存储。</p>
+<p id="demo"></p>
+<script>
+var person = {
+    firstName: "John",
+    lastName : "Doe",
+    id : 5566,
+    fullName : function() 
+	{
+       return this.firstName + " " + this.lastName; //object有this指针
+    }
+};
+document.getElementById("demo").innerHTML = person.fullName;
+//document.getElementById("demo").innerHTML = person.fullName();
+</script>
+	
+</body>
+</html>
+显示出来的不是注释那样的函数返回值，而是函数代码：function () { return this.firstName + " " + this.lastName; }
+	23.
+JavaScript 变量的生命期从它们被声明的时间开始。因为变量都算是个指针，指向一个包含类型的
+局部变量会在函数运行以后被删除。
+全局变量会在页面关闭后被删除，全局变量有 全局作用域: 网页中所有脚本和函数均可使用。 
+	24.HTML事件
+以下是 HTML 事件的实例：
+HTML 页面完成加载
+HTML input 字段改变时
+HTML 按钮被点击
+
+单引号:
+<HTMLxxxxxx some-event='some JavaScript'>
+双引号:
+<HTMLxxxxxx some-event="some JavaScript">
+事件属性可以执行Js代码
+
+	25.元素标签中的this
+<button onclick="this.innerHTML=Date()">现在的时间是?</button>
+<input type="button">就没有用，因为input没有innerHTML！
+
+var d=new Date().getDay(); 
+	26.HTML DOM事件对象：  DOM document of model 文档对象模型
+onchange	HTML 元素改变
+onclick	用户点击 HTML 元素
+onmouseover	用户在一个HTML元素上移动鼠标
+onmouseout	用户从一个HTML元素上移开鼠标
+onkeydown	用户按下键盘按键
+onload	浏览器已完成页面的加载
+http://www.runoob.com/jsref/dom-obj-event.html
+
+框架/对象（Frame/Object）事件包括一张页面或一副图像的加载完成，图像加载到一半被中断，加载文档或者图片出错，离开页面、访问页面、跳转到另外一个页面、页面被退出，文档被滚动。窗口或框架被重新调整大小。
+	27.String
+不过js里无敌的字符串：
+16+"a"
+得到"16a"。任何类型都可以被转为字符串！
+我估计这常常可能会造成意料之外的漏洞？不会，js的定位主要就是在前端，不过Nodejs可能可以哦。
+
+但是制服不了bool表达式？
+1<0+'<br>'
+false
+false+'<br>'
+"false<br>"
+考虑到优先级+高于<
+所以拆成两条式子：
+var judge =a<b;
+judge += b<v;
+
+
+突如其来的字符串:
+a =new Array()
+[]
+a += [1,2] 数组加上数组,数组加数字等不被允许的转化都会变成字符串
+"1,2"
+a
+"1,2"
+a += [4,5]
+"1,24,5"
+
+
+var character = carname[7];允许索引来读取特定字符
+
+
+属性：
+constructor
+length	返回字符串的长度
+prototype	允许您向对象添加属性和方法
+方法：
+charAt()	返回指定索引位置的字符
+charCodeAt()	返回指定索引位置字符的 Unicode 值
+concat()	连接两个或多个字符串，返回连接后的字符串
+fromCharCode()	将 Unicode 转换为字符串
+indexOf()	返回字符串中检索指定字符第一次出现的位置
+lastIndexOf()	返回字符串中检索指定字符最后一次出现的位置
+
+localeCompare()	用本地特定的顺序来比较两个字符串
+
+match()	找到一个或多个正则表达式的匹配
+replace()	替换与正则表达式匹配的子串
+search()	检索与正则表达式相匹配的值
+
+slice()	比substring()高级点
+<html>
+<head>
+<title>JavaScript String slice() Method</title>
+</head>
+<body>
+<script type="text/javascript">
+ 
+var str = "Apples are round, and apples are juicy.";
+ 
+var sliced = str.slice(3, -2);
+ 
+document.write( sliced );
+ 
+</script>
+</body>
+</html>
+这将产生以下结果：
+les are round, and apples are juic
+
+split()	把字符串分割为子字符串数组
+
+substr()	从起始索引号提取字符串中指定数目的字符
+substring()	提取字符串中两个指定的索引号之间的字符
+
+toLocaleLowerCase()	根据主机的语言环境把字符串转换为小写，只有几种语言（如土耳其语）具有地方特有的大小写映射
+toLocaleUpperCase()	根据主机的语言环境把字符串转换为大写，只有几种语言（如土耳其语）具有地方特有的大小写映射
+toLowerCase()	把字符串转换为小写
+toString()	返回字符串对象值
+toUpperCase()	把字符串转换为大写
+trim()	移除字符串首尾空白
+valueOf()	返回某个字符串对象的原始值
+
+将其他类型转换为String类型：
+一、String()
+二、toString() 
+Date.toString()
+true.toString()
+Date的方法输出为Number类型：
+getDate()	从 Date 对象返回一个月中的某一天 (1 ~ 31)。与getDay()区分。从1开始
+getDay()	从 Date 对象返回一周中的某一天 (0 ~ 6)。
+getFullYear()	从 Date 对象以四位数字返回年份。
+getHours()	返回 Date 对象的小时 (0 ~ 23)。
+getMilliseconds()	返回 Date 对象的毫秒(0 ~ 999)。
+getMinutes()	返回 Date 对象的分钟 (0 ~ 59)。
+getMonth()	从 Date 对象返回月份 (0 ~ 11)。 除了第一个都是从0开始，因为外国人称月份不是一月、二月这样。
+getSeconds()	返回 Date 对象的秒数 (0 ~ 59)。
+getTime()	返回 1970 年 1 月 1 日至今的毫秒数。
+不能直接Date().方法，必须要new 对象。
+
+date =new Date(2017, 1, 0);
+Tue Jan 31 2017 00:00:00 GMT+0800 (中国标准时间)
+date.getDate()
+31 
+date =new Date(2017, 1, 1);
+Wed Feb 01 2017 00:00:00 GMT+0800 (中国标准时间)
+date.getDate()
+1
+//获取指定月份天数
+function getDaysInOneMonth(year, month){  
+  month = parseInt(month, 10);  
+  var d= new Date(year, month, 0);  
+  return d.getDate();  
+}  
+
+
+String([1,2,3,4])
+>"1,2,3,4"
+
+String({1:2})
+>"[object Object]"
+
+date =new Date;
+document.write(date.getTime());
+而不是Date().xxxx。怎么不是调用构造函数那种形式来new一个呢。
+
+将字符串转化为数字：
+一、Number()。Number(Date())就相当于是getTime()
+二、一元运算+
+var y = "John";   // y 是一个字符串
+var x = + y;      // x 是一个数字 (NaN)
+不是数字的字符串就会变成NaN这个Number类型。别愚蠢了，NaN的大小写只能这样，否则就是变量了。null也是这样。
+
+
+
+
+字符串这么吊估计是因为他是web方面
+
+	28.
+var x = "John";              
+var y = new String("John");
+(x === y) // 结果为 false，因为是字符串，y 是对象
+	29.符号：
+===	绝对相等（包括了类型的==）
+!==	不绝对相等
+{} === {} //只有这个是个奇葩，明明是个obj却连null都不能比较
+false
+1 === 1
+true
+
+
+	30.
+var person={fname:"John",lname:"Doe",age:25}; 
+ 
+for (x in person) //类型直接靠自己推了，x成为一个个成员名字，包括成员函数 //注意这里有个括号
+{
+    txt=txt + person[x]; 
+}什么垃圾语法
+	31.代码标签：
+label:
+statement or statement block
+break 和 continue 语句仅仅是能够跳出代码块的语句。
+语法:
+break labelname; 
+ 
+continue labelname;
+continue 语句（带有或不带标签引用）只能用在循环中。
+break 语句（不带标签引用），只能用在循环或 switch 中。
+通过标签引用，break 语句可用于跳出任何 JavaScript 代码块：
+实例
+cars=["BMW","Volvo","Saab","Ford"];
+list: 
+{
+    document.write(cars[0] + "<br>"); 
+    document.write(cars[1] + "<br>"); 
+    document.write(cars[2] + "<br>"); 
+    break list; //再次说明，continue确实只能对label:后面第一句是循环使用，且这个循环不能是在代码块里面的
+    document.write(cars[3] + "<br>"); 
+    document.write(cars[4] + "<br>"); 
+    document.write(cars[5] + "<br>"); 
+}
+	32.清除对象
+你可以使用null来清除对象，这时候它是一个object类型
+a=null
+>null
+a={}
+>Object {}
+a=[]  //数组
+>[]
+[12,3,4,5]在chrome中你就可以用下拉箭头查看这个对象的详细内容。
+
+你可以设置为 undefined 来清空对象:
+var person = undefined;     // 值为 undefined, 类型为 undefined
+null === undefined           // false
+null == undefined            // true
+
+考虑到类型转化：
+var x = 10;
+var y = "10";
+if (x == y) 太强大的自动转换是个坑
+所以switch 语句case会使用恒等计算符(===)进行比较:
+	33.JavaScript Array 或 JavaScript Date 还有null，typeof 都是 返回 Object。
+	34.
+<script>
+document.getElementById("demo").innerHTML = 
+    "john".constructor + "<br>" +
+    (3.14).constructor + "<br>" +
+    false.constructor + "<br>" +
+    [1,2,3,4].constructor + "<br>" +
+    {name:'john', age:34}.constructor + "<br>" +
+    new Date().constructor + "<br>" +
+    function () {}.constructor;
+</script>
+function String() { [native code] }
+function Number() { [native code] }
+function Boolean() { [native code] }
+function Array() { [native code] }
+function Object() { [native code] }
+function Date() { [native code] }
+function Function() { [native code] }
+		35.
+当 JavaScript 尝试操作一个 "错误" 的数据类型时，会自动转换为 "正确" 的数据类型。
+以下输出结果不是你所期望的：
+5 + null    // 返回 5         null 转换为 0
+"5" + null  // 返回"5null"   null 转换为 "null"
+undefined也会被String吞下
+"5" + 1     // 返回 "51"      1 转换为 "1"  
+"5" - 1     // 返回 4         "5" 转换为 5
++'5'+ 1
+js的类型转换好奇怪，String在表达式中也会被自动转化为Number。
+	36.正则表达式
+/正则表达式主体/修饰符 (可选)
+在 JavaScript 中，正则表达式通常用于两个字符串方法 : search() 和 replace()。
+search() 方法 用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串，并返回子串的起始位置。
+replace() 方法 用于在字符串中用一些字符替换另一些字符，或替换一个与正则表达式匹配的子串。
+
+模式的方法：
+test() 指定模式以后用来对字符串进行匹配返回boolean
+exec() 指定模式以后返回匹配部分，没有便是null
+
+
+正则表达式修饰符
+i	执行对大小写不敏感的匹配。
+g	执行全局匹配（查找所有匹配而非在找到第一个匹配后停止）。
+m	执行多行匹配。
+
+[abc]	查找方括号之间的任何字符。
+[0-9]	查找任何从 0 至 9 的数字。
+(x|y)	查找任何以 | 分隔的选项。
+\d	查找数字。
+\s	查找空白字符。
+\b	匹配单词边界。
+\uxxxx	查找以十六进制数 xxxx 规定的 Unicode 字符。方便找那些奇葩的字符。
+
+以下实例用于搜索字符串中的字符 "e"：
+var patt = /e/;
+patt.test("The best things in life are free!"); //true
+
+/e/.exec("The best things in life are free!"); //e
+	37.异常处理：
+在下面的例子中，我们故意在 try 块的代码中写了一个错字。catch 块会捕捉到 try 块中的错误，并执行代码来处理它。反正有错误就会抛出异常。
+var txt=""; 
+function message() 
+{ 
+    try { 
+        adddlert("Welcome guest!"); 
+    } catch(err) { 
+        txt="本页有一个错误。\n\n"; 
+        txt+="错误描述：" + err.message + "\n\n"; 
+        txt+="点击确定继续。\n\n"; 
+        alert(txt); 
+    } 
+}
+//err是ReferenceError:adddlert is not defined 
+//err.message是adddlert is not defined
+
+throw 语句允许我们创建自定义错误。比如下面catch(err)后字符串中使用的就直接是err而不是err[message]（后者undefined）。
+function myFunction()
+{
+  try
+  { 
+    var x=document.getElementById("demo").value;
+    if(x=="")    throw "值为空";
+    if(isNaN(x)) throw "不是数字";
+    if(x > 10) throw "太大";
+    if(x < 5) throw "太小";
+  }
+  catch(err)
+  {
+    var y=document.getElementById("mess");
+    y.innerHTML="错误：" + err + "。";
+  }
+}
+
+	38.调试：
+于console使用console.log()
+使用debugger;来当做断点。不过与chrome中就跑到了Console边上的Source。
+	39.于console
+var x = 15 * 5;
+
+>undefined
+var x = 15 * 5 //没有分号
+>undefined
+
+因为这是个语句而不是表达式，所以输出undefined
+	40.我的理解其实变量的声明不是必须的，你可以重新声明、不声明、在使用后声明。
+不过有这么一种说法： "hoisting(变量提升)"。JavaScript 中，变量可以在使用后声明，也就是变量可以先使用再声明。变量提升：函数声明和变量声明总是会被解释器悄悄地被"提升"到方法体的最顶部。又认为初始化不会被提升。
+
+"use strict";的目的是指定代码在严格条件下执行。严格模式下你不能使用未声明的变量。"use strict" 指令只运行出现在脚本或函数的开头。它会在F12的console中报错。它也受到作用域的影响。
+x =13;而没有var x;就是个不符合严格条件的命令语句。
+不允许删除变量或对象或者函数delete x;
+不允许使用八进制var x = 010;             // 报错
+不允许使用转义字符
+不允许变量重名function x(p1, p1) {};   // 报错
+不允许对只读属性赋值：
+"use strict";
+var obj = {};
+Object.defineProperty(obj, "x", {value:0, writable:false});
+obj.x = 3.14;            // 报错
+不允许删除一个不允许删除的属性：
+"use strict";
+delete Object.prototype; // 报错
+不允许对一个使用getter方法读取的属性进行赋值
+"use strict";
+var obj = {get x() {return 0} };//使用x()这个函数的返回值
+obj.x = 3.14;            // 报错
+变量名不能使用 "eval" 、"arguments"字符串
+不允许使用以下这种语句:
+"use strict";
+with (Math){x = cos(2)}; // 报错
+由于一些安全原因，在作用域 eval() 创建的变量不能被调用：
+"use strict";
+eval ("var x = 2");
+alert (x);               // 报错
+禁止this关键字指向全局对象。
+function f(){
+	return !this;
+}
+// 返回false，因为"this"指向全局对象，"!this"就是false
+function f(){ 
+	"use strict";
+	return !this;
+} 
+// 返回true，因为严格模式下，this的值为undefined，所以"!this"为true。
+严格模式新增了一些保留保留关键字：比如说public、static。
+
+严格模式消除代码运行的一些不安全之处，保证代码运行的安全；提高编译器效率，增加运行速度；为未来新版本的Javascript做好铺垫。
+	41.浮点数的比较不准确，所以*10*10...不妨转换为整数。
+	42.Array 
+
+如果你使用变量作为索引，当访问数组时，JavaScript 会把数组重新定义为标准对象。
+执行这样操作后，数组的方法及属性将不能再使用，否则会产生错误:
+var person = [];
+person["firstName"] = "John";
+person["lastName"] = "Doe";
+person["age"] = 46;
+var x = person.length;         // person.length 返回 0
+var y = person[0];             // person[0] 返回 undefined
+
+定义数组元素或者对象，最后不能添加逗号（虽然这么做可能没报错）
+	43.document.forms["myForm"]["fname"].value;
+二维数组，[表单名][表单内元素] 不过表单不一定有名字，没名字的表单可以满足一般的需要
+	44.
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>菜鸟教程(runoob.com)</title>
+</head>
+<head>
+<script>
+function validateForm(){
+var x=document.forms["myForm"]["fname"].value;
+if (x==null || x==""){
+  alert("姓必须填写");
+  return false;
+  }
+}
+</script>
+</head>
+<body>
+	
+<form name="myForm" action="demo-form.php" onsubmit="return validateForm()" method="post">
+姓: <input type="text" name="fname">
+<input type="submit" value="提交">
+</form>
+	
+</body>
+</html>
+如果obsubmit那里没有return的话，那么即便输入为空，页面也会跳转到表单提交后的页面。我把return validateForm()直接改为false却还是会在空的时候发生跳转。
+
+
+<html>
+<body>
+
+<script type="text/javascript">
+
+var m=10;
+var n=parseInt(prompt("inputa number", "")); //将用户的输入解析成为一个整数
+try{
+if(n==0)
+  throw "in";
+else
+  document.write("123");
+}catch(exception) {
+ document.write(exception);
+}
+
+
+</script>
+
+</body>
+</html>
+
+
+
+JavaScript 验证 API
+约束验证 DOM 方法
+checkValidity()	如果 input 元素中的数据是合法的返回 true，否则返回 false。
+setCustomValidity()	设置 input 元素的 validationMessage 属性，用于自定义错误提示信息的方法。
+
+约束验证 DOM 属性
+属性	描述
+validationMessage	浏览器错误提示信息
+willValidate	指定 input 是否需要验证
+validity	布尔属性值，返回 input 输入值是否合法
+input 元素的 validity 属性包含一系列关于 validity 数据属性:
+customError	设置为 true, 如果设置了自定义的 validity 信息。
+patternMismatch	设置为 true, 如果元素的值不匹配它的模式属性。
+rangeOverflow	设置为 true, 如果元素的值大于设置的最大值。
+rangeUnderflow	设置为 true, 如果元素的值小于它的最小值。
+stepMismatch	设置为 true, 如果元素的值不是按照规定的 step 属性设置。
+tooLong	设置为 true, 如果元素的值超过了 maxLength 属性设置的长度。
+typeMismatch	设置为 true, 如果元素的值不是预期相匹配的类型。
+valueMissing	设置为 true，如果元素 (required 属性) 没有值。
+valid	设置为 true，如果元素的值是合法的。
+checkValidity()函数就是根据这些boolean设置了浏览器里面的提醒给validationMessage。
+
+<input id="id1" type="number" min="100" max="300" required>
+<button onclick="myFunction()">验证</button>
+ 
+<p id="demo"></p>
+ 
+<script>
+function myFunction() {
+    var inpObj = document.getElementById("id1");
+    if (inpObj.checkValidity() == false) {
+        document.getElementById("demo").innerHTML = inpObj.validationMessage;
+    }
+}
+</script>
+
+<script>
+function myFunction() {
+    var txt = "";
+    var inpObj = document.getElementById("id1");
+    if(!isNumeric(inpObj.value)) {
+        txt = "你输入的不是数字";
+    } else if (inpObj.validity.rangeUnderflow) {
+        txt = "输入的值太小了";
+    } else {
+        txt = "输入正确";
+    }
+    document.getElementById("demo").innerHTML = txt;
+}
+ 
+// 判断输入是否为数字
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}//其实不需要!isNaN（），因为isFinite()如果 number 是有限数字（或可转换为有限数字），那么返回 true。否则，如果 number 是 NaN（非数字），或者是正、负无穷大的数，则返回 false。
+</script>
+	45.Js里面关键字可能被用作变量名这个问题很严重。"use strict"
+除了保留关键字，在 JavaScript 实现中也有一些非标准的关键字。
+一个实例是 const 关键字，用于定义变量。 一些 JavaScript 引擎把 const 当作 var 的同义词。另一些引擎则把 const 当作只读变量的定义。
+Const 是 JavaScript 的扩展。JavaScript 引擎支持它用在 Firefox 和 Chrome 中。但是它并不是 JavaScript 标准 ES3 或 ES5 的组成部分。建议：不要使用它。
+	46.JavaScript Object Notation
+JSON 是用于存储和传输数据的格式。
+JSON 通常用于服务端向网页传递数据 。
+
+JSON 语法规则：
+数据为 键/值 对。
+数据由逗号分隔。
+大括号保存对象
+方括号保存数组
+{"sites":[
+    {"name":"Runoob", "url":"www.runoob.com"}, 
+    {"name":"Google", "url":"www.google.com"},
+    {"name":"Taobao", "url":"www.taobao.com"}
+]}
+
+JSON.parse()	用于将一个 JSON 字符串转换为 JavaScript 对象。
+JSON.stringify()	用于将 JavaScript 值转换为 JSON 字符串。
+
+JSON 值可以是：数字（整数或浮点数），字符串（在双引号中，是的不能单引号），逻辑值（true 或 false），数组（在方括号中），对象（在花括号中），null
+
+对于 AJAX 应用程序来说，JSON 比 XML 更快更易使用：
+使用 XML
+读取 XML 文档
+使用 XML DOM 来循环遍历文档
+读取值并存储在变量中：
+使用 JSON
+读取 JSON 字符串
+用 eval() 处理 JSON 字符串
+
+JSON 文件的文件类型是 ".json"
+JSON 文本的 MIME 类型是 "application/json"
+
+
+下面是使用eval()来解析JSON：
+<!DOCTYPE html>
+<html>
+<!--把文本包围在括号中，这样才能避免语法错误：-->
+<head>
+<meta charset="utf-8">
+<title>菜鸟教程(runoob.com)</title>
+</head>
+<body>
+<h2>从 JSON 字符串中创建对象</h2>
+<p>
+网站名: <span id="name"></span><br> 
+网站地址: <span id="url"></span><br> 
+</p> 
+<script>
+var txt = '{ "sites" : [' +
+'{ "name":"菜鸟教程" , "url":"www.runoob.com" },' +
+ '{ "name":"google" , "url":"www.google.com" },' +
+'{ "name":"微博" , "url":"www.weibo.com" } ]}';
+
+var obj = eval ("(" + txt + ")");
+
+document.getElementById("name").innerHTML=obj.sites[0].name 
+document.getElementById("url").innerHTML=obj.sites[0].url 
+</script>
+</body>
+</html>
+
+
+
+使用.parse来解析JSON：
+var text = '{ "sites" : [' +
+    '{ "name":"Runoob" , "url":"www.runoob.com" },' +
+    '{ "name":"Google" , "url":"www.google.com" },' +
+    '{ "name":"Taobao" , "url":"www.taobao.com" } ]}';
+    
+obj = JSON.parse(text);
+document.getElementById("demo").innerHTML = obj.sites[1].name + " " + obj.sites[1].url;
+
+使用eval不安全。使用 JSON 解析器将 JSON 转换为 JavaScript 对象是更安全的做法。JSON 解析器只能识别 JSON 文本，而不会编译脚本。在浏览器中，这提供了原生的 JSON 支持，而且 JSON 解析器的速度更快。
+
+
+	47.void 是 JavaScript 中非常重要的关键字，该操作符指定要计算一个表达式但是不返回值。
+<a href="javascript:void(0)">单击此处什么也不会发生</a>
+	48.弹框函数    alert、confirm、prompt
+	function prom() {  
+        var name = prompt("请输入您的名字", ""); //将输入的内容赋给变量 name ，  
+  
+        //这里需要注意的是，prompt有两个参数，前面是提示的话，后面是当对话框出来后，在对话框里的默认值  
+        if (name)//如果返回的有内容  
+        {  
+            alert("欢迎您：" + name)  
+        }  
+  
+    } 
+
+
+
+
+在IE中，window.close()能生效，在生效的时候，会弹出提示框，询问你是否关闭该窗口。firefox和chrome不能使用。不过window.open('xxx')正常使用。
+window.open('www.hellovega.cn')打开是当前相对目录下的本地文件，你需要加上协议。不过即使加上了协议，试了一下chrome，打开也是空白页
+<html>
+<head>
+	<meta charset="utf-8">
+</head>	
+<body>
+	
+	<!-----------按钮提示框---------->  有确定和取消按钮
+	<!--这里没有return也没有问题-->
+	<input type="button" name="btn2" id="btn2" value="提示1" onclick="return confirm('String1');"/>
+	  
+	<!-----------按钮提示框----------> 只有确定按钮
+	<!--这里没有javascript:也没有问题-->  
+	<input type="button" name="btn2" id="btn2" value="提示2" onclick="javaScript:alert('String2');"  />
+	  \n在alert中被无视了
+	<!-----------提交按钮---------->   
+	<input type="button" value="提交" onclick="javaScript:window.location.href='http://www.baidu.com';"/>  
+	  
+	  
+	<!-----------返回上一级页面---------->   
+	<input type="button" name="button" value="返回" onclick="javascript:history.go(-1)"/>  
+	history.go(-2)就会返回undefined，因为我用“<-”按钮也是只能回退一次。这个能存多少页面要看浏览器。
+
+</body>
+</html>
+	49.函数：
+函数定义可以提升（函数可以在声明之前调用），但是函数表但是不能提升。
+
+
+在匿名函数存储在变量后，变量也可作为一个函数使用：
+var x = function (a, b) {return a * b};
+var z = x(4, 3);
+相当于这么使用Function()构造函数：
+var myFunction = new Function("a", "b", "return a * b");
+var x = myFunction(4, 3);//不建议使用这种方法
+
+函数表达式可以进行自调用，如果在表达式后面紧跟()
+(function () {
+    var x = "Hello!!";      // 我将调用自己
+})();
+
+JavaScript 函数对实际参数没有进行类型检测，因为不需要与形参匹配类型。
+JavaScript 函数对实际参数的个数没有进行检测，没有提供的就成了undefined
+JavaScript 函数有个内置的对象 arguments 对象。argument 对象包含了函数调用的参数数组。既然是数组就可以.length
+将object传给函数是引用方式，我感觉都是引用
+
+object this 的值在函数调用时实例化对象(new object)时创建。
+
+js里面的类：
+借助this来实现构造函数，这里new到跟着函数
+如果函数调用前使用了 new 关键字, 则是调用了构造函数。没有new，那么这种this就会被视为是window
+function myFunction(arg1, arg2) {
+    this.firstName = arg1;
+    this.lastName  = arg2;
+}
+// This	creates a new object
+var x = new myFunction("John","Doe");
+x.firstName;                             // 返回 "John"
+还有一种方法来指定this的值：使用call() 和 apply() 是预定义的函数方法，他们的第一个参数就是用来指定函数中会出现的this的值，call()后面的参数是一一对应形参传递，apply()的第二个参数就是一个参数数组。
+在 JavaScript 严格模式(strict mode)下, 在调用函数时第一个参数会成为 this 的值， 即使该参数不是一个对象。在 JavaScript 非严格模式(non-strict mode)下, 如果第一个参数的值是 null 或 undefined, 它将使用全局对象替代。反正这两种情况都不应该出现，前者如果没有用到成员运算符那还是可以的（不过这似乎不太可能），后者到可以方便地进行窗口化操作。
+
+
+var a = 4;
+function myFunction() {
+    return a * a;
+}//a是全局变量
+变量声明是如果不使用 var 关键字，那么它就是一个全局变量，即便它在函数内定义。
+这样子不能满足函数计数器，也就是有一种C语言函数静态变量的效果。这时候利用的是“在 JavaScript 中，所有函数都能访问它们上一层的作用域”结合“函数嵌套”
+var add = (function () {
+    var counter = 0;
+    return function () {return counter += 1;}
+})();//把内部函导了出来，在一开始自调用的时候，同时建立了counter
+add();
+add();
+add();
+// 计数器为 3
+这个叫作 JavaScript 闭包。它使得函数拥有私有变量变成可能。计数器受匿名函数的作用域保护，只能通过 add 方法修改。
+闭包有一个优点，也是它的缺点，就是可以把局部变量驻留在内存中，函数执行完毕但是counter并没有被销毁。
+
+javascript的垃圾回收原理
+（1）、在javascript中，如果一个对象不再被引用，那么这个对象就会被GC回收；
+（2）、如果两个对象互相引用，而不再被第3者所引用，那么这两个互相引用的对象也会被回收。
+	50.后面语句的错误也可能会让前面的无法执行。
+	51.document.write()一个object：
+[object HTMLInputElement]
+应该是[object Object]
+	52.和想象的一样，new Date的时候，建立的对象是固定的，而不是指向一个会不停随时间改变的值。建立的对象里面始终存着建立那一刻的值。
+	53.在JavaScript中，有2个函数分别用来处理解码和编码base64 字符串：
+atob() 函数能够解码通过base-64编码的字符串数据。相反地，btoa() 函数能够从二进制数据“字符串”创建一个base-64编码的ASCII字符串。
+btoa()是编码ascii
+atob()是解码
+b是binary而不是base64
+
+在大多数的浏览器中对Unicode字符串调用 window.btoa 将会造成一个 Character Out Of Range 的异常。有2种方法解决这个问题：
+第一个是转义(escape)整个字符串然后编码这个它；
+第二个是把UTF-16的 DOMString 转码为UTF-8的字符数组然后编码它。
+function unescape($str){
+	$ret = ”;//这里只是初始化，不是一个双引号=.=
+	$len = strlen($str);
+	for ($i = 0; $i < $len; $i++){
+		if ($str[$i] == ‘%’ && $str[$i+1] == ‘u’){
+			$val = hexdec(substr($str, $i+2, 4)); //把十六进制字符串转为十六进制数字
+			if ($val < 0x7f) $ret .= chr($val);
+			else if($val < 0x800) $ret .= chr(0xc0|($val>>6)).chr(0x80|($val&0x3f));
+			else $ret .= chr(0xe0|($val>>12)).chr(0x80|(($val>>6)&0x3f)).chr(0x80|($val&0x3f));
+			$i += 5;
+		}
+		else if ($str[$i] == ‘%’){
+			$ret .= urldecode(substr($str, $i, 3));
+			$i += 2;
+		}
+		else $ret .= $str[$i];
+	}
+	return $ret;
+}
+	54.UTF-16是Unicode的其中一个使用方式。 UTF是 Unicode TransferFormat，即把Unicode转做某种格式的意思。UTF-16比起UTF-8，好处在于大部分字符都以固定长度的字节 (2字节) 储存，但UTF-16却无法兼容于ASCII编码。
+DOMString is a UTF-16 String. As JavaScript already uses such strings, DOMString is mapped directly to a String.也就是手js字符串类型使用这种编码。
+	Windows API 的 Wide Char 表达是 UTF-16: Unicode (Windows), L"" 表示是转换为 wide char。Java String内部也是UTF-16，Qt 使用的 QString 的内部表达也是 UTF-16。
+	UTF-16字符串有字节序要求，什么大尾，什么小尾。
+	55.
+<script>
+	var divArr = document.getElementsByTagName('div');
+	divArr.style.visibility="hidden";
+</script>
+还有ByName、ByClassName
+document.forms['PE'] PE是form的name
+
+不过只有id能单独指定一个，其它函数返回可能都是一群。
+
+	56.1- -1记得中间要有空格否则会报错。1- - - - ... - 1也可以。联想到js的读取模式。
+	57.11111111111...0000+1111 ----> 111111...3000 不清楚，应该用对大数运算不是很支持来解释吧。
+11111111111110000+11
+11111111111110012
+
+11111111111110000+1111
+11111111111111112
+	58.想用js来生成页面，请不要担心CSS的问题，总是在想这是不是会有个先后，是的，不管哪个先哪个后，都可以让CSS渲染成功。
+	59.js的数组和php、py的一样，强大。
+	60.Array(2).length;的结果是2.简直是个bug。两个undefined。所以Array(2)[0]===Array(2)[1]===Array(2)[2]
+a[2] =1;可以直接给第二索引指定指，即使不存在0,1索引，如此看来js的数组在实现上确实是种映射。
+这种“缺”索引的情况不会影响for...in遍历。
+	61.Node.js毕竟是js，所以能做的很美，在MQTT的专业仪器图形界面上要是能用上就好了。当时群里是这么讲的。
+	62.多维数组的输出：
+<script type="text/javascript">
+	time =new Array();
+	time['江安']=Array([318,401],[405,419]);
+	time['望江']=Array([421,428],[502,513]);//遇到过一段时间内delete time返回false的，原因未知
+	
+	//什么都不会发生的失败，看来不能直接这么写
+	document.write(time); 
+	//document.write([1,2,3,4],[5,6,7]); 就会显示1,2,3,4,5,6,7
+	$div =document.getElementById('test');
+	$div.innerHTML =time;
+	alert(time);
+	
+	//能成功输出的有
+	console.log(time);		
+</script>
+	63.delete数组元素会导致这一部分成为undefined，数组的实现是靠hash，所以如果“后面”有元素的话并不会挪上来。
+var a = [1,2,3,4,5]; 
+var b = a.shift(); 去除最左边元素，同时跟新hash（索引对应关系也会改变）
+var c = a.pop(); 去出最后的元素
+
+这两个函数对[]使用，只会返回undefined，和意料中一样，这是最好的结果。
+	64.创建一个<select><option></options> ....</select>
+1.
+	<select id='time'> </select>
+	for (campus in time) {
+		$campus =document.getElementById('campus');
+		$campus.innerHTML += '<option value='+campus+'>'+campus+'</option>';
+2.	
+	var $campus = document.createElement("select");
+	$campus.id = "time";
+	document.body.appendChild($campus);
+	for (campus in time) {
+		$campus.options.add(new Option("text","value"));//这个兼容IE与firefox
+		$campus.add(new Option("文本","值"));    //这个只能在IE中有效
+	}
+	
+	function createSelect(select_name){
+		var mySelect = document.createElement("select");
+		mySelect.id = select_name;
+		document.body.appendChild(mySelect);
+    }//我已经写到页面中了，你销毁变量无所谓
+	
+	function addOption(select_name, text, value){
+		var obj=document.getElementById('mySelect');
+		obj.options.add(new Option("text","value"));
+	}
+	
+	删除所有options：$obj.options.length=0;
+	删除选中了的option：
+		var index=obj.selectedIndex;
+		$obj.options.remove(index);
+	获取选中option的text，value：
+		var index=$obj.selectedIndex;
+		var val = $obj.options[index].value;
+		var txt = $obj.options[index].text;
+	修改选中option：这个应该用不到，请举一反三
+		var val = $obj.options[index]=new Option("新文本","新值");
+		
+	65.如果在函数里面不使用var而创建了全局变量的话，其创建时间与地点就要看函数的调用了。
+	66.体侧预约前端代码观赏：
+
+
+字符串转数字我偏向用+，而不是Number()。代码简介。
+
+php对于节点的插入：
+appendChild方法是在父级节点中的子节点的末尾添加新的节点（相对于父级节点 来说）。
+insertBefore 方法 是在已有的节点前添加新的节点（相对于子节点来说的）。 
+insertAfter...
+
+由下面看来var真的只是个声明（var a;是无法判断类型的）。也只有声明了以后才能判断是否为undefined。
+var a
+undefined
+a==undefined
+true
+
+
+
+提交数据给指定后台处理文件：
+借助表单：
+function test()
+{
+    document.getElementById("myform").submit();  
+    alert(11);
+}
+与type=submit的<input>的区别。
+js提交表单时不会带上 submit 按钮的值(因为没有被单击) 所有浏览器
+input 回车提交 w3c浏览器会带上submit按钮的值，ie6则不会带
+自己构造：
+1.害怕，发现js可以用XMLHttpRequest来构造http包。
+2.动态创建一个表单来提交：有人叫它虚拟表单。虚拟表单的作用就死弄成js的一个html提交函数（以某种方法POST等）
+<script type="text/javascript">  
+function submitForm(action, params) {  
+	var form = $("<form></form>");  
+	form.attr('action', action);  
+	form.attr('method', 'post');  //好老的写法
+	for(var i=0 ; i < params.length;i ++){  
+		var input1 = $("<input type='hidden' name='"+params[i].name+"' />");  
+		input1.attr('value', params[i].val);  
+		form.append(input1);  
+	}  
+/*一种更好的js遍历方式
+	for (var x in params) {
+		params[x]来使用传入的参数
+		input1.attr('type','hidden');//设置为隐藏内容？
+		form.append(input1);  //构建好以后直接加入表单
+	}
+
+*/
+
+	form.appendTo("body");  //似乎一定要加入body
+	form.css('display', 'none');  
+	form.submit();  //网站上有人说还需要设置按钮才能成功使用虚拟表单
+}  
+</script> 
+<a href="javascript:void(0);" onclick="submitForm('login','{name:gopain,val:gopain}');">提交</a>   
+
+function formSubmit(elementValue) {
+    var turnForm = document.createElement("form");   
+    //据说一定要加入到body中！！   
+    document.body.appendChild(turnForm);
+    turnForm.method = 'post';
+ turnForm.action = '/product/detail.htm';
+ turnForm.target = '_blank';
+ //创建隐藏表单
+ var newElement = document.createElement("input");
+    newElement.setAttribute("name","id");
+    newElement.setAttribute("type","hidden");
+    newElement.setAttribute("value",elementValue);
+    turnForm.appendChild(newElement);
+ 
+    turnForm.submit();
+}
+
+</script>
+我给<form></form>里面的<input>设置类型为type="submit" onclick="javaScript:alert('123');"发现他既会执行js函数也会按照form中的action发送出去。
+如果你不想它还是按照form中的action来发送就将类型指定为button,才不会触发form的onsubmit函数导致form被提交。
+下面是一坨失败的代码：
+	var myForm = document.createElement("form"); 
+    myForm.method = "post";  
+    myForm.action = "http://www.hellovega.cn/PE/phpinfo.php";  
+	document.body.appendChild(myForm);
+	
+	var myInput=getElementById("id");
+	myForm.appendChild(myInput);
+	document.body.appendChild(myForm);
+	myForm.submit(); 
+
+	
+如果需要一个表单有两种处理，也就是有两个提交按钮。
+<form name="myForm" method="post" action="">
+            <input type="submit" name="Submit3" value="修改">
+            <input type="bottom" name="Submit2" value="删除" onClick="if(confirm('确定要删除吗')){form.action='?action=del';}else{return false};">
+</form>
+这是一种思路，通过js来更噶form的action属性。
+如果有多个form除了获取form的id等来指定form，还可以document.form['name attribute']来获取。
+my_form是自己创建的变量，document.myForm.submit(); <=>myForm.submit()
+
+使用下列这种方式进行发送，会自动将服务器给的session也发送过去，不必自己setRequestHeader。
+function send_change_commodity(name, remain, sale_price, purchase_price) {
+	var xmlhttp;
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else {
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            alert("已修改信息");
+        }
+    };
+    xmlhttp.open("GET", "/HWL/Change_Commodity?name="+name + "&remain="+remain + "&sale_price="+sale_price + "&purchase_price="+purchase_price, true);
+    xmlhttp.setRequestHeader("Content-Type", "Text/html;charset=UTF-8");
+    xmlhttp.send();
+}
+
+function send(type, url, arg)
+{
+	CreateXMLHttpRequest();
+	xmlhttp.onreadystatechange = callhandle;//或者使用匿名函数
+	if(type=="GET") xmlhttp.open("GET", url+"?"+arg, true);
+	else xmlhttp.open("POST", url, true);
+	xmlhttp.setRequestHeader("Content-Length",arg.lenght);
+	xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");  
+	//表单提交中默认的encType，我见过post中类型是application/json,文件上传的时候就是multipart/form-data，这个要是错了，会出现问题
+ 	xmlhttp.send(arg);  
+}
+function callhandle()
+{
+	if (xmlhttp.readyState == 4)
+	{
+		if(xmlhttp.status == 200)
+		{
+			var dzb = eval("(" + xmlhttp.responseText +")");
+			alert(dzb.Address);
+		}
+	}
+}
+function CreateXMLHttpRequest()
+{
+	if (window.ActiveXObject)
+	{
+		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	else if (window.XMLHttpRequest)
+	{
+		xmlhttp = new XMLHttpRequest();
+	}
+}
+   var dzb = "info={'FullName':'王继军','Company':'上海天正','Address':'田林路388号'}";
+   post(dzb);//这样的话就应该是application/json
+
+
+
+由于html解析是一句句下来的，所以你先用到了诸如document.getElementById之类的就需要将<script>标签放到body的最后面是最保险的
+
+onlick在<a>标签中需注意的事情：
+<a href="url" onclick="dosomething"></a>
+实际上它会直接的跳转 而不执行任何js
+所以你才能看到
+<a href="javascript:dosomething"></a>
+和
+<a href="#" onclick="dosomething></a>这样的写法
+如果需要在执行函数之后跳转的话 可以这样乍
+<a href="javascript:dosomething;location.href='url'"></a>
+或
+<a href="javascript:void(0)" onclick="dosomething"></a>
+然后function dosomething() {
+   alert(1);
+   location.href = 'url';
+ } 
+
+使用delete来删除数字元素，并不会对数组的length成员造成影响，被删除的元素成为了undefined。如果使用arr.splice(1,1);就会改变索引同时改变长度。因为splice会改变数组，所以for (campus in date) 里面不要使用，否则会造成遍历效果异常，我用的是默认索引，但是frequency用typeof查了一下是String。如果是自己的用索引来for遍历的数组就需要自己做一下调整。
+为了保留代码结构我使用了delete加undefined判断...
+console.log(date['江安'][0]==undefined);
+
+console.log(date['江安'][1]==undefined);
+
+console.log(date['江安'][0]==date['江安'][1]);
+
+console.log(date['江安'][0]==date['江安'][1]==undefined);前三个都是true的，但是最后一个是false，这是因为判断的是true==undefined
+
+
+WebGL（全写Web Graphics Library）是一种3D绘图标准，这种绘图技术标准允许把JavaScript和OpenGL ES 2.0结合在一起，通过增加OpenGL ES 2.0的一个JavaScript绑定，WebGL可以为HTML5 Canvas提供硬件3D加速渲染
+	67.
+Cordova提供了一组设备相关的API，通过这组API，移动应用能够以JavaScript访问原生的设备功能，如摄像头、麦克风等。
+Cordova还提供了一组统一的JavaScript类库，以及为这些类库所用的设备相关的原生后台代码。
+Cordova支持如下移动操作系统：iOS, Android,ubuntu phone os, Blackberry, Windows Phone, Palm WebOS, Bada 和 Symbian。
+	68.0可以与什么相等
+[]
+空白字符的字符串"\t"  "\n"  " "
+"0" 这个应该是因为数字0转换成字符串类型的0？但是"0"与"空白字符"不相等
+	69.现在的DOM API已经完全覆盖了jQuery的用例，没必要再用
+	70.Web 应用通过 XMLHttpRequest 对象或 Fetch 仅能向同域资源发起 HTTP 请求
+	71./test/.test('3test2') 只是匹配是否存在字符串，之前遇到一门语言/test/匹配会要求test开头。像这样简单的匹配，如果编写人员不注意的话很容易Referer中就可以使用自己的子域名来绕过。
+	72.ExtJs是一个用于创建Web用户界面的JS框架，提供了丰富的界面部件及布局方式，对于web开发者来说，实现企业应用所需的各种画面只要掌握JS语言即可。不必再引入flash或silverlight技术，而且能很容易的创建风格统一的企业应用程序。
+	73.<input name="getcode" type="button" class="form-control" value="获取验证码" onclick="post('register.do')" color="green">
+<script type="text/javascript">   
+ function post(URL) {
+	var temp = document.createElement("form");
+	temp.action =URL;
+	temp.method = "post";
+	temp.style.display = "none";
+	var opt=document.createElement("input");
+	opt.value =document.getElementsByName("Phone")[0].value;
+	temp.appendChild(opt);
+	
+	document.body.appendChild(temp);
+	temp.submit();
+	return temp; 
+}
+</script> 
+	74.js可以获取URL中的参数。
+	function GetQueryString(name) {
+		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) return unescape(r[2]);
+		return null;
+	}
+	75.离开页面前的window.onbeforeunload
+<script type="text/javascript">
+window.onbeforeunload = function()
+{
+var unloads = document.getElementById("unloads").value;
+if(unloads == null || unloads == ""){
+return "您确定要退出页面吗？";
+}
+}
+</script>
+
+
+window.addEventListener("beforeunload", function(e) {
+  var confirmationMessage = "\o/";
+  (e || window.event).returnValue = confirmationMessage; // Gecko and Trident
+  return confirmationMessage; // Gecko and WebKit
+});
+
+	76.类的编写：
+var UnloadConfirm = {};
+UnloadConfirm.MSG_UNLOAD = "数据尚未保存，离开后可能会导致数据丢失\n\n您确定要离开吗？";
+UnloadConfirm.set = function(a) {
+	window.onbeforeunload = function(b) {
+                b = b || window.event;
+                b.returnValue = a;
+                return a
+	}
+};
+UnloadConfirm.clear = function() {
+	fckDraft.delDraftById();
+            window.onbeforeunload = function() {
+	}
+};
+UnloadConfirm.set(UnloadConfirm.MSG_UNLOAD);  
+	77. 模拟点击事件：   所以有的抢购软件是编写插件
+如果是浏览器抢购，限制是不能大量账号同时抢，好处是借助了浏览器的一系列出力，更加地真实。
+<script>
+     //真正的用程序点击按钮，相当于人进行点击。还可以用于链接。
+     document.getElementById("btn").click();
+     //没有点击按钮，只是执行了按钮所绑定的事件
+     document.getElementById("btn").onclick();
+</script>
+
+//以下代码来自阿里月饼事件
+setInterval(function() {
+  if(Date.now() >= new Date("2016-09-12 15:59:00")) {
+     $("#seckillQuantity").val(1);//1盒               
+     $(".buyButtons.J_buyButtons").click();//抢购按钮
+     var value = $(".answerList").children().eq(0).html(); //验证码取值  
+     $('#randomAnswer').val(value);//验证码填值
+     $('.answer-button').children().eq(0).click();//提交验证码
+  }
+}, 10)
+
+对抢购的预防：
+1）天猫会检测，同一个ip或者用户的请求在短时间内过多
+2）token校验，这个token会频繁更换
+	78.如果使用了iframe标签
+	使用父页或者子页的contenWindow就能访问DOM树
+	79.随机数  Math.random()
+0.04483236230505594  位数与python中的random.random()一样
+	80.对CheckBox的设置：
+document.getElementById("rememberPassword").checked =true;
+	81.document.loginForm.zjh.value
+	82. addEventListener 函数
+    <script type="text/javascript">  
+        var btn=document.getElementById('file');  
+        btn.addEventListener('change', handleFileSelect, false);      
+    </script>  
+	83.键盘事件
+        document.onkeydown=function(event){
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if(e && e.keyCode==27){ // 按 Esc
+                //要做的事情
+            }
+            if(e && e.keyCode==113){ // 按 F2
+                //要做的事情
+            }
+            if(e && e.keyCode==13){ // enter 键
+                //要做的事情
+            }
+        };
+	84.因为document需要在body加载完以后才能正常使用，所以在head中的 代码不应该执行了关于document中的内容。可以是定义。
+	执行的代码1.选择放在body之后   2.使用onload：（1）Js代码：window.onload=functionName;   (2)<body onload="function1()；function2();">
+	85.DOM节点操作	 http://www.jb51.net/article/91050.htm
+	在主流浏览器里面nextSibling 得到的（同父亲）下一个节点会是空，应该使用nextElementSibling了。
+		nextSibling属性与nextElementSibling属性的差别：
+		nextSibling属性返回元素节点之后的兄弟节点（包括文本节点、注释节点即回车、换行、空格、文本等等）；
+		nextElementSibling属性只返回元素节点之后的兄弟元素节点（不包括文本节点、注释节点）；
+	document.insertBefore，document不是一个正常HTMLElement，所以会报错。
+	86.团队合作编写结果js文件，几个js函数最后会被导入到一个html文件中，所以函数编写命名应该有着的文件名的风味。
+	87.创建一个select：
+            var select = document.getElementById("room_choose");
+            for (var i = 0; i < json['rooms'].length; i++) {
+                var option = document.createElement("option");
+                option.innerText = json['rooms'][i]['roomno'] + " " + json['rooms'][i]['type'] + " "
+                    + json['rooms'][i]['price'];
+                option.setAttribute("value", json['rooms'][i]['roomno']);
+                select.appendChild(option);
+            }
+	88. 成员 与 setAttribute
+radio 应该使用成员checked来设置选中状态：
+	如果已经有一个radio通过鼠标点击被选中，那么通过js设置checked属性进行按钮的选中，背地里成功了，但是界面显示上还是原先鼠标点击的那个。后来发现通过js操控radio的选中，应该使用register_radio_1.checked=true;而不是register_radio_1.setAttribute("checked", "true");。
+	通过鼠标点击将一个radio选中（默认是都不选中），但是通过getAttribute("checked")，是获取不到属性的，如果你没有在html代码中加上这个属性。
+	<input type="radio" checked=“true” /> 等价于 <input type="radio" checked=“checked” />
+th 应该使用th.setAttribute("bgcolor", "#3CCC2F");来设置背景颜色：
+	如果使用th.bgcolor，在setAttribute之前读取值倒是没有问题，但是建议读取值用getAttribute。进行颜色判断的时候必须使用th.getAttribute("bgcolor")=="#3ccc2f" 小写的颜色。
+	89.事件： 
+ready事件表示文档的结构已经加载完毕（不包含图片等非文字媒体文件），二是onload，指示页 面包含图片等文件在内的所有元素都加载完成。所以执行对页面进行改动的js代码使用ready事件。
+HTML 中：
+	<element ononline="myScript">
+JavaScript 中：
+	object.ononline=function(){myScript};
+	window.onload=xxxx;
+JavaScript 中, 使用 addEventListener() 方法:
+	object.addEventListener("online", myScript);
+	90.js里面基本都是公开的成员，而不是使用成员函数对属性进行更改。
+	91.foreach写法：
+	for (var key in result)  {
+		html+='<li>' +key+'  '+result[key]+'<li>'
+	}
+	92.<script src="/birth.php?jsoncallback=callbackFunction"></script> 就会将这个网页的返回视为js文件进行执行。callbackFunction是我传过去的已经写好的函数名字，这个php会加上函数的参数。
+	93.数组：var title=new Array();
+	添加内容：title[0]="考试名";title[1]="校区";title[2]="教学楼";title[3]="教室";title[4]="课程名";title[5]="周次";title[6]="星期";title[7]="时间段";
+	读取长度使用的是length成员，所以在最后添加一个内容是myarray[myarray.length] = 'new element';。
+	94.URI编码函数：encodeURIComponent(str)
+	95.使用JS导出表格数据为CSV文件： IE似乎不支持
+原理是将表格数据全都变成URI，然后进行特殊的方乃文就好
+function clickDownload(aLink) {
+    var str="";
+    for (var i = 0; i < $("#worker_info th").length; i++) {
+        str += $("#worker_info th:eq(" + i + ")").text() + ",";
+    }
+    str = encodeURIComponent(str);
+    aLink.href = "data:text/csv;charset=utf-8,\ufeff," + str;
+    aLink.click();
+}
+	96.有一次我在php中插入HTML代码,其中包含了一段js . 我使用了单行注释, 一直报错" Unexpected Token { ",后来弄成多行注释就好了.
+	97.URL编码:
+id=1&choose=通过
+encodeURI()=>id=1&choose=%E9%80%9A%E8%BF%87
+encodeURIComponent()=>将=,&都进行了编码
+	98.移除<table>中的<tr> , 使用remove(index) (效果是删除整个) 或者removeChild(node) (node通过target.parentNode.parentNode得到) (报错说node找不到,consolo.log却可以输出node) 都不行,  最终直接target.parentNode.parentNode.remove().

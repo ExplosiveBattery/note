@@ -1,0 +1,16 @@
+urlmon.h
+连接时导入Urlmon.lib(cygwin不支持，还是要在vs中使用)
+
+URLDownloadToFile(
+	LPUNKNOWN pCaller, //ActiveX控件的接口,如果不是控件则为0.
+	LPCTSTR szURL,
+	LPCTSTR szFileName, 
+	DWORD dwReserved, //作为保留字段，必须是0
+	LPBINDSTATUSCALLBACK lpfnCB
+)//除了2,3参数外都可以是0，NULL。第五个参数我觉得是当传输出现问题的时候进行回调。
+LPBINDSTATUSCALLBACK lpfnCB//Pointer to the caller's IBindStatusCallback interface. URLDownloadToFile calls this interface's IBindStatusCallback::OnProgress method on a connection activity, including the arrival of data. IBindStatusCallback::OnDataAvailable is never called.
+
+ActiveX是一个开放的集成平台，为开发人员、 用户和 Web生产商提供了一个快速而简便的在 Internet 和 Intranet 创建程序集成和内容的方法。 使用 ActiveX, 可轻松方便的在 Web页中插入 多媒体效果、 交互式对象、以及复杂程序，创建用户体验相当的高质量多媒体CD-ROM 。
+
+LPCWSTR file = L"C:\\Users\\Administrator\\Desktop\\1.jpg"; //w以为这是unicode字符串，就是wchar_t宽字符数组，所以C++需要使用L前置修饰字符串。
+LPCTSTR用来表示你的字符是否使用UNICODE, 如果你的程序定义了UNICODE或者其他相关的宏，那么这个字符或者字符串将被作为UNICODE字符串，否则就是标准的ANSI字符串。

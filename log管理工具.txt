@@ -1,0 +1,22 @@
+操作系统中常见的日志有：
+Syslog  Unix类系统，所以大多数网络设备也是这个
+Windows Eventlog
+Windows Application Log
+Unix Application Log
+因为是大型项目除了有路由器防火墙之类日志要看，还要看数据库，IP异常和错误日志，估计各种日志有20种，已经配了两个显示器啦，还是看不过来，有没有类似的软件啊
+
+
+logstash；
+	管理事件(event)和日志(log)的工具。可以通过插件的形式收集各种日志，并通过filter和output的插件来处理和输出到合适的后端。官方是对Elasticsearch默认进行无节操的支持的。。文档里面简直不忍直视。。（elasticsearch：它自己说是一个全文检索和分析的引擎。）
+
+Sawmill
+	经Syslog Server或其他通讯方式读取日志档案，依日志型态判定日志格式后，透过强大的分析语法引擎，将日志数据剖析建立成为关系数据库，提供使用者以Web界面随时随地查询。使用者可以基于角色设定权限，分权分工。可设定排程定时输出Html格式报表、csv表格至管理者或稽核人员的电子邮件信箱
+
+
+
+ELK（只用elk 装逼做事就靠他 在弄个grafana）
+
+graylog
+
+
+elk或者efk，如果日志不多，splunk或者日志易免费版也不错

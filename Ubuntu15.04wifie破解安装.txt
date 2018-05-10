@@ -1,0 +1,160 @@
+突然发现我的Ubuntu是15.10～～～～～还有deb包下过来上面事debian的图标
+//云盘的F2改名在windows下才有效，同windows
+由于我安装过HHVM，所以有了libpcap0.8的1.7最新版本的库，然后就可以基于此(后者需要这个依赖)在软件安装中心安装同版本的libpcap0.8-dev，去http://pkgs.org/(话说这个http等是自动哦补上的吧，也可能是浏览器隐藏了)下载reaver，再search中搜就可以找到了。
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Reaver 参数大全：
+
+Required Argument（必需参数）：
+
+  -i, --interface=<wlan>          Name of the monitor-mode interface to use
+                           网卡的监视接口，通常是mon0
+
+  -b, --bssid=<mac>         BSSID of the target AP
+                        AP的MAC地址5 c: T2 a* |; B5 A: b
+
+Optional Arguments（可选参数）：
+  -m, --mac=<mac>                 MAC of the host system
+                        指定本机MAC地址，在AP有MAC过滤的时候需要使用
+
+  -e, --essid=<ssid>           ESSID of the target AP
+                        路由器的ESSID，一般不用指定
+
+  -c, --channel=<channel>       Set the 802.11 channel for the interface (implies -f)
+                        信号的频道，如果不指定会自动扫描
+
+  -o, --out-file=<file>             Send output to a log file [stdout]
+                        标准输出到文件
+
+  -s, --session=<file>           Restore a previous session file
+                        恢复进程文件
+
+  -C, --exec=<command>   Execute the supplied command upon successful pin recovery
+                        pin成功后执行命令
+
+  -D, --daemonize         Daemonize reaver
+                        设置reaver成Daemon* s: G3 a) e! K7 h% }3 f
+
+  -a, --auto              Auto detect the best advanced options for the target AP
+                        对目标AP自动检测高级参数
+
+  -f, --fixed                  Disable channel hopping
+                        禁止频道跳转
+
+  -5, --5ghz              Use 5GHz 802.11 channels
+                        使用5G频道
+
+  -v, --verbose              Display non-critical warnings (-vv for more)
+                        显示不重要警告信息 -vv 可以显示更多
+
+  -q, --quiet                Only display critical messages
+                        只显示关键信息
+
+  -h, --help                Show help
+                        显示帮助
+
+
+Advanced Options（进阶选项）:
+
+  -p, --pin=<wps pin>            Use the specified 4 or 8 digit WPS pin
+                        指定4位或8位的WPS PIN值
+
+  -d, --delay=<seconds>    Set the delay between pin attempts
+                        PIN间延时，默认1秒7
+
+  -l, --lock-delay=<seconds> Set the time to wait if the AP locks WPS pin attempts 
+                        AP锁定WPS后等待时间
+
+  -g, --max-attempts=<num>  Quit after num pin attempts" 
+                          尝试最大pin次数后退出 
+
+  -x, --fail-wait=<seconds>    Set the time to sleep after 10 unexpected failures [0]
+                          10次意外失败后等待时间，默认0秒  
+
+  -r, --recurring-delay=<x:y>   Sleep for y seconds every x pin attempts
+                          每x次pin后等待y秒
+
+  -t, --timeout=<seconds>    Set the receive timeout period [5]
+                          收包超时，默认5秒
+
+  -T, --m57-timeout=<seconds>  Set the M5/M7 timeout period [0.20]
+                            M5/M7超时，默认0.2秒
+
+  -A, --no-associate                   Do not associate with the AP (association must be done by another application) 不连入AP（连入过程必须有其他程序完成）
+
+  -N, --no-nacks          Do not send NACK messages when out of order packets are received
+                       不发送NACK信息（如果一直pin不动，可以尝试这个参数）
+
+  -S, --dh-small                    Use small DH keys to improve crack speed
+                        使用小DH关键值提高速度（推荐使用）
+
+  -L, --ignore-locks            Ignore locked state reported by the target AP
+                        忽略目标AP报告的锁定状态
+
+  -E, --eap-terminate      Terminate each WPS session with an EAP FAIL packet
+                        每当收到EAP失败包就终止WPS进程
+
+  -n, --nack                     Target AP always sends a NACK [Auto]4 B)
+                        对目标AP总是发送NACK，默认自动
+
+  -w, --win7              Mimic a Windows 7 registrar [False]
+                        模拟win7注册，默认关闭
+
+Reaver有爆破的功能。
+Reaver的工作原理。它利用了WiFi保护设置（WiFi Protected Setup - 下文中简称为WPS）的一个弱点，WPS是许多路由器上都有的一个功能，可以为用户提供简单的配置过程，它与设备中硬编码保存的一个PIN码绑定在一起。Reaver利用的就是PIN码的一个缺陷，最终的结果就是，只要有足够的时间，它就能破解WPA或WPA2的密码。
+------个人心得--------------------------------------------------------
+将无线网卡设置为监控模式：假设你的无线网卡接口名称为wlan0，执行下列命令，将无线网卡设置为监控模式：
+airmon-ng start wlan0
+找到你打算破解的路由器的BSSID(就是MAC地址)：最后，你需要获取路由器的唯一标识，以便Reaver指向要破解的目标。执行以下命令：
+airodump-ng wlan0
+
+对一个ap刚开始pin的时候打开-vv参数，如果顺利，就中断，然后改成-v继续pin，反正进度是可以保存的
+reaver -i mon0 -b xx:xx:xx:xx:xx:xx -d 0 -vv -a -S+ v8 c9 T) \  c
+
+如果一直pin不动，尝试加-N参数
+reaver -i mon0 -b xx:xx:xx:xx:xx:xx -d 0 -vv -a -S -N
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+接下来准备安装minidwep与aircrack-ng：
+1.先安装aircrack-ng的依赖包：sudo apt-get install build-essential libssl-dev iw libpcap-dev sqlite3 libsqlite3-dev libpcap0.8-dev libssl0.9.8提示：现在没有可用的软件包 libssl0.9.8，但是它被其它的软件包引用了。
+这可能意味着这个缺失的软件包可能已被废弃，或者只能在其他发布源中找到E: 软件包 libssl0.9.8 没有可供安装的候选者。我百度了下libssl，发现应该现在是1.0.0版的了。
+2.再安装aircrack-ng：wget http://ubuntu2.cica.es/ubuntu/ubuntu/pool/universe/a/aircrack-ng/aircrack-ng_1.1.orig.tar.gz
+tar -zxvf aircrack-ng-1.1.tar.gz不过这里的名字不对，网站上的内容更新了，自己改下
+cd aircrack-ng-1.1这个是对的
+还要编辑common.mak
+找到CFLAGS          ?= -g -W -Wall -Werror -O3  去掉-Werror
+最后sudo make再sudo make install
+3.安装minidwep-gtk
+进入http://sourceforge.net/projects/xiaopanos/files/Minidwep%2040420下载对应系统的deb，双击，会以软件中心打开安装的。可是说内部错误，无法打开，那我就试试终端安装。sudo dpkg -i deb包名，-r(remove)是清除，-P(purge)是完全移除。我安装了(话说这个包好小)，并且是以root去运行，但无反应，如果有反应，光标会停在那里。which minidwep-gtk再cat /usr/local/bin/minidwep-gtk(cat那个目录)，发现最后一行是gksu bash /usr/local/bin/minileafdwep/minidwep-gtk.sh 2>/dev/null，原来Ubuntu没有安装gksu，sudo apt-get install gksu最后sudo minidwep-gtk正常运行。
+
+
+
+最后：可惜了我的网卡似乎不支持minidwep-gtk，搜不到信号。。。
+还有个软件叫奶瓶，原名叫feedingbottle。
+
+
+
+
+
+蹭网卡芯片：2770 3070(l) 8187(l)  
+l表示功率加大版  这些数字表示芯片，而这是蹭网卡最重要的。
+网上比较流行的说法是3070稳定，8187对PJ软件更加兼容。
+8187L芯片 PK 雷凌3070芯片
+3070芯片和8187L芯片各有优点.如果用在蹭网卡上,还是RTL8187L的芯片更好.
+1)RTL8187L的芯片对破解软件的兼容性几乎达到完美地步,雷凌3070芯片对破解软件的兼容性略差一点点.不过也不错.兼容性好意味破解成功率更高。
+2）8187L目前只能接收802.11B/G的无线路由信号;雷凌3070芯片可以接收802.11B/G/N三种规格的无线路由信号，不过801。11N规格的无线信号全部是WAP/WAP2加密方式，很难破密码。所以，能接收到802。11N规格的信号对于蹭网的朋友来说，几乎没什么用途。
+3）8187L的芯片成熟，目前能做到三个功方模块，所以功率更大（实际可以达到1200MW功率），接收距离更远，信号更稳定，信号更好，下载速度也更快；雷凌3070的芯片目前只能做成单功方模块，功率一般是500MW，所以接收距离、信号稳定性和下载速度方面都不如采用三功方模块电路的8187L芯片产品。
+4）雷凌3070的芯片因为功率小，所以一般信号强度只能达到2~3格，而8187L芯片的产品信号强度一般能达到3~5格。
+5）雷凌3070的芯片灵敏度高，加上它可以收到802。11N规格的信号，所以接收信号数量一般比8187L芯片产品接收到信号的数量多70%左右，但是，绝对多数信号3070芯片的无法连接上，属于信号虚多；8187L芯片信号数量少一点，但绝对多数信号都能连接上。打个比方，3070的能收到10个信号数量，只有3个信号能连上；8187L的能收到6个信号，但有5个信号能连上。
+这是因为8187L的产品，把不能连接的弱信号都过滤掉了，所以你接收不到，但3070的芯片没有做过滤，所以能收更多信号但很多连不上。3070芯片的能连上2~3格信号强度的信号（2格的信号会很不稳定），说8187L的无法连接2~3格的信号，这是不准确的，因为8187L的产品把2格的信号都过滤掉了，根本就收不到。
+因为目前8187L的芯片货源非常紧缺，导致很多蹭网卡卖家只能卖效果稍微差一点的3070的芯片产品，所以你可以到处看到说3070芯片好的文章或贴子，道理就在于此。
+目前，3070的芯片一般用于中端或低端产品上，价格是中档或低档；8187L的芯片产品高、中、低档都有，因为它可以做成单功方、双功放和三功方的产品，在电路板和其它原材料的选购上，也可以有参差不齐的价格采购，做出来的产品高，中，低档次的价格都有的。所以选择蹭网卡商家很重要，当然价格和商家的忽悠根本不能说明是不是好的产品，我个人认为选择一个真正懂得技术和对客户负责的商家非常重要，如果商家什么都不懂，之知道忽悠大家购买，我相信他进货的时候是不会考虑到选择好产品销售的，只会是哪个工厂的价格便宜他才进哪个工厂的货。简单说一点辨别，比如百度做推广的那种网站属于页面式网页，一个网站美工一般1个小时就可以做一个那种网站，内容非常空洞，只有夸张化宣传的图片刺激大家购买，而不把产品真正技术文章或者主板说给大家看，同时我们也是一个比较好的说明去处，总之大家一定要慎重选择蹭网卡产品。
+配置↓台湾瑞昱8187L芯片
+雷凌3070芯片速率54Mbps150Mbps频段B/G频段B/G/N 频段辐射手机的1/2手机的1/2稳定性好很好连接要求低于4格信号无法连接
+2格信号可连接接收灵敏度普通网卡的5倍
+普通网卡的6倍制造成本成本高昂价格高接收距离3-4公里左右
+3-6公里左右
+破解密码成功率高高。

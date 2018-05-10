@@ -1,0 +1,89 @@
+od的2.0版本不能调试64位程序
+在可执行文件中无法定位数据，应该是一个临时的内存，你重新载入od，再看看这个地方
+
+
+实际操作：
+单步步过 不能对call命令使用（因为不会跟随call跳转），应该使用单步进入
+
+
+pushad 压栈存入所有寄存器的值
+popad
+
+手动脱壳：
+ESP定律：壳就是一个个大大的子程序用来模糊入口点，考虑堆栈平衡，找到合适的ESP
+因为大家对ESP理解各有异同，但是，大同小异！一般理解可以为：
+1、在命令行下断hr esp-4（此时的ESP就是OD载入后当前显示的值）
+2、hr ESP(关键标志下一行代码所指示的ESP值(单步通过)) 
+my.我见到的OD一进去就是pushad，在下一条命令的时候就进行数据窗口跟随，加入我们自己的硬件访问断点（调试-》硬件访问断点 会显示成功插入的断点，下方的内存数据那里可能有改变也可能没有）
+SFX脱壳：
+1.设置OD忽略所有异常  选项-》调试选项 
+
+硬件断点是CPU提供的功能，CPU提供硬件断点寄存器DRx调试寄存器总共有8个，从DRx0到DRx7，都是32位寄存器。
+·DR0~DR3：调试地址寄存器，保存需要监视的地址，如设置硬件断点； 所以最多只能设置四个硬件断点。
+·DR4~DR5：保留，未公开具体作用；
+·DR6：调试寄存器组状态寄存器；
+·DR7：调试寄存器组控制寄存器。
+OD提供的硬件断点功能有DWORD，WORD，BYTE之分，这个是跟内存地址有关。例如：
+addr == 4n 时可以设dword断点
+addr == 4n + 2 时可以设word断点
+addr == 2n+1（4n+1与4n+3） 时只能byte断点。
+比如说在 00401000处，你可以设三种断点
+在 00401002处，你只能设word和byte断点
+在 00401005处，你只能设byte断点，所以一般直接byte断点
+如果想直接用MOV指令访问DRx寄存器，你需要在实地址模式，系统管理模式（smm）或者在保护模式（CPL设0）。
+windows系统中你可以用GetThreadContext或者Wow64GetThreadContext（64位系统）。内核模式下可以用PsGetThreadContext或者捕获异常然后读取。
+SetThreadContext设置的线程上下文是对当前线程有效的，那么为什么OD的硬件断点能够对当前进程有效？因为OD是遍历线程下断点，新建线程也下断点。
+#include "stdafx.h"  
+#include <stdio.h>  
+#include <windows.h>  
+void InitDetect()  
+{  
+    CONTEXT context;  
+    HANDLE hThread = GetCurrentThread();  
+    context.ContextFlags = CONTEXT_DEBUG_REGISTERS;  
+    GetThreadContext(hThread, &context);  
+    context.Dr0 = 0xFF;  
+    context.Dr1 = 0xFE;  
+    context.Dr2 = 0xFD;  
+    context.Dr3 = 0xFC;  
+      
+    SetThreadContext(hThread, &context);  
+}  
+  
+// 只针对OD 其他调试器未验证 微软的调试器就无效  
+// anti OD断点   
+BOOL IsDebuged()  就是对值的验证
+{  
+    CONTEXT context;  
+    HANDLE hThread = GetCurrentThread();  
+    context.ContextFlags = CONTEXT_DEBUG_REGISTERS;  
+    GetThreadContext(hThread, &context);  
+  
+    printf("Dr0:%x\n", context.Dr0);  
+    printf("Dr1:%x\n", context.Dr1);  
+    printf("Dr2:%x\n", context.Dr2);  
+    if (context.Dr0 != 0xFF || context.Dr1 != 0xFE || context.Dr2 != 0xFD)  
+    {  
+        return TRUE;  
+    }  
+    return FALSE; 
+}
+
+
+
+
+
+
+
+wireshark支持对包的自动解密，需要你给出支持解密的必要信息。
+对流量，包回放工具、配合Excel统计
+
+日志记录：您上面的这段纪录只是代表有超过路由器分片大小的数据被纪录。
+
+DDOS防护：
+random drop随机丢包
+特征匹配，比如说不带SYN的tcp
+SYN cookie 将有连接的TCP变成无连接，但是cookie的校验也耗费性能。
+Proxy 交给防火墙先，建立了完整的链接以后再给回来。
+
+日志取证分析：

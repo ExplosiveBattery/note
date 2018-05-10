@@ -1,0 +1,172 @@
+apache只处理静态页面和图片，resin主要是用来处理动态程序的.jwc使用两者的整合服务器，apache就是通过这个mod_caucho.so这个模块调用resin解析java程序的。resin似乎还打算向php发展。
+
+
+
+resin的“Dependency checking”机制。resin会定时检测<web-app>和<host>下配置的资源是否改动，如果改动，会根据相应的策略重新启动web-apps和虚拟主机。那么，具体会检测那些资源呢？下面是一个清单：
+WEB-INF/classes下的class文件
+WEB-INF/lib下的jar文件
+<class-loader>中指定的class或jar
+WEB-INF/resin-web.xml
+WEB-INF/web.xml
+resin.conf
+<resin:import>引入的配置文件
+通过<archive-path>或<web-app-deploy>或<host-deploy>配置的.war文件；
+通过<dependency>加入的文件
+使用<dependency-check-interval>2s</dependency-check-interval>来控制自动加载时间，否则你改动以后都要自己重启才会加载生效。
+<!-- - Resin 3.1 配置文件. -->
+<!--第一句话可能是引入标准-->
+<resin xmlns="http://caucho.com/ns/resin"
+       xmlns:resin="http://caucho.com/ns/resin/core">
+	   
+  
+  <!-- -JDK日志接口的配置. -->
+  <log name="" path="stdout:" timestamp="[%H:%M:%S.%s] "/>
+  <!-- 日志信息的级别:info,config-->
+  <logger name="com.caucho.java" level="config"/>
+  <logger name="com.caucho.loader" level="config"/>
+  
+  <!-- - 环境上下文的检测时间-->
+  <dependency-check-interval>100000s</dependency-check-interval> #27.9h
+  
+  <!-- - 你可以把编译器改成 "javac", "eclipse" 或者 "internal". -->
+  <javac compiler="internal" args=""/>
+  
+  <thread-pool>
+    <thread-max>1500</thread-max>
+    <spare-thread-min>10</spare-thread-min>
+  </thread-pool>
+  
+  <min-free-memory>1M</min-free-memory>
+  
+  <server>
+   <!--扩展库的公共jar文件，扩展是安全的即使没有类装载器知道的jars，装载的类将为每个应用分别装载，也就是这些类都是不同的 -->
+    <class-loader>
+      <tree-loader path="${resin.home}/lib"/>
+      <tree-loader path="${server.root}/lib"/>
+    </class-loader>
+	
+	<!--keepalive是对数据库-->
+    <keepalive-max>1000</keepalive-max>
+    <keepalive-timeout>120s</keepalive-timeout>
+	
+	<!--尝试使用专业版功能，来开启一些东西-->
+    <resin:if test="${resin.isProfessional()}">
+      <select-manager enable="true"/>
+    </resin:if>
+	
+	<!--开放端口-->
+    <bind-ports-after-start/>
+    <http server-id="" host="*" port="9001"/>
+	
+	<!--启用一个实例，监听端口-->
+    <cluster>
+      <srun server-id="" host="127.0.0.1" port="7001"/>
+    </cluster>
+	
+	<!--配置独立服务器或者群集的持久化存储，专业版的功能 -->
+    <resin:if test="${resin.isProfessional()}">
+      <persistent-store type="cluster">
+        <init path="session"/>
+      </persistent-store>
+    </resin:if>
+	
+    <ignore-client-disconnect>true</ignore-client-disconnect>
+	
+    <resin:if test="${isResinProfessional}">
+      <cache path="cache" memory-size="8M"/>
+    </resin:if>
+	
+    <resin:if test="${isResinProfessional}">
+      <ping>
+        <!-- <url>http://localhost:8080/test-ping.jsp</url> -->
+      </ping>
+    </resin:if>
+	
+    <web-app-default>
+      <class-loader>
+        <tree-loader path="${server.root}/ext-webapp"/>
+      </class-loader>
+	  <!-- 设置缓存页、静态也的延时值 -->
+      <cache-mapping url-pattern="/" expires="5s"/>
+      <cache-mapping url-pattern="*.gif" expires="60s"/>
+      <cache-mapping url-pattern="*.jpg" expires="60s"/>
+	  
+	  <!--Servlet（Server Applet），全称Java Servlet，暂无中文译文。是用Java编写的服务器端程序。任意文件可以访问就是因为它。-->
+      <servlet servlet-name="directory"
+              servlet-class="com.caucho.servlets.DirectoryServlet"/>
+	  	  
+	  <!-- 启用EL表达式 -->
+      <allow-servlet-el/>
+      <session-config>
+        <enable-url-rewriting>false</enable-url-rewriting>
+      </session-config>
+    </web-app-default>
+
+	 <!-- 简单的数据池配置-->
+	 <database>
+	   <jndi-name>jdbc/eesdb</jndi-name>
+	   <driver type="oracle.jdbc.OracleDriver"><!--JDBC连接方法-->
+		<!--RAC方式（老的写法，现在一般用ServiceName方式）-->
+		<!--ServiceName方法 jdbc:oracle:thin:@//<host>:<port>/ServiceName-->
+		<--SID方法 jdbc:oracle:thin:@<host>:<port>:<SID>-->
+	     <url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST= (ADDRESS=(HOST = 202.115.47.136)(PROTOCOL = TCP)(PORT = 1521)))(CONNECT_DATA =(service_name = jw)))</url>
+	     <!--
+	     <url>jdbc:oracle:thin:@(description=(address_list= (address=(host=202.115.47.134) (protocol=tcp)(port=1521))(address=(host=202.115.47.134)(protocol=tcp) (port=1521)) (load_balance=yes)(failover=yes))(connect_data=(service_name= jw)))</url>
+	     -->
+	     <user>newjwcs</user>
+	     <password>1</password>
+	    </driver>
+	    <prepared-statement-cache-size>64</prepared-statement-cache-size>
+	    <max-connections>1000</max-connections>
+	    <max-idle-time>130s</max-idle-time>
+	 </database>
+	  
+    <host-default>
+      <class-loader>
+        <compiling-loader path="webapps/WEB-INF/classes"/>
+        <library-loader path="webapps/WEB-INF/lib"/>
+      </class-loader>
+	  
+      <access-log path="logs/access.log" 
+            format='%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"'
+            rollover-period="1W"/>
+	  
+	  <!-- war 文件的布置目录 -->
+      <web-app-deploy path="webapps"/>
+	  <web-app-deploy path="deploy"/>
+	  
+	  <!-- ear文件的布置目录 -->
+      <ear-deploy path="deploy">
+        <ear-default>
+        </ear-default>
+      </ear-deploy>
+	  
+	  <!-- rar文件的布置目录 -->
+      <resource-deploy path="deploy"/>
+    </host-default>
+	
+    <resin:import path="${resin.home}/conf/app-default.xml"/>
+	
+	<!-- 虚拟主机的布置目录 -->
+    <host-deploy path="hosts">
+      <host-default>
+        <resin:import path="host.xml" optional="true"/>
+      </host-default>
+    </host-deploy>
+	
+	<!-- 默认的虚拟主机配置 -->
+    <host id="" root-directory=".">
+	  <!-- 配置默认的应用 webapp's ROOT -->
+      <web-app id="/" document-directory="webapps/ROOT"/>
+      <resin:if test="${java.isJava5()}">
+        <resin:set var="resin_admin_password"  default=""/>
+        <resin:set var="resin_admin_localhost" default="true"/> <!--设置了只有localhost才能使用resin的admin-->
+        <web-app id="/" document-directory="/URP/program/xfzzhjw"/>
+       </resin:if>
+	   <web-app id="/scu" document-directory="webapps/scu"/>
+    </host>
+	
+  </server>
+</resin>
+
+Resin 连接池写在resin.conf里的数据用户名以及密码都是明文，这样非常不安全的，如果一但知道了这个数据库名和密码获得，可想而知。所以是可以加密的。

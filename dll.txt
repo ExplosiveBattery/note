@@ -1,0 +1,291 @@
+需要MSVCP120D.dll是说明这个EXE程序不是发布版本的，是调试版本的EXE，即debug版本的EXE
+
+in windows.h
+
+HMODULE LoadLibrary(LPCTSTR lpFilename)返回模块句柄
+#ifdef UNICODE
+#define LoadLibrary LoadLibraryW  //Unicode
+#else
+#define	LoadLibrary LoadLibraryA  //ANSI   可以显示直接调用这个函数
+#endif
+
+FARPROC GetProcAddress(HMODULE hModule, LPCSTR lpProcName)指定导出函数
+
+DLL程序：
+由于DllMain()函数不止一次被调用，更具调用的情况不同，需要执行不同的代码，所以dll写成这种形式：DllMain()只是一个可选的入口函数，可以没有。
+BOOL DllMain(HANDLE hModule,
+	DWORD ul_reason_for_call,
+	LPVOID lpReserved
+) {
+	switch( ul_reason_for_call ) 
+	{
+	case DLL_PROCESS_ATTACH:
+		{...}
+	case DLL_PROCESS_DETACH:
+		{...}
+	case DLL_THREAD_ATTACH:
+		{...}
+	case DLL_THREAD_DETACH:
+		{
+			MsgBox("xxxx"); //我就是想引入一个新的弹框函数
+			break;
+		}
+	}
+
+
+	return TRUE;
+}//所以可以知道dll的被动调用时机是进程开始与结束，以及线程的创建与结束。
+extern "C" _declspec(dllexport) VOID function(char *szMsg);
+这便是函数声明，"C"表示用C方式导出，由于源代码是.CPP文件，因此如果按照C++方式导出的话，那么在编译后函数名字会粉碎，导致在动态调用函数的时候极其不方便。extern “C”使用extern “C”关键字实际上相当于一个编译器的开关，它可以将c++语言的函数编译为c语言的函数名称。即保持编译后的函数符号名等于源代码中的函数名称。
+__declspec(dllexport)用来声明一个导出函数，将本函数开放。
+如果导出函数比较多就建立一个.DEF文件来定义导出函数，而不是使用__declspec(dllexport)
+最后VC会生成一个xxx.dll（包含编写代码）和xxx.lib（包含一些导出函数的相关信息）。
+
+
+GetModuleFileName(NULL, szModuleName, MAX_PATH);NULL表示是本进程
+
+#pragma comment(lib, "FirstDll")告诉链接器在FirstDll.lib中找到DLL中导出函数的信息。
+
+在VC中调用自己的dll：
+1.对于自己的工程，右键添加一个新对象到工作空间，移动dll到工程目录，再#pragma comment(lib, "xxx")，函数声明：extern "C" VOID function(char *szMsg)。
+编译器导入dll
+2.LoadLibrary()和GetProcAddress()
+程序中自己导入dll内指定函数
+#include <windows.h>
+
+typedef VOID (*PFUNMSG) (char*);
+
+int main(void)
+{
+	HMODULE hModule =LoadLibrary("FirstDll.dll");
+	
+	if( NULL==hModule ) {
+		MessageBox(NULL, "内容：FirstDll.dll 文件不存在", "标题：DLL文件加载失败", MB_OK);
+		return -1;
+	}
+	PFUNMSG pFunMsg = (PFUNMSG)GetProcAddress(hModule, "function");
+	pFunMsg("Hello!");
+
+	return 0;
+}
+
+PEID 可以用来查看dll里面的导出表（里面有导出函数信息）
+
+
+code injection:
+LoadLibrary()是Kernel32.dll这个dll文件的到出函数，简单点这个DLL文件在任何程序的加载位置都是相同的，也就是说LoadLibrary()在任何进程中的位置都是相同的。所以知道了这个函数的加载地址以后直接CreateRemoteThread()来使用LoadLibrary。使用WriteProcessMemory()来提供LoadLibrary参数，也就是DLL完整文件名。
+BOOL WriteProcessMemory(
+	HANDLE hProcess,
+	LPVOID lpBaseAddress, //指定写入目标进程内存的起始内存
+	LPVOID lpBuffer,
+	DWORD nSize,
+	LPDOWRD lpNumberOfBytesWritten
+)//这个也可以用来制作内存补丁
+我们要把DLL路径写进去，需要一块内存，可以寻找没用内存或者自己申请一块。
+LPVOID VirtualAllocEx(
+	HANDLE hProcess,
+	LPVOID lpAddress,
+	SIZE_T dwSize,
+	DWORD flAllocationType,	//制定申请内存的状态类型
+	DWORD flProtect		//制定申请内存的属性
+)
+注入代码：
+VOID xxxx::InjectDll(DWORD dwPid, char *szDllName) {  //使用进程id来制定被注入的进程。id是给系统和人知道的，HANDLE是用来操作的。id又称为进程标识符。
+	if( dwPid==0 || lstrlen(szDllName) ) {
+		return ;
+	}
+	
+	char * pFunName ="LoadLibraryA";
+	//打开目标进程
+	HANDLE hProc =OpenPrccess(PROCESS_ALL_ACCESS, FALSE, dwPid); //不继承句柄
+	if( NULL==hProc ) reutnr ;
+
+	//计算欲注入DLL完整文件名的大小
+	int nDllLen =strlen(szDllName)+sizeof(char);
+
+	//在目标进程中申请空间
+	PVOID pDllAddr =VirtualAllocEx(hProc, NULL, nDllLen, MEM_COMMIT, PAGE_READWRITE);//NULL的话就是自己找一块内存
+	if( NULL==pDllAddr ) { CloseHand(hProc);  return ;}
+
+	
+	DWORD dwWriteNum =0; //估计是实际写入字节
+	//写入路径
+	WriteProcessMemory(hProcess, pDllAddr, szsDllName, nDllLen, &dwWriteNum);
+
+	char * pFunName ="LoadLibraryA";
+	//获取LoadLibraryA的函数地址
+	FARPROC pFunAddr =GetProcAdddress(GetModuleHandle("kernel.dll"), pFunName); //GetModuleHandle需要使用windows.h
+	
+	//创建远程线程
+	HANDLE hThread =CreateRemoteThread(hProcess, NULl, 0, (LPTHREAD_START_ROUTINE)pFunAddr, pDllAddr, 0, NULL);
+	WaitFoeSingleObject(hThread, INFINITE);
+
+	CloseHandle(hProc);
+	CloseHandle(pThread);
+}
+卸载DLL使用：
+BOOl FreeLibrary(HANDLE hModule);
+在C中编写应用程序正确地将另一（静态）C函数注入远程处理。 其实我几乎可以保证你的遥控器过程会崩溃。所有这些的本质问题可以总结如下：编译器生成ASM代码使用硬编码的偏移量。 
+
+
+kernel32基地址的进程环境块(PEB)结构本身可以发现内部的线程环境块(TEB)总是存储在FS登记,
+
+使用dumpbin命令查看DLL中的函数
+Dumpbin –exports dll_nolib.dll
+还有Peid
+
+Def文件
+首先写一个带有输出函数的dll，源代码如下：dll_def.cpp
+#include <objbase.h>
+#include <iostream.h>
+void FuncInDll (void)
+{
+
+    cout<<"FuncInDll is called!"<<endl;
+
+}
+
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, void* lpReserved)
+{
+
+    HANDLE g_hModule;
+    switch(dwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+       g_hModule = (HINSTANCE)hModule;
+       break;
+    case DLL_PROCESS_DETACH:
+        g_hModule=NULL;
+        break;
+    default:
+	break;
+    }
+    return TRUE;
+}
+这个dll的def文件如下：dll_def.def
+;
+; dll_def module-definition file
+;
+LIBRARY         dll_def.dll
+DESCRIPTION     '(c)2007-2009 Wang Xuebin'
+EXPORTS
+                FuncInDll @1 PRIVATE
+你会发现def的语法很简单，首先是LIBRARY关键字，指定dll的名字；然后一个可选的关键字DESCRIPTION，后面写上版权等信息（不写也可以）；最后是EXPORTS关键字，后面写上dll中所有要输出的函数名或变量名，然后接上@以及依次编号的数字（从1到N），最后接上修饰符。
+
+用如下命令编译链接带有def文件的dll：
+Cl /c dll_def.cpp 编译
+Link /dll dll_def.obj /def:dll_def.def 链接
+
+
+隐式调用DLL
+显式调用显得非常复杂，每次都要LoadLibrary，并且每个函数都必须使用GetProcAddress来得到函数指针，这对于大量使用dll函数的客户是一种困扰。而隐式调用能够像使用c函数库一样使用dll中的函数，非常方便快捷。
+下面是一个隐式调用的例子：dll包含两个文件dll_withlibAndH.cpp和dll_withlibAndH.h。
+代码如下：dll_withlibAndH.h
+extern "C" __declspec(dllexport) void FuncInDll (void);
+
+dll_withlibAndH.cpp
+#include <objbase.h> //为了使用类型
+#include <iostream.h>
+#include "dll_withLibAndH.h"//看到没有，这就是我们增加的头文件
+extern "C" __declspec(dllexport) void FuncInDll (void)
+{
+    cout<<"FuncInDll is called!"<<endl;
+}
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, void* lpReserved)
+{
+    HANDLE g_hModule;
+    switch(dwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+       g_hModule = (HINSTANCE)hModule;
+       break;
+    case DLL_PROCESS_DETACH:
+        g_hModule=NULL;
+        break;
+    }
+    return TRUE;
+}
+编译链接命令：
+Cl /c dll_withlibAndH.cpp
+Link /dll dll_withlibAndH.obj
+
+在进行隐式调用的时候需要在客户端引入头文件，并在链接时指明dll对应的lib文件（dll只要有函数输出，则链接的时候会产生一个与dll同名的lib文件用于记录函数信息）位置和名称。然后如同调用自带函数库（自动链接lib）中的函数一样调用dll中的函数，不需要显式的LoadLibrary和GetProcAddress。使用最为方便。客户端代码如下：dll_withlibAndH_client.cpp
+#include "dll_withLibAndH.h"
+//注意路径，加载 dll的另一种方法是 Project | setting | link 设置里
+#pragma comment(lib,"dll_withLibAndH.lib")
+int main(void)
+{
+    FuncInDll();//只要这样我们就可以调用dll里的函数了
+    return 0;
+}//有了声明以后找地址的任务交给编译器
+
+
+
+C:\Users\Administrator>g++ main.c -o main.dll
+e:/program files (x86)/gcc/bin/../lib/gcc/mingw32/4.7.1/../../../libmingw32.a(ma
+in.o):main.c:(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+C:\Users\Administrator>g++ -shared main.c -o main.dll
+给了/shared才会知道是生成动态链接库。
+
+
+LoadLibrary()这些函数由于kerne32.dll的特殊存在而可以直接使用。
+
+
+1、将DLL注入进程技术在实现Api函数的监视程序中不可缺少的一项工作。其中最常见的就是用SetWindowsHookEx函数实现了。不过，该方法的缺点是被监视的目标进程必须有窗口，这样，SetWindowsHookEx才能将DLL注入目标进程中。而且，目标程序已经运行了，那么，在窗口创建之前的Api函数就不能被Hook了。
+2、另外一种方法用Debug方案，就可以实现在程序创建时监视所有的Api了，缺点是必须是目标进程的Debug源，在监视程序终了时，目标进程会无条件终了。最大的缺点就是无法调试注入的DLL。
+3、还有其他多种方案也可以实现DLL的注入，在《Windows核心编程》一书中就介绍了8－9种，其中有一种采用CreateProcess的方法，实现起来比较复杂，但没有上面几种方法的局限性。且可以用其他工具（VC等）调试注入的DLL。下面进行介绍。
+原理如下：
+1）． 用CreateProcess（CREATE_SUSPENDED）启动目标进程。
+2）． 找到目标进程的入口，用ImageHlp中的函数可以实现。
+3）． 将目标进程入口的代码保存起来。
+4）． 在目标进程的入口写入LoadLibrary（MyDll）实现Dll的注入。
+5）． 用ResumeThread运行目标进程。
+6）． 目标进程就运行了LoadLibrary（MyDll），实现DLL的注入。
+7）． 目标进程运行完LoadLibrary(MyDll)后，将原来的代码写回目标进程的入口。
+8）． 目标进程Jmp至原来的入口，继续运行程序。
+这是DLL_PROC_ATTACH
+通过dll注入到执行优先级高的程序中，就能绕过windows以后做的一些防护，比如说你先获取了密码，那么后面的加密就没有用了。
+
+说下怎么破解别人外挂登录的，首先要找个可用的帐号密码，登录成功截到服务端返回的内容，记下这个内容。然后自己建立一个程序，添加一个服务端组件，把端口号改成刚才截取到的端口号，利用HOST文件讲客户端连接转到自己本地来，用自己做的服务端发送登录成功的数据回来，就完成了破解
+
+
+在WinlogonHack之前有一个Gina木马主要用来截取Windows 2000下的密码，WinlogonHack主要用于截取Windows XP以及Windows 2003 Server。安装以后只要有RPC登入就会记录密码到一个文件中。执行"Uninstall.bat"即可自动卸载该程序（关键在于恢复被改动的dll）。原理：
+Gina.dll在NT/2000中提供登录支持，后来再XP及后续版本中改为Msgina.dll（正常情况下在XP下是945KB，在2003下是1153KB）。文件改不好了的后果就是不能RPC登录。WinlogonHack Hook住dll中的WlxLoggedOutSAS函数，从而记录密码。
+
+SNMP DLL：inetmib1.dll
+
+加载DLL还是古老的ShellCode做内存重定位的方式，根本不对稳定性做任何考虑。
+
+
+通常Exe导出函数一般是给插件dll使用的，也就是在dll里可以使用GetProcAddress获得程序的扩展接口API
+将exe的IMAGE_NT_HEADERS.FileHeader.Characteristics强行加上IMAGE_FILE_DLL属性，装载器却只负责映射内存，不给你处理导入表和重定位表，但我们可以自己处理导入表和重定位表，就是稍微麻烦一点点。然后exe就变成了纯粹的dll文件。
+
+dll可以用IDA 来找DllMain函数：
+先找到的是int __stdcall DllMain(void *hDll, unsigned int dwReason, void *lpReserved)
+{
+  return DllMain(hDll, dwReason, lpReserved);
+}
+再进去DllMain就是我们的操作了
+
+
+产生dll的脚本：
+#!/bin/sh
+rm -f *.o *.dll
+
+CCx86="i686-w64-mingw32"
+CCx64="x86_64-w64-mingw32"
+
+${CCx64}-gcc -m64 -c -Os template.c -Wall -shared
+${CCx64}-dllwrap -m64 --def template.def *.o -o temp.dll
+${CCx64}-strip -s temp.dll -o template_x64_windows.dll
+rm -f temp.dll *.o
+
+${CCx86}-gcc -c -Os template.c -Wall -shared
+${CCx86}-dllwrap --def template.def *.o -o temp.dll
+${CCx86}-strip -s temp.dll -o template_x86_windows.dll
+rm -f temp.dll *.o
+
+插件的加载采用了动态加载dll的形式
+
+微软想出了一个“代理”。将一个dll转发到另一个dll的出口哦。

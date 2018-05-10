@@ -1,0 +1,60 @@
+大部分dos攻击都达不到1Gbps的流量。
+
+DOS（DenialOfService）攻击一般是指对资源的耗尽，而资源有网络带宽资源、系统资源（端口资源、协议连接数资源）。但是拒绝服务的话可以用过栈溢出攻击来崩坏系统。
+DOS一般配合多线程，源地址伪造，如果配合分布式也就是DDOS。
+
+
+目前常见的有：
+0.实现网络资源的耗尽：
+肉鸡多的话可以直接制造大量数据，可以直接全连接
+
+
+1.使用协议漏洞：
+TCP半连接（SYNFlood）：等待对方（可能完全不存在）的ACK响应而导致TCP连接队列被阻塞
+全连接建立（Land Attack）：攻击者发送具有相同IP的源地址、目标地址和 TCP 端口号的伪造 TCP SYN 数据包信息流。必须设置好 SYN 标记。其结果是该计算机系统将试图向自己发送响应信息，然后建立只能等待超时结束的空连接，通过发送大量的包最终使受害系统瘫痪或重启。 Windows XP SP2 和 Windows 2003 的系统对这种攻击的防范还是非常薄弱的，Sun 操作系统，BSD 操作系统和 Mac操作系统 对这种攻击的防范都是非常薄弱的，所有这些系统都共享基于 TCP/IP 协议栈的 BSD。
+ACK验证机制（ACKFlood）：由于当前存在的校验ACK报文的合法性都涉及到较为复杂的算法，比如说SYN cookie，这样使用SYNFlood+ACKFlood就可造成重负。
+无连接的数据传送（UDPFlood）：没有连接就开始了数据的传递，所以能起到不错的数据放大，或者是直接利用udp服务进行相互攻击（chargen服务会在收到每一个数据包时随机反馈一些字符，echo服务会直接返回接收到的数据包）
+异常内存分配（PingofDeath）：许多操作系统的TCP/IP协议栈都规定ICMP包大小上限为64KB，且在对包的标题头进行读取之后，要根据该标题头里包含的信息来为有效载荷生成缓冲区。"PingofDeath"就是故意产生畸形的测试Ping（PacketInternetGroper）包，声称自己的尺寸超过ICMP上限，也就是加载的尺寸超过64KB上限，使未采取保护措施的网络系统出现内存分配错误，导致TCP/IP协议栈崩溃，最终接收方宕机
+IP碎片错误整合（TearDrop）：IP分段含有指示该分段所包含的是原包的哪一段的信息，某些TCP/IP协议栈（例如NT在servicepack4以前）在收到含有重叠偏移的伪造分段时将崩溃
+反射攻击：利用还有广播地址，和组播协议辅助反射拒绝服务攻击效果更好。不过大多数路由器都禁止广播地址和组播协议的地址。
+无状态协议（HTTPDOS）：直接构造大量搜索请求（数据库大数据查询费资源）
+CLDAP 作为反射型可以放到ddos 70x。LDAP放大了46x。2016-10第一次发动了关于这个协议的ddos。
+SSL DOS，在协商加密算法的时候服务器CPU的开销是客户端的 15 倍左右，而Renegotiating机制让攻击者可以在一个TCP连接中不停的快速重新协商
+2.应用层漏洞，从而直接崩溃应用层
+OOB攻击：利用NETBIOS中一个OOB （Out of Band）的漏洞而来进行的，它的原理是通过TCP/IP协议传递一个数据包到计算机某个开放的端口上（一般是137、138和139），当计算机收到这个数据包之后就会瞬间死机或者蓝屏现象。实际是使用TCP紧急数据攻击。
+3.资源有限：
+mac地址表（通过伪造MAC来耗尽节点设备MAC地址表，“失效开放”使得节点设备像集线器一样向所有设备广播流量，或者“失效关闭”使得所有数据都停止传送）。
+jsp的页面连接数据库肯定使用异常包起来，于是这可以DOS
+
+
+曾经，有一种Hash碰撞导致的denial of service，是语言层面上的漏洞。本来tomcat等web服务器在处理用户提交的参数时，直接把参数“键值对”放入了hashmap中。在开发一个web应用时，有很多地方，都会用到hashmap，这些地方不一定都能够和用户打交道，用户也不一定都能直接控制到。但是这些可以控制的地方，绝对不仅仅是用户post一个东西上来直接打死tomcat，他们还有很多有趣的例子。随着RESTful风格的接口普及，程序员默认都会使用json作为数据传递的方式。json格式的数据冗余少，兼容性高，从提出到现在已被广泛的使用，可以说成为了Web的一种标准。无论我们服务端使用什么语言，我们拿到json格式的数据之后都需要做jsonDecode(),将json串转换为json对象，而对象默认会存储于Hash Table，而Hash Table很容易被碰撞攻击。我只要将攻击数据放在json中，服务端程序在做jsonDecode()时必定中招，中招后CPU会立刻飙升至100%。16核的CPU，16个请求就能达到DoS的目的。这个安全弱点利用了各语言的Hash算法的“非随机性”可以制造出N多的value不一样，但是key一样数据，然后让你的Hash表成为一张单向链表，而导致你的整个网站或是程序的运行性能以级数下降（可以很轻松的让你的CPU升到100%）。O(1)的搜索算法复杂度就成了O(n)，而插入N个数据的算法复杂度就成了O(n^2)，你想想这是什么样的性能。
+通过XSS攻击等进行流量转移。
+从前有人使用QQ的通信协议制作了一个QQ炸弹，就是电脑自动发送消息。
+
+
+防御：假设是所有人都可以访问
+SYNFlood是需要设置好半连接存活时间，或者给防火墙（全连接建立以后再移交给服务器）。使用SYN cookie。SYN Cookie是对TCP服务器端的三次握手协议作一些修改，专门用来防范SYN Flood攻击的一种手段。它的原理是，在TCP服务器收到TCP SYN包并返回TCP SYN+ACK包时，不分配一个专门的数据区，而是根据这个SYN包计算出一个cookie值。在收到TCP ACK包时，TCP服务器在根据那个cookie值检查这个TCP ACK包的合法性。
+
+QT编程中发现，程序负担太大（处理大量的异步发包任务），就会崩溃，而这时候机器基本还是没有负担的。
+
+
+http://www.docin.com/p-968919203-f2.html
+上海交通大学的硕士学位论文《防御拒绝服务攻击的网络安全机制研究》
+http://yu1jiang.blog.163.com/blog/static/323298852008214101740564/
+ICMP DOS 攻击
+http://baike.baidu.com/link?url=eUPbr93V80lK8K3GEAftEz629G2UYrwxTVhO9WtyUba2KbipTkvngHPO8qNmlAUxUt-XbvadyLdtexeRkKBisyAu9RHIakRJYf26SytGD5y#1_5
+smurf、trinoo、tfn、tfn2k以及stacheldraht是比较常见的DoS攻击程序
+
+
+
+
+Kali下的dos工具：
+thc-ssl-dos [options] <ip> <port>   专打443 https端口，可以自己制定端口但是必需要ssl协议
+  -h      help
+  -l <n>  Limit parallel connections [default: 400]
+这会导致目标CPU，利用率100%。
+最后要加上--accept 来承认自己这次是legitimate测试
+
+可以使用的内容：
+2012年，网络罪犯们想出了如何滥用DNS来进行大规模DDoS反射攻击，我们可以将其理解为利用非常少的输入创造大量流量。2013年，他们转而利用网络时间协议(Network Time Protocol，NTP)和简单网络管理协议(Simple Network Management Protocol，SNMP)，其次不久则使用了简单服务发现协议(Simple Service Discovery Protocol，SSDP)。
+将UDP包发送给公共Portmapper服务。Portmapper会帮助攻击者返回一个大得多的响应，这种服务本来应该局限在局域网内的访问。

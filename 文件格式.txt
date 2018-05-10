@@ -1,0 +1,75 @@
+文件头信息：http://blog.csdn.net/txgc0/article/details/17246625
+二进制形式打开文件，文件开始字节为FF D8，文件结束两字节为FF D9。FF D9可以出现在中间，后面会跟上一堆00，然后就又是FF DB， 也就是量化表的开始。则初步判定文件为jpeg。jpeg的SOI（start of image） 为ff d8，EOI（end of image）为ff d9。然后就是0xFF + Marker Number(1 byte) + Data size(2 bytes) + Data(n bytes)。
+Marker Number(1 byte)：JFIF的marker为E0，Exif的marker为E1（gstreamer解开rtp中jpeg这个地方是DB） JPEG 是一个压缩标准，JFIF 是一个文件格式标准
+Data size(2 bytes) 上的值=n+2
+
+
+
+txt与doc后缀可以相互转换，但是还是txt转doc还是要让word自己重新生成一个文档的
+
+epub这个格式的电子书里面其实就是html文件。试了一下两种电子书阅读器，一个超链接之间关系做的不错，但是不能去复制上面的文字；我比较喜欢的是“极速pdf阅读器”，就像看一张张连续的图片一样。
+
+.inf居然是个安装文件，在右键列表里有“安装”。YUMI创建的U盘有autorun.inf。INF是Device INFormation File的英文缩写，是Microsoft公司为硬件设备制造商发布其驱动程序推出的一种文件格式，INF文件中包含硬件设备的信息或脚本以控制硬件操作。在INF文件中指明了硬件驱动该如何安装到系统中，源文件在哪里、安装到哪一个文件夹中、怎样在注册表中加入自身相关信息等等。
+
+.cfm 动态页面文件 与传统的编程语言（Perl , VB , C/C++ , Delphi…）不一样，Cold Fusion是一个非常快速而且简便的应用开发系统，它将服务器、浏览器和数据库技术结合起来，用来实现动态和交互式WEB站点。您只需要在标准的HTML语言中嵌入CFML语言（Cold Fusion Markup Language），就可以实现数据库链接、网上购物等复杂的商业系统。
+
+.mht可以使用IE打开！！！但是chrome不行。mht是一种WEB电子邮件档案,那么你要使用浏览器打开它,那么你的电脑的必须有outlook软件
+
+.swp是文本文件类型，比较常见的是vim的恢复文件
+
+.tmx 游戏地图 ，推荐Tiled Map Editor7
+
+.csv 如果使用专门软件打开进行读写就类似于xls，支持使用记事本打开（这时候内容之间是使用逗号进行分隔），csv就是一种文档类型。推荐Ron's Editor。
+
+.dat 视频文件 或者 特殊文本（比如说纯真IP的数据库文件）。但是我见到一个程序使用dat文件作为自己的图片背景。
+
+.ico 一个ico文件可以包含多个分辨率
+
+.caf CAF文件是基于苹果Core音频技术的数字音频文件，存储音频数据以及文本注释，标记，渠道布局，以及其他信息，类似AIFF文件、WAVE文件
+
+.swf文件 是flash视频文件
+
+xml文件被解析的时候只有 CDATA 区段（CDATA section）中的文本会被解析器忽略，CDATA 部分由 "<![CDATA[" 开始，由 "]]>" 结束，其中的内容不应该由解析器进行解析。所以PHP里面就有一个simplexml_load_string($string,'SimpleXMLElement',  LIBXML_NOCDATA);表示这个xml中不存在CDATA，请全部解析。
+
+.LNK  全称是Shell Link Binary File Format，就是快捷方式。从2010年的1.0版本到2016年的3.0版本。
+
+.cpl 又叫控制面板项（Control Panel Item），多保存于系统安装目录的system32文件夹下，它们分别对应着控制面板中的项目
+
+otf/ttf/ttc格式字体,ttf和ttc都是TrueType类型,otf是OpenType类型。otf虽很漂亮，但是其处理效率比ttf要底。
+.EOT是一种压缩字库，目的是解决在网页中嵌入特殊字体的难题。 因为压缩所以用在网页中。
+
+
+.rdp 包含任意远程卓桌面会话信息
+.bmc 包含rdp客户端的缓存镜像（画面图片）   可以使用BMC查看器
+.wsf windows脚本文件
+<job  id=“Test”>
+    <script language=“VBScript”>
+        Set objApp =CreateObejct(“WSCript.Shell”)  加载模块
+        objApp.Run “cmd.exe"
+    </script>
+</job>
+
+
+.ini .cf  配置文件
+
+.pcf  Cicso VPN的概要设置。
+
+.crt 证书
+
+.chm 一种电子书文件，应该是一种压缩格式，其中包含了大量html文件和一个用于管理且可以文本程序打开的记事本文件。
+
+.csv 存储数据内容的文本文件，可以使用Microsoft Excel 打开。显示接近excel。
+
+.pcap、.cap以及.pcapng都是抓包得到的格式，后者是linux下wireshark的格式。
+
+.sql 文件  目前有两种可能：1.数据库的备份文件 2.postgres等数据库的命令文本文件
+
+.rtf 可以被word软件打开的一种文件格式 可以用写字板创建。而且似乎打开的速度还是很快的。
+
+.hta 很早之前微软创造的html文件格式，是html application 的简写。html的内容，但是执行起来就像是一个exe，运行需要IE支持。
+https://jingyan.baidu.com/article/f96699bba221f9894e3c1bf8.html
+
+.haml HTML abstraction markup language，是某一个html文件的抽象（简化）表示
+	idea打开包含index.haml与index.html的项目的时候会将index.html作为index.haml的子项
+
+.m3u8  将下载m3u8文件的http url使用M3U8 Downloader.exe即可启动内置的ffmpeg进行下载。

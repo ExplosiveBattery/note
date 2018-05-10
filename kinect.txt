@@ -1,0 +1,309 @@
+Kinectfor Xbox 360，简称 Kinect，是由微软开发，应用于Xbox 360 主机（微软的某代家用游戏主机）的周边设备。它让玩家不需要手持或踩踏控制器，而是使用语音指令或手势来操作 Xbox360 的系统界面。它也能捕捉玩家全身上下的动作，用身体来进行游戏，带给玩家“免控制器的游戏与娱乐体验”。$150左右，已经算是功能强大而廉价。不过一开始微软并没有提供官方的SDK，于是就出了一帮非官方。
+
+Kinect有三个镜头，中间的镜头是 RGB 彩色摄影机，用来采集彩色图像。左右两边镜头则分别为红外线发射器和红外线CMOS 摄影机所构成的3D结构光深度感应器，用来采集深度数据（场景中物体到摄像头的距离）（假设Kinect可以检测6个人，所以深度数据中有携带标示这是哪个游戏者的深度数据的。）。彩色摄像头最大支持1280*960分辨率成像，红外摄像头最大支持640*480成像。Kinect还搭配了追焦技术，底座马达会随着对焦物体移动跟着转动。Kinect也内建阵列式麦克风，由四个麦克风同时收音，比对后消除杂音，并通过其采集声音进行语音识别和声源定位。
+
+已有应用：
+虚拟应用：Kinect试衣镜，这款基于kinect体感技术的神奇的试衣镜，让客户可以快速的试穿衣服，提高销售效率和企业形象。
+3D建模：3D摄像机， 用两个KINECT实现3D摄像机的基本效果
+机械控制：用Kinect 操控遥控直升机、机器人。kinect作为视觉输入。
+手势识别：虚拟乐器、手势操控。
+骨架跟踪技术（骨骼点数据：实际上不能算是图像数据，感觉应该是Kinect上层算法分析彩色和深度图像得到的骨骼点数据，包含了跟踪到的人的关节点的位置等信息。）
+
+可以配合openNI进行体感开发。有摄像头，可以配合openCV进行开发。
+从微软那边下载回来的KinectSDK-v1.6-Setup.exe里面是驱动与设备访问接口。KinectDeveloperToolkit-v1.6.0-Setup.exe主要提供一些有助于开发的工具，包括Kinect Studio和多种编程语言的开发例程等。
+安装完后，插入Kinect，系统将会自动的搜索驱动。要安装的驱动还是比较多的，在设备管理器那里不止一个地方。
+
+配置VS kinect：
+Include files加入C:\Program Files\Microsoft SDKs\Kinect\v1.6\inc；
+Library files加入C:\Program Files\Microsoft SDKs\Kinect\v1.6\lib\x86；
+还需要在链接器的输入中，增加附加依赖性：Kinect10.lib
+NuiApi.h ---包含所有的NUI(自然用户界面) API头文件和定义基本的初始化和函数访问入口。这是我们C++工程的主要头文件，它已经包含了NuiImageCamera.h 和 NuiSkeleton.h。
+NuiImageCamera.h ---定义了图像和摄像头服务的API，包括调整摄像头的角度和仰角，打开数据流和读取数据流等。
+NuiSkeleton.h ---骨架有关的API，包括使能骨架跟踪，获取骨架数据，骨架数据转换和平滑渲染等。
+NuiSensor.h ---音频API，包括ISoundSourceLocalizer接口，用于返回声源的方向（波束形成）和音频的位置。
+
+配置VS opencv：
+（1）Include files加入D:\opencv2.3.0\OpenCV2.3\build\include；
+（2）Library files加入D:\opencv2.3.0\OpenCV2.3\build\x86\vc10\lib；
+（3）还需要在链接器的输入中，增加附加依赖性：
+opencv_highgui230.lib
+opencv_core230.lib
+opencv_video230.lib
+opencv_imgproc230.lib
+其他的在需要的时候再添加了。
+
+骨骼点数据：实际上不能算是图像数据，感觉应该是Kinect上层算法分析彩色和深度图像得到的骨骼点数据，包含了跟踪到的人的关节点的位置等信息。用这些形状信息来匹配人体的各个部分，最后计算匹配出来的各个关节在人体中的位置。
+对于彩色和深度这些来自摄像头探测的图像数据，SDK是以数据流的方式来组织的，也就是图像数据按顺序的一帧一帧的流过来，你需要的时候就拿。当然，如果你拿的速度比摄像头提供图像的速度要快，那么你就需要等待，等待摄像头产生新的数据给你。那么这个“等”就有了两种方式了：while或者事件触发。
+Kinect具有一次识别多达6个游戏者的能力，并能跟踪最多两个人的骨骼
+
+
+另外，作为一名KINECT程序员，你需要记得的是，微软SDK中提供的运行环境在处理KINECT传输数据时，是遵循一条3步骤的运行管线的。
+第一阶段只处理彩色和深度数据；
+第二阶段处理用户索引并根据用户索引将颜色信息追加到深度图中。
+第三阶段处理骨骼追踪数据；
+HRESULT NuiInitialize(DWORD dwFlags);
+    dwFlags参数是以标志位的含义存在的。你可以使用下面几个值来指定你打算使用NUI中的哪些内容。
+NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX 提供带用户信息的深度图数据；
+NUI_INITIALIZE_FLAG_USES_COLOR  提供色彩图像数据；
+NUI_INITIALIZE_FLAG_USES_SKELETON     提供骨骼点数据；
+NUI_INITIALIZE_FLAG_USES_DEPTH  提供深度图像数据.
+NUI_INITIALIZE_FLAG_USES_AUDIO  提供声音数据；
+NUI_INITIALIZE_DEFAULT_HARDWARE_THREAD  初始化默认的硬件线程；
+HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_COLOR); 
+if (FAILED(hr)) { 
+        cout<<"NuiInitialize failed"<<endl; 
+        return hr; 
+} 
+
+
+HANDLECreateEvent(
+LPSECURITY_ATTRIBUTESlpEventAttributes,// 安全属性
+BOOLbManualReset,// 复位方式
+BOOLbInitialState,// 初始状态
+LPCTSTRlpName // 对象名称
+);
+复位方式如果是TRUE，那么必须用ResetEvent函数来手工将事件的状态复原到无信号状态。如果设置为FALSE，当一个等待线程被释放以后，系统将会自动将事件状态复原为无信号状态。
+初始状态：指定事件对象的初始状态。如果为TRUE，初始状态为有信号状态；否则为无信号状态。
+
+NuiImageStreamOpen函数：
+1.打开彩色图：NUI_IMAGE_TYPE_COLOR；要打开深度图，就使用 NUI_IMAGE_TYPE_DEPTH。
+2.假如你在参数eImageType中指定的是彩色图NUI_IMAGE_TYPE_COLOR，那么你可以选择2种分辨率：NUI_IMAGE_RESOLUTION_1280x1024，NUI_IMAGE_RESOLUTION_640x480
+如果你在参数eImageType中指定的是深度图NUI_IMAGE_TYPE_DEPTH，那么你可以选择3种分辨率NUI_IMAGE_RESOLUTION_640x480, NUI_IMAGE_RESOLUTION_320x240， NUI_IMAGE_RESOLUTION_80x60
+3.是一个官方无用参数，只需要给一个整数就行
+4.指定NUI运行时环境将要为你所打开的图像类型建立几个缓冲。最大值是NUI_IMAGE_STREAM_FRAME_LIMIT_MAXIMUM。据说一般程序2就够了。
+5.一个用来手动重置信号是否可用的事件句柄(event)，该信号用来控制KINECT是否可以开始读取下一帧数据。
+6.函数成功执行后，将会创建对应的数据访问通道（流），并且让该句柄保存这个通道的地址。也就是说，如果现在创建成功了。那么以后你想读取数据，就要通过这个句柄了。
+函数返回只有S_OK表示成功打开
+
+
+INuiFrameTexture一个容纳图像帧数据的类，类似于Direct3D纹理，但是只有一层（不支持mip-maping）。
+其公有方法包含以下：
+AddRef---增加一个对象上接口的引用数目；该方法在每复制一个指向该对象上接口的指针时都要调用一次；
+BufferLen---获得缓冲区的字节长度；
+GetLevelDesc---获得缓冲区的描述；
+LockRect---给缓冲区上锁；
+Pitch---返回一行的字节数；
+QueryInterface---获取指向对象所支持的接口的指针，该方法对其所返回的指针调用AddRef函数；
+Release---减少一个对象上接口的引用计数；
+UnlockRect---对缓冲区解锁；
+
+//获取彩色图像流并且转化为opencv支持的Mat格式然后显示
+#include <windows.h>
+#include <iostream> 
+#include <NuiApi.h>
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+using namespace cv;
+
+int main(int argc, char *argv[])
+{
+	Mat image;
+	image.create(480, 640, CV_8UC3);
+ 
+    //1、初始化NUI 
+    HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_COLOR); 
+    if (FAILED(hr)) 
+    { 
+        cout<<"NuiInitialize failed"<<endl; 
+        return hr; 
+    } 
+
+    //2、定义事件句柄 
+	//创建读取下一帧的信号事件句柄，控制KINECT是否可以开始读取下一帧数据
+    HANDLE nextColorFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+    HANDLE colorStreamHandle = NULL; //保存图像数据流的句柄，用以提取数据 
+ 
+    //3、打开KINECT设备的彩色图信息访问通道，并用colorStreamHandle保存该流的句柄，以便于以后读取
+	hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_COLOR, NUI_IMAGE_RESOLUTION_640x480, 
+							0, 2, nextColorFrameEvent, &colorStreamHandle); 
+
+    if( FAILED( hr ) )//判断是否提取正确 
+    { 
+        cout<<"Could not open color image stream video"<<endl; 
+        NuiShutdown(); 
+        return hr; 
+    }
+	namedWindow("colorImage", CV_WINDOW_AUTOSIZE);
+ 
+    //4、开始读取彩色图数据 
+    while(1) 
+    { 
+        const NUI_IMAGE_FRAME * pImageFrame = NULL; 
+
+		//4.1、无限等待新的数据，等到后返回。注意的是可以等待是信号的HANDLE
+        if (WaitForSingleObject(nextColorFrameEvent, INFINITE)==0)
+        { 
+			//4.2、从刚才打开数据流的流句柄中得到该帧数据，读取到的数据地址存于pImageFrame
+            hr = NuiImageStreamGetNextFrame(colorStreamHandle, 0, &pImageFrame); //第二个参数表示延时时间
+			if (FAILED(hr))
+			{
+				cout<<"Could not get color image"<<endl; 
+				NuiShutdown();
+				return -1;
+			}
+
+			INuiFrameTexture * pTexture = pImageFrame->pFrameTexture;
+			NUI_LOCKED_RECT LockedRect;
+
+			//4.3、提取数据帧到LockedRect，它包括两个数据对象：pitch每行字节数，pBits第一个字节地址
+			//并锁定数据，这样当我们读数据的时候，kinect就不会去修改它
+            pTexture->LockRect(0, &LockedRect, NULL, 0); 
+			//4.4、确认获得的数据是否有效
+            if( LockedRect.Pitch != 0 ) 
+            { 
+		//4.5、将数据转换为OpenCV的Mat格式
+		for (int i=0; i<image.rows; i++) 
+                {
+			uchar *ptr = image.ptr<uchar>(i);  //第i行的指针
+					
+			//每个字节代表一个颜色信息，直接使用uchar
+                    uchar *pBuffer = (uchar*)(LockedRect.pBits) + i * LockedRect.Pitch;
+                    for (int j=0; j<image.cols; j++) 
+                    { 
+                        ptr[3*j] = pBuffer[4*j];  //内部数据是4个字节，0-1-2是BGR，第4个现在未使用 
+                        ptr[3*j+1] = pBuffer[4*j+1]; 
+                        ptr[3*j+2] = pBuffer[4*j+2]; 
+                    } 
+				} 
+                imshow("colorImage", image); //显示图像 
+            } 
+            else 
+            { 
+                cout<<"Buffer length of received texture is bogus\r\n"<<endl; 
+            }
+
+	    //5、这帧已经处理完了，所以将其解锁
+	    pTexture->UnlockRect(0);
+            //6、释放本帧数据，准备迎接下一帧 
+            NuiImageStreamReleaseFrame(colorStreamHandle, pImageFrame ); 
+        } 
+        if (cvWaitKey(20) == 27) 
+            break; 
+    } 
+    //7、关闭NUI链接 
+    NuiShutdown(); 
+    return 0;
+}
+
+
+
+
+深度数据流所提供的图像帧中，每一个像素点代表的是在深度感应器的视野中，该特定的（x, y）坐标处物体到离摄像头平面最近的物体到该平面的距离（以毫米为单位）。Kinect中深度值最大为4096mm，0值通常表示深度值不能确定，一般应该将0值过滤掉。微软建议在开发中使用1220mm~3810mm范围内的值。
+深度数据的存储：Kinect的深度图像数据含有两种格式，两种格式都是用两个字节来保存一个像素的深度值，而两方式的差别在于：
+（1）唯一表示深度值：那么像素的低12位表示一个深度值，高4位未使用；
+（2）既表示深度值又含有游戏者ID：Kinect SDK具有分析深度数据和探测人体或者游戏者轮廓的功能，它一次能够识别多达6个游戏者。SDK为每一个追踪到的游戏者编号作为索引。而这个方式中，像素值的高13位保存了深度值，低三位保存用户序号，7 (0000 0111)这个位掩码能够帮助我们从深度数据中获取到游戏者索引值（这个编程将在下一节）。
+应用程序可以使用深度数据流中的深度数据来支持各种各样的用户特性，如追踪用户的运动并在程序中识别和忽略背景物体的信息等。
+
+要注意的是，不要对特定的游戏者索引位进行编码，因为他们是会变化的。实际的游戏者索引位并不总是和Kinect前面的游戏者编号一致。啥意思呢？例如，Kinect视野中只有一个游戏者，但是返回的游戏者索引位值可能是3或者4。也就是说有时候第一个游戏者的游戏者索引位可能不是1。还有，如果走进Kinect视野再走出去，然后再走进来，虽然你还是你，但是Kinect给你的索引ID可能就和原来的不一样了，例如之前返回的索引位是1，走出去后再次走进，可能索引位变为其他值了。所以开发Kinect应用程序的时候应该注意到这一点。
+
+//在显示中，我们通过一个单通道的灰度图像来描述深度图像，像素点越白表示场景中目标里摄像头越近。
+//这是获取不带ID的深度图像
+#include <windows.h>
+#include <iostream> 
+#include <NuiApi.h>
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+using namespace cv;
+
+int main(int argc, char *argv[])
+{
+	Mat image;
+	//这里我们用灰度图来表述深度数据，越远的数据越暗。
+	image.create(240, 320, CV_8UC1); 
+ 
+    //1、初始化NUI，注意：这里传入的参数就不一样了，是DEPTH
+    HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH); 
+    if (FAILED(hr)) 
+    { 
+        cout<<"NuiInitialize failed"<<endl; 
+        return hr; 
+    } 
+
+    //2、定义事件句柄 
+	//创建读取下一帧的信号事件句柄，控制KINECT是否可以开始读取下一帧数据
+    HANDLE nextColorFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+    HANDLE depthStreamHandle = NULL; //保存图像数据流的句柄，用以提取数据 
+ 
+    //3、打开KINECT设备的深度图信息通道，并用depthStreamHandle保存该流的句柄，以便于以后读取
+	hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH, NUI_IMAGE_RESOLUTION_320x240, 
+							0, 2, nextColorFrameEvent, &depthStreamHandle); 
+    if( FAILED( hr ) )//判断是否提取正确 
+    { 
+        cout<<"Could not open color image stream video"<<endl; 
+        NuiShutdown(); 
+        return hr; 
+    }
+	namedWindow("depthImage", CV_WINDOW_AUTOSIZE);
+ 
+    //4、开始读取深度数据 
+    while(1) 
+    { 
+        const NUI_IMAGE_FRAME * pImageFrame = NULL; 
+
+		//4.1、无限等待新的数据，等到后返回
+        if (WaitForSingleObject(nextColorFrameEvent, INFINITE)==0) 
+        { 
+			//4.2、从刚才打开数据流的流句柄中得到该帧数据，读取到的数据地址存于pImageFrame
+            hr = NuiImageStreamGetNextFrame(depthStreamHandle, 0, &pImageFrame); 
+			if (FAILED(hr))
+			{
+				cout<<"Could not get depth image"<<endl; 
+				NuiShutdown();
+				return -1;
+			}
+
+			INuiFrameTexture * pTexture = pImageFrame->pFrameTexture;
+			NUI_LOCKED_RECT LockedRect;
+
+			//4.3、提取数据帧到LockedRect，它包括两个数据对象：pitch每行字节数，pBits第一个字节地址
+			//并锁定数据，这样当我们读数据的时候，kinect就不会去修改它
+            pTexture->LockRect(0, &LockedRect, NULL, 0); 
+			//4.4、确认获得的数据是否有效
+            if( LockedRect.Pitch != 0 ) 
+            { 
+				//4.5、将数据转换为OpenCV的Mat格式
+				for (int i=0; i<image.rows; i++) 
+                {
+					uchar *ptr = image.ptr<uchar>(i);  //第i行的指针
+					
+					//深度图像数据含有两种格式，这里像素的低12位表示一个深度值，高4位未使用；
+					//注意这里需要转换，因为每个数据是2个字节，存储的同上面的颜色信息不一样，
+                    uchar *pBufferRun = (uchar*)(LockedRect.pBits) + i * LockedRect.Pitch;
+					USHORT * pBuffer = (USHORT*) pBufferRun;
+					 
+                    for (int j=0; j<image.cols; j++) 
+                    { 
+                        ptr[j] = 255 - (uchar)(256 * pBuffer[j]/0x0fff);  //直接将数据归一化处理
+                    } 
+				} 
+                imshow("depthImage", image); //显示图像 
+            } 
+            else 
+            { 
+                cout<<"Buffer length of received texture is bogus\r\n"<<endl; 
+            }
+
+			//5、这帧已经处理完了，所以将其解锁
+			pTexture->UnlockRect(0);
+            //6、释放本帧数据，准备迎接下一帧 
+            NuiImageStreamReleaseFrame(depthStreamHandle, pImageFrame ); 
+        } 
+        if (cvWaitKey(20) == 27) 
+            break; 
+    } 
+    //7、关闭NUI链接 
+    NuiShutdown(); 
+	return 0;
+}
+如果需要获取带ID的，那就初始化和打开深度数据流的时候传入的参数是不同的，这个需要注意下，我们需要的是DEPTH_AND_PLAYER_INDEX数据（NUI_INITIALIZE_FLAG_USES_DEPTH_AND_PLAYER_INDEX。NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX）。带ID的话可以方便地从图中找出Kinect认为属于人的部分。
+
+
+
+在Kinect里面，是通过20个关节点来表示一个骨架的。站立模式可以跟踪20个关节点，坐着的模式的话，可以跟踪10个关节点。NUI骨骼跟踪分主动和被动两种模式，提供最多两副完整的骨骼跟踪数据。主动模式下需要调用相关帧读取函数获得用户骨骼数据，而被动模式下还支持额外最多四人的骨骼跟踪，但是在该模式下仅包含了用户的位置信息，不包括详细的骨骼数据。Kinect能够追踪到的骨骼数量是一个常量。这使得我们在整个应用程序中能够一次性的为数组分配内存。循环遍历skeletonFrame，每一次处理一个骨骼。可以使用Skeleton对象的TrackingState属性来判断这是不是一个追踪好的骨骼，只有骨骼追踪引擎追踪到的骨骼我们才进行处理。
+骨骼图像的处理有点麻烦，我就不写了。。。。。
+
+
+由于深度图像数据和彩色图像数据来自于不同的摄像头，而这两个摄像头所在的位置不一样，而且视场角等也不也一样，所以产生的图像也会有差别（就好像你两个眼睛看到的东西都不一样，这样大脑才能通过他们合成三维场景理解），也就是说这两幅图像上的像素点并不严格一一对应。例如深度图像中，你在图像的位置可能是（x1，y1），但在彩色图像中，你在图像的位置是（x2，y2），而两个坐标一般都是不相等的。另外，骨骼数据的坐标又和深度图像和彩色图像的不一样。所以就存在了彩色坐标空间、深度坐标空间、骨骼坐标空间和你的UI坐标空间四个不同的坐标空间了。那么他们各个空间之前就需要交互，例如我在骨骼空间找到这个人在（x1，y1）坐标上，那么对应的深度图像，这个人在什么坐标呢？另外，我们需要把骨骼关节点的位置等画在我们的UI窗口上，那么它们的对应关系又是什么呢？
+微软SDK提供了一系列方法来帮助我们进行这几个空间坐标系的转换。

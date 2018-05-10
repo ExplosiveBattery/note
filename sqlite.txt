@@ -1,0 +1,31 @@
+	sqlite 免费版（开源版本） 不具有自带的加密功能，实际上有着空着的加密接口。商业版内实现了这个接口。很多人开发了自己的加密版本，比如说qt里面就有这种版本，其中的api使用与正常的基本一模一样。也有人通过SQlite中的部分插件实现了SQLite的加解密功能，比如说SQLCipher是一个开源的SQLite加密扩展，支持对db文件进行256位的AES加密。加密的时候可以直接在写入数据库之前就进行加密，读出以后进行解密，这也是一种办法，就是担心加解密的部分被逆向出来了。
+	这种文件只是一个单文件的数据库，所以一开始的定位就说是轻量级别。不过百万级别的数据量还是没有问题的。insert 是一个消耗性能的操作，比select 消耗很多，当你积攒很多次insert一并提交，性能很好。如果你一次一次插入并立刻提交，保证跪下。锁的粒度比较粗，导致一些事务做不好。
+
+	常用的命令： http://blog.csdn.net/sphone89/article/details/9300797
+	.tables 显示数据库中的表格
+	.schema accounts 预览制定table的结构
+	SQLite中每个表都默认包含一个隐藏列rowid，使用WITHOUT ROWID定义的表除外。通常情况下，rowid可以唯一的标记表中的每个记录。表中插入的第一个条记录的rowid为1，后续插入的记录的rowid依次递增1。即使插入失败，rowid也会被加一。所以，整个表中的rowid并不一定连续，即使用户没有删除过记录。由sqlite引擎来维护的，在3.0以前rowid是32位的整数，3.0以后是 64位的整数，为什么不直接使用这个内部的rowid作为每个表的id主键呢。select rowid,* from Courses。单单只有*，是不会对rowid输出的。rowid是从1开始计数。
+	当你在sqlite中删除了大量数据后，数据库文件的大小还是那样，没有变。但是插入数据的时候文件增大，尤其是复制出一个临时数据表的时候，就会造成大小翻倍。直接执行命令vacuum就会进行数据库的压缩，缺点就是耗费时间可能要久一点，但是很好。可以开启auto-vacuum，当提交一个从数据库中删除除数据的事物时，数据库文件自动收缩，当时这个需要在表创建之前设置。.
+	默认会存在一个rowid字段，即与内容无关的id主键。
+	
+	delete from Courses where rowid in (select rowid from Courses as T1 where  exists (select * from Courses as A  where T1.CourseId=A.CourseId and T1.TeachingDay=A.TeachingDay and T1.ClassId=A.ClassId and T1.ClassRemaining!=A.ClassRemaining) group by CourseId);  如果不使用in而是用=，那么居然能够成功，但是只会对后面的记录集合中的第一条记录使用。
+	CONVERT函数（进行形式的转化）：http://www.codeweblog.com/sqlserver-convert-%e5%87%bd%e6%95%b0%e7%94%a8%e6%b3%95%e5%b0%8f%e7%bb%93/
+	between： 必须小的在前面，大的在后面
+sqlite> select * from AmountOfSport where Date between "2018 03 07" and "2018 03 01";
+sqlite> select * from AmountOfSport where Date between "2018 03 01" and "2018 03 07";
+2018 03 01|100
+2018 03 02|180
+2018 03 03|250
+2018 03 04|190
+2018 03 05|210
+2018 03 06|0
+2018 03 07|150
+
+功能支持：
+	SQLite从版本3.6.4开始支持UPDATE/DELETE使用LIMIT子句，可以使用宏SQLITE_ENABLE_UPDATE_DELETE_LIMIT进行编译控制。
+	https://github.com/dumblob/mysql2sqlite 从Mariadb 转换为 SQLITE
+
+问题：
+	使用SQLITE Expert的时候，通过SQL命令来插入数据库语句，虽然只有一条insert 但是 不知道是不是因为后面有--注释代码，导致同一条语句执行了三次。
+	不支持insert into xxx set xxx=xxx;
+	通过SQLITE打开加密数据库，发现右键“输入密码”是灰色的，，因为缺少必要的环境文件，解决：http://blog.csdn.net/sean4m/article/details/50211565。很老的3.10版本识别表不了dll。能够支持的sqlite加密应该要标准的吧，我在QT笔记中记录的并不能打开。

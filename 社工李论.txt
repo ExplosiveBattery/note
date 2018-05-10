@@ -1,0 +1,70 @@
+信息库建立：
+本科生的大创系统设计参与大创的人信息泄露，在<input>里面，设计网页的人真是懒。除了好看点，这网页真是又渣又卡。
+微信公众号上可以获取一些信息，比如宝岛眼镜的账号主体是“上海苏博眼镜有限公司”
+
+假装是猎头，对公司状况进行询问
+用户往往受过培训，不信任HTTP前缀的网站。
+公司以及内部人员（高层）丑闻
+email的自动回复邮件会暴露什么“正在海外旅游”，然后就可以被冒充了。
+员工满意度调查，前50名可以获得xxxx
+遗落的U盘、CD，甚至是被贴上“员工年度考核”“第几季度员工精简提案”标签的媒介。
+
+
+
+密码安全检查：
+https://haveibeenpwned.com/ 需要输入账号或者邮箱
+https://shuju666.com/
+mimayun.club
+
+
+社工攻击工具：
+setoolkit（social engineering toolkit）简称SET：产生社工攻击向量的频繁跟新工具
+可以通过修改/usr/share/setoolkit/config/set_config来扩展功能
+Select from the menu:
+
+   1) Social-Engineering Attacks
+   2) Penetration Testing (Fast-Track) 类似于Metasploit操作
+   3) Third Party Modules #包含远程管理工具Remote Administration Tool RAT，可以嵌入游戏等
+   4) Update the Social-Engineer Toolkit
+   5) Update SET configuration
+   6) Help, Credits, and About
+
+  99) Exit the Social-Engineer Toolkit
+攻击载荷里面的PyInjector与MultiPyInjectior直接向内存注入Shell代码，而不接触磁盘。Materpreter还需要安装。
+
+网站、邮件、SMS（short message service）、传染性媒体、Ardiuino、无线热点
+Spear-Phishing Attack Vectors鱼叉式网络钓鱼攻击，最终会渗透目标系统
+Java Applet一旦被运行，网页就会重定向到原始网站。如果单击取消，脚本将重新出现而不能关闭浏览器，除非杀死进程。
+Credential Harvester就是采集用户的输入凭据，可以通过site clone的方式。
+Mass Mailer Attack 指定邮件列表来发送大量邮件，做到钓鱼攻击，不同于鱼叉式，多数是为了获取用户信息，比如盗号。
+Arduino xxxx 将Arduino编程为鼠标、键盘，一旦插入就会自动运行并打开后门。
+Create a payload and listener 就同msf了，SET会调用msf。
+Tabnabbing Attack Method ：web模板、站点克隆、定制化导入
+web jacking attack method web劫持（配合DNS欺骗使用，会说原本的站点已经改变了然后诱导你点击一个连接进入一个自己制作的钓鱼或者攻击页面）
+有文件生成的话就会在当前目录下的.set/
+
+
+
+
+Fast Track：
+python开发，与SET同作者
+   1) Microsoft SQL Bruter
+   2) Custom Exploits
+   3) SCCM Attack Vector
+   4) Dell DRAC/Chassis Default Checker
+   5) RID_ENUM - User Enumeration Attack
+   6) PSEXEC Powershell Injection
+
+  99) Return to Main Menu
+
+
+
+不管那种测试（白盒、黑盒），与多个用户交流可以得到不错的信息。
+我们来到客户的工作场所进行进一步的内部测试，与最终用户展开交流，询问他们是否再使用新安装的系统时遇到什么问题。出人意料的是，他们谁（注意这里这一个问题问了很多个人）都不允许我们碰触他们的系统，很快解释说因为这里存在登陆问题，一段时间内不允许连接超过10次。后来一个成员发现一位老员工使用互联网遇到了问题，我们询问他是否需要帮助，告诉他可以用我们带来的笔记本连接到局域网，然后身后的一个同事用摄像笔记录了老员工的所有操作，包括登录系统的账号。
+还有个女士告诉我们经常在登录的时候遇到问题，然后我们告诉他我们将尽快解决，但是需要她的账户信息与登录ip。
+
+
+
+---------------------------------------------------------------------------------------------------------------
+解雇以后会安排人员护送着出去，防止摧毁设备或者数据
+

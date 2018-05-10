@@ -1,0 +1,366 @@
+windows xp存在的命令：
+query命令，shadow，tsshutdn 
+在远程终端中,query session查看到会话，使用shadow 会话ID就会请求控制别人的会话，logoff退出
+tsshutdn 15 /powerdown 此关机命令不会向终端用户发送“即将关机”消息
+
+需要一些条件的命令：
+iisreset /reboot /timeout:00 #这是被推荐的重启命令？不明所以。不如shutdown
+
+前景知识：
+windows正统的命令选项是用/，有时候可以是-
+windows的命令行下面路径正统都是反斜杠，有时可以使用斜杠
+不同系统版本的windows命令集不同，可能是删减，可能是更名，也可能是合并（不同CPU指令集不同）
+
+
+\\IP\盘符$ 使用的是局域网内打开的默认共享，比如说E盘、F盘是默认共享的那么盘符就可以是e、f，可以由net share查看本地开启的哪些共享，没有连接上局域网的主机就只有IPC$（远程 IPC）。
+
+for  /f "token=1,2*" %i in (xxx.txt) do net use \\\target\IPC$ %i /u:%j  txt中每一行用户名与密码中间使用空格隔开
+for  /f  %i in (xxx.txt) do echo %i>a & net use \\\target\IPC$ a /u:Administrator 将变量传给了a，然后使用a 
+
+%0~%9表示传递的参数，比方说：
+call hello.cmd "hello" "China" "How are you"
+%0 表示批处理本身(一般情况下用不到)
+%1 表示参数 "hello"
+%2 表示参数 "China"
+%3 表示参数 "How are you"
+只有在bat文件里面才可以使用%数字。
+
+%%似乎是%的转义写法，是在bat脚本中使用，如果是在终端下使用还是%
+
+C:\Users\Battery   因为使用了cmd  /c所以每一次都会带上shell的标志符。同时执行bat中预置的命令会将bat命令也显示出来。使用echo off可以关闭本机上的命令回显，但是这会导致cmder使用异常。
+$ cmd  /c C:\Users\Battery\Desktop\test.bat
+C:\Users\Battery>echo 0.9808 - "1 本国股票"
+0.9808 - "1 本国股票"
+C:\Users\Battery>echo 0.0184 - "5 境外股票"
+0.0184 - "5 境外股票"
+C:\Users\Battery>echo 0.0004 - "4 自然资源大宗商品，包括石油，天然气，各类矿石，木材"
+0.0004 - "4 自然资源大宗商品，包括石油，天然气，各类矿石，木材"
+
+创建文件
+C:\Users\Administrator\a>type a >> a.txt
+系统找不到指定的文件。
+C:\Users\Administrator\a>echo a >> a.txt
+C:\Users\Administrator\a>print v >> b.txt
+
+windows中的grep名字叫做findstr
+
+创建无法正常删除的特殊名字文件夹，因为\\.\c:\con才是真实的路径：
+md \\.\c:\con
+md \\.\c:\aux这个把路径弄成了远程连接了
+md a..\就是使用了../，然而文件名后面也就要跟着..，这个应该是个bug
+两者合体md \\.\h:\con..\
+用360文件粉碎机可解。
+创建无法双击打开无法删除的另类文件夹：
+md test..\
+rd test..\ /s /q
+
+mstsc /v:ip:3389 /console终端超出最大连接数时可用此命令，登录到console
+
+edit这个命令就会打开命令行下的文本编辑，不过win10有这个功能，大概是因为加了点bash。
+
+windows7 net send命令及Messenger服务已经没有了，以前在Xp里在启动Messenger服务时用这个命令给其他的用户发信息，现在用msg替代net send命令。
+
+
+arp:
+	arp -a查看缓存中全部信息
+	arp -d清空缓存（每过一会就会发arp请求从而补上）
+	arp -s IP MAC添加静态映射 if_addr（希望将这条记录添加到哪一个接口地址下）
+	如果arp -s绑定说“访问失败”：
+		netsh i i show in 查看到对应接口的idx
+		netsh -c "i i" add neighbors 本地连接的idx “网关IP” “网关mac”
+at \\127.0.0.1时间 srv.exe（需要对方开启了 'Task Scheduler' 服务）
+ATTRIB [+R | -R] [+A | -A ] [+S | -S] [+H | -H] [+I | -I]
+       [drive:][path][filename] [/S [/D] [/L]]
+	  + 设置属性。
+	  - 清除属性。
+	  R 只读文件属性。
+	  A 存档文件属性。
+	  S 系统文件属性。
+	  H 隐藏文件属性。   这个属性！！！
+	  I 无内容索引文件属性。（可能是指磁盘上是单文件存储）
+	  [drive:][path][filename]
+	      指定 attrib 要处理的文件。
+	  /S 处理当前文件夹及其所有子文件夹中的匹配文件。
+	  /D 也处理文件夹。
+	  /L 处理符号链接和符号链接目标的属性。
+	  /? 获取帮助
+color d 把cmd中的字体改为紫色。
+date返回当前日期并询问要修改的值
+copy注意linux下才是cp   Copy xx.exe\\ip\admin$\System32  开可以上传后门，然后可以使用at命令指定时间执行
+			Copy xx.exe\\ip\admin$\System32\a.exe
+
+C:\Users\Battery
+$ copy /?
+将一份或多份文件复制到另一个位置。
+COPY [/D] [/V] [/N] [/Y | /-Y] [/Z] [/L] [/A | /B ] source [/A | /B]
+     [+ source [/A | /B] [+ ...]] [destination [/A | /B]]
+  source       指定要复制的文件。
+  /A           表示一个 ASCII 文本文件。
+  /B           表示一个二进位文件。
+  /D           允许解密要创建的目标文件
+  destination  为新文件指定目录和/或文件名。
+  /V           验证新文件写入是否正确。
+  /N           复制带有非 8dot3 名称的文件时，
+               尽可能使用短文件名。
+  /Y           不使用确认是否要覆盖现有目标文件
+               的提示。
+  /-Y          使用确认是否要覆盖现有目标文件
+               的提示。
+  /Z           用可重新启动模式复制已联网的文件。
+/L           如果源是符号链接，请将链接复制
+               到目标而不是源链接指向的实际文件。
+
+命令行开关 /Y 可以在 COPYCMD 环境变量中预先设定。
+这可能会被命令行上的 /-Y 替代。除非 COPY
+命令是在一个批处理脚本中执行的，默认值应为
+在覆盖时进行提示。
+要附加文件，请为目标指定一个文件，为源指定
+数个文件(用通配符或 file1+file2+file3 格式)。
+C:\Users\Battery
+$ copy /b xx+xx xx
+
+
+
+DEL [/P] [/F] [/S] [/Q] [/A[[:]attributes]] names 完全等价于erase命令，对目录无效
+  	/P            删除每一个文件之前提示确认。
+ 	/F            强制删除只读文件。
+  	/S            删除所有子目录中的指定的文件。（递归recursion）
+  	/Q            安静模式。删除全局通配符时，不要求确认
+  	/A            根据属性选择要删除的文件
+  	属性          R  只读文件                     S  系统文件
+   	  	      H  隐藏文件                     A  存档文件
+  	              I  无内容索引文件               L  重分析点
+      		       -  表示“否”的前缀
+exit退出shell与powershell
+ftp命令 http://jingyan.baidu.com/article/6525d4b1300912ac7d2e941b.html
+
+help显示可以使用的命令
+ipconfig/all DHCP、租约、DNS
+ipconfig/flushdns 清除当前的DNS缓存
+ld 可以查看缺少了哪些依赖库
+md(mkdir的映射命令，要开启命令扩展才会有映射)
+无法正常删除的文件建立：md anti..\
++
+move而在linux下是mv
+C:\Users\Administrator>move a h:\a.exe		C:\Users\Administrator>move a.exe h:\a.exe
+系统找不到指定的文件。				移动了         1 个文件。
+msg（win 7之前的系统使用的是net send）
+成功以后就会以弹框的形式给对方看消息
+进行局域网内两台电脑通信验证。  MSG /server:192.168.1.201 * "Hello"    ---------->>>>>  运行失败，报错。获取会话名称时的错误 1722。你需要在打开控制面板，双击凭据管理器，点击添加windows凭据，第一行写测试电脑的IP地址，第二行写测试电脑的用户名，第三行写测试电脑的密码，重启电脑。也就是让自己的电脑记住对方的账户与密码即可，不清楚为什么没有在命令中加入这种user、passwd用于验证。还有种记住凭证的方式：cmd 内输入\\192.168.0.201 然后回车，弹出对话框输入帐号和密码，下面有一个勾选项，为记录帐号和密码，勾选此项，凭据管理器内自动添加对应的windows凭据。
+net命令：
+	net localgroup 查看有了哪几个组
+	net localgroup administrators查看管理员用户有哪些。localgroup 意味本地组
+	net localgroup administrators 用户名 /add (将用户加到管理员，从而使其拥有管理权限) 
+	net localgroup "xxxxxx" exeryone /del 从一个本地组中删除everyone成员
+	net share 查看本地开启的哪些共享
+	net share IPC$ 开启IPC空连接共享
+	net share C$/del 删除C：共享
+	net share c$=c:开启C盘默认共享
+	如果要快速启动所有资源的共享，可以直接在服务中启动对应的IPC$共享。
+	net time \\ip  使用这个服务前要求自己与对方的windows time服务是启用的。localhost是自身ip的一个代表词，而且很快，如果是使用ip查询即使是本机都要等一会，可能是学校路由器太远的原因。我net time \\www.baidu.com会说服务未启动。不同时区的time不一样，我们需要。
+	net start schedule开启计划任务服务（at命令需要这一服务）//net start 开启服务
+	net start remoteregistry开启远程注册表(Remote Registry)服务
+	net stop sharedaccess(关闭系统自带的防火墙)
+	net user查看已有用户
+	net user administrator 查看指定用户的详细信息
+	net user 用户名 密码 /add (建立用户，可以不用密码) 
+	net user gslw$ 123456 /add(在用户名后面加了$这样net user就看不到，当然在控制面板的“本地用户和组”及其注册表的“SAM”项下还可以看到。管理员没有权限看这个注册表，所以要将SAN文件夹右键-》权限-》在Administrators中勾上完全控制。用户的权限似乎在注册表的HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users中，最新建立的值是最大的，不停地在某个记录值上加1。我猜测000001F4是管理员，000001F5是Guest吧。在name中就是用户名字。)
+	net user gslw$ 123456 /delete	
+	net user guest /active:Yes (激活guest用户，默认是关着的，关闭的命令就是no，可以对一个已经开启的账户使用，重启以后就会在登录界面消失) 
+	net user guest 12345 (修改guest密码为12345)   cmd是管理员才能使用net，而使用这句话来更改密码不需要输入原密码，直接更改
+	net view (加指定机器名字查看局域网中开启了哪些共享，但是看不到默认共享，不加则是查看当前网络中本机已经已经发现的机器名字) 
+	net use 使用远程资源，建立或者断开连接。
+	net use z: \\xxx.xx.xx.xx\e$  然后在计算机这个窗口中的“网络位置”部分就会出现一个共享盘
+C:\Documents and Settings\Administrator>net user Administrator *
+请键入用户的密码:
+请再键入一次密码以便确认:
+命令成功完成。
+
+auditpol /disable 关闭审核
+auditpol /enable 开启审核
+
+nbt正是NetBios的缩写·
+nbtstat 查看与操作（比如说清除、刷新自己的缓存）基于TCP/IP的NetBIOS的协议资料、本地计算紧急和远程计算机的NetBIOS缓存
+$ nbtstat -r
+    NetBIOS 名称解析和注册统计
+    ----------------------------------------------------
+    通过广播解析的     = 0
+    通过名称服务器解析   = 0
+    通过广播注册的   = 54
+    通过名称服务器注册的 = 0
+如果使用的是dhcp服务器，自动分配IP。那么这个命令就会没有什么作用。
+
+netsh 只支持tcp协议
+netsh命令 wifi：
+	netsh wlan set hostednetwork mode=allow ssid=Test key=0123456789 设置的话是要管理员身份的，而且密码必须是8位或者8位以上。
+	再是新建设置一个虚拟的网卡的无线网络连接
+	netsh wlan start/stop hostednetwork
+	netsh firewall
+?              - 显示命令列表。
+add            - 添加防火墙配置。
+delete         - 删除防火墙配置。
+dump           - 显示一个配置脚本。
+help           - 显示命令列表。
+set            - 设置防火墙配置。
+show           - 显示防火墙配置。
+	netsh firewall set portopening TCP 3389 ENABLE 
+	netsh firewall set portopening protocol=ALL port=445 name=445 mode=DISABLE scope=ALL profile=ALL
+	netsh firewall set portopening protocol=ALL port=135 name=135 mode=DISABLE scope=ALL profile=ALL
+
+
+netstat -nao (查看计算机开放了哪些端口，o是查看对应ed进程id)   较老版本windows上使用an
+netstat -an | find "3389"  #注意被find的字符串必须加上引号
+path输出PATH环境变量的字符串值
+ping命令：-t就像linux中的那样，一直发ping包
+	-n 相当于linux中的-c ，指定发包数目
+	-a 将输入的IP解析为计算机的NetBIOS名字。使用这个命令会导致多出一步，ping的总时间就会变得很长。
+	TTL表示生存时间也就是跳数
+	ping www.baidu.com
+	回显：
+正在 Ping www.a.shifen.com [119.75.217.109] 具有 32 字节的数据:
+来自 119.75.217.109 的回复: 字节=32 时间=31ms TTL=47
+来自 119.75.217.109 的回复: 字节=32 时间=31ms TTL=47
+来自 119.75.217.109 的回复: 字节=32 时间=31ms TTL=47
+来自 119.75.217.109 的回复: 字节=32 时间=31ms TTL=47
+
+119.75.217.109 的 Ping 统计信息:
+    数据包: 已发送 = 4，已接收 = 4，丢失 = 0 (0% 丢失)，
+往返行程的估计时间(以毫秒为单位):
+    最短 = 31ms，最长 = 31ms，平均 = 31ms
+	ping -l 123 www.baidu.com用-l参数指明ICMP request包的负载长度，其中的内容是a-w循环填充。-l的取值范围居然是0-65500，不过对于百度太大的包发过去就是不会理你。
+ping支持NetBIOS中的名字
+虽然是无法访问目标主机，但是已经接收（也是根本没有接收）： 不过linux下还是lost
+	$ ping 192.168.1.208
+	正在 Ping 192.168.1.208 具有 32 字节的数据:
+	来自 192.168.1.147 的回复: 无法访问目标主机。
+	192.168.1.208 的 Ping 统计信息:
+	    数据包: 已发送 = 1，已接收 = 1，丢失 = 0 (0% 丢失)，
+
+
+
+netsh命令之firewall：
+C:\Windows\system32>netsh advfirewall firewall
+此上下文中的命令:
+?              - 显示命令列表。
+add            - 添加新入站或出站防火墙规则。
+delete         - 删除所有匹配的防火墙规则。
+dump           - 显示一个配置脚本。
+help           - 显示命令列表。
+set            - 为现有规则的属性设置新值。
+show           - 显示指定的防火墙规则。
+
+nltest 系统自带的NetBios管理:
+	/DCLIST:<域名> - 获取 <域名> 的 DC 列表
+	/PARENTDOMAIN - 获取此计算机的父级域名
+	/SHUTDOWN:<原因> [<秒数>] - 由于 <原因> 关闭 <服务器名称>
+	/SHUTDOWN_ABORT - 中止系统关闭
+	
+
+powershell进入powershell
+ren完全等价于rename
+reg：注册表命令
+reg add
+“HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server” /v fDenyTSConnections /t reg_dword /d 0 /f。HKLM多见于注册表 就是HKEY_LOCAL_MACHINE的简省写法 。
+regtool view或者add
+regini -m \\xxx files（注册表修改命令）
+
+rd（rmdir的映射命令）
+sc：	SC 是用于与服务控制管理器和服务进行通信的命令行程序。
+	sc config tlntsvr start= auto(auto前有空格)config是指更改服务的配置(永久)。
+	sc delete 服务名字
+schtasks /create /tn mytask /tr notepad.exe /sc hourly /mo 1 #每小时执行一次
+set向屏幕输出系统环境变量
+SET [variable=[string]]
+subset查看当前的虚拟磁盘情况
+subset 还没有被占用的盘符 已知文件夹  然后就会以这个文件夹建立一个虚拟磁盘（就是重定向）
+systeminfo显示产商、版号、CPU信息、BIOS版本信息、内存与虚拟内存占用情况、已安装的修补程序信息、网络连接信息
+tasklist 查看当前进程表（就像是任务管理器） 使用/m参数查看有关的dll  /v显示所有相关信息
+	获得的信息可以输出到文件  或者使用/fi "IMAGENAME eq tasklist.exe" 使用筛选器
+	/M			   直接使用就会将显示的进程中用到的dll都显示出来，如果是 /M xxx.dll这种格式就会显示使用了这个dll的进程信息
+taskkill 使用该工具按照进程 ID (PID) 或映像名称终止任务。
+	 具体使用：TASKKILL [/S system [/U username [/P [password]]]]这一部分是远程操作部分
+         	    	    { [/FI filter] [/PID processid | /IM imagename] } [/T] [/F]
+	    /T                     终止指定的进程和由它启用的子进程。
+	    /IM			   指定需要进程映象名字（不是进程名字）
+	    /PID		   指定需要进程的pid
+	    /F			   有的进程需要加上/F以后才能关闭
+有时候并不能结束一个指定的进程：
+C:\Users\Battery
+$ taskkill /PID 6916 /F
+错误: 无法终止 PID 为 6916 的进程。
+原因: 拒绝访问。
+上面的原因已经查过了，并不是因为文件被占用导致。最后没有办法，剩下这两个不能结束，虽然下面的栏子中已经没有vmware的图标，但是windows还显示着它的第一个全黑的窗口。
+被推荐这时候使用PCHunter来杀死进程。
+
+telnet：
+telnet 127.0.0.1 99
+使用此命令可以远程连接到远程主机后门从而获得shell。下一步比较常见的是创建一个用户为了之后的提权
+tracert(传闻有的NT系统是traceroute)
+time返回当前的时间HMS（小时分钟秒数）并询问是否修改
+ver显示操作系统版本，Microsoft Windows [版本 6.1.7601]表示是win7
+wusa /uninstall /kb:3045999卸载指定编号的补丁
+Xcopy 复制文件和文件夹（而copy命令不能复制文件夹）
+
+补丁：
+powershell进入powershell，然后符号就变成了PS C:\Users\Administrator>
+get-hotfix -id KB3045999查看有没有这个编号的补丁
+wusa /uninstall /kb:3045999卸载补丁
+
+
+
+执行net相关命令的时候说：
+发生系统错误 5。  拒绝访问。
+使用管理员cmd。
+
+C:\Users\Battery>sc
+描述:
+        SC 是用来与服务控制管理器和服务进行通信
+        的命令行程序。可以执行与服务相关的各种操作，
+	包括显示sid以及查询和设置服务的特权。
+C:\Windows\system32>sc config
+描述:
+        在注册表和服务数据库中修改服务项。
+用法:
+        sc <server> config [service name] <option1> <option2>...
+
+选项:
+注意: 选项名称包括等号。
+      等号和值之间需要一个空格。
+ type= <own|share|interact|kernel|filesys|rec|adapt>
+ start= <boot|system|auto|demand|disabled|delayed-auto>
+ error= <normal|severe|critical|ignore>
+ binPath= <BinaryPathName>
+ group= <LoadOrderGroup>
+ tag= <yes|no>
+ depend= <依存关系(以 / (斜杠) 分隔)>
+ obj= <AccountName|ObjectName>
+ DisplayName= <显示名称>
+ password= <密码>
+
+硬件相关命令：
+命令行获取主板序列号：wmic BaseBoard get SerialNumber
+SerialNumber
+M80-5B028400369
+命令行CPU序列号：
+wmic cpu get processorid
+ProcessorId
+BFEBFBFF000506E3
+ipconfig/all 才能查看到MAC
+
+
+路由表查看route print
+
+
+热点创建： wifi  不过win10有专门的移动热点设置（第一次连不上去，重新开关了这个功能就好，IP是192.168.137.31开始分配，热点功能需要同时开启WLAN功能。似乎也需要自己将本地连接的网络传过去，只有这样才会开启DHCP服务）
+	netsh wlan show drivers  需要“支持的承载网络  : 是”
+	netsh wlan set hostednetwork mode=allow ssid=happyla key=3127251266
+	netsh wlan set hostednetwork mode=disallow 
+	在网络适配器属性中设置宽带的共享，比如在本地连接的属性-》共享-》允许其他网络用户通过此计算机的Internet连接来连接，然后选择无线网卡的适配器
+	netsh wlan start/stop hostednetwork
+	Ralink RT5370 的加密类型是WPA2-PSK。
+有一件遗憾的事情：不论是360wifi、自己设置的wifi、win10自动设置的热点，其适配器的接口都不能被wireshark抓到。并且已经自爱罗治港的电脑上测试，也是找不到对应的interface，只能有分享网络的本地连接，但是流量分析的时候容易弄混是本机的流量还是手机的流量，以为源地址都是一样的。
+
+
+通过diskpart进入windows自带的分区工具的交互界面，使用help命令查看帮助
+list然后直接回车就能知道之后的命令是什么，或者类似于Cisco交换机一样的操作，“list ?”回车以后查看帮助
+list volume 能够查看当前存在盘符。但是对于有问题的U盘系统显示已经插入却没有将盘符显示出来这种，是不会出现在这个工具中的，不过会出现在分区助手中的。

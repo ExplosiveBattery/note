@@ -1,0 +1,139 @@
+0.导出整个注册表大概有250MB
+HKEY_CLASSES_ROOT，在Windows用户图形界面下，每件事----每个文件，每个目录，每个小程序，每个连接，每个驱动---都被看做一个对象；每个对象都有确定的属性和它联系。HKCR包含着对象类型和它们属性的列表：
+	一个对象类型和一个文件扩展名关联
+	一个对象类型和一种图标关联
+	一个对象类型和一个命令行动作的关联
+1.右键管理，以向右键添加notepad++编辑为例：
+	Windows Registry Editor Version 5.00
+
+	[HKEY_CLASSES_ROOT\*\shell\notepad++]
+	@="Edit with Notepad++"
+
+	[HKEY_CLASSES_ROOT\*\shell\notepad++\command]
+	@="\"D:\\Program Files (x86)\\Notepad++\\notepad++.exe\" \"%1\""
+
+
+	打开注册表
+	打开HKEY_CLASSES_ROOT\*\Shell
+	新建子项Edit with Notepad++
+	在子项Notepad++下新建子项Command
+	修改子项Command的默认字符串值为:
+	"D:\Programs\Notepad++\notepad++.exe" "%1" 
+	于是右键菜单里面就会有Edit with Notepad++
+
+HKEY_CLASSES_ROOT\Directory\background\shell
+在其中新建项就能够添加到右键菜单中。
+(1)
+一个项里面都还有一个command项以及一个键值icon以及默认键值：
+	“(默认)”键值的值 就是在右键菜单中显示的名字
+	icon 指向一个exe，从而应用图标
+command项中也有一个键值，名称是默认，记录的是程序的启动路径。
+(2)cmd 以及 powershell 这两个项比较独特。
+
+
+2.这个勒索软件威胁现在也会破坏必要的注册表项，并且生成伪造的系统提醒以强制性重新开启计算机。
+3.Ruby来改注册表通过动驱动器相关内容来隐藏C盘：
+	def run
+		key1="HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+		print_line("Disabling C Driver")
+		meterpreter_registry_setvaldata(key1, 'NoDrives', '4', 'REG_DWORD')
+		print_line("Setting No Drive For C")
+
+		meterpreter_registry_setvaldata(key1, 'NoViewOnDrives', '4', 'REG_DWORD')
+		print_line("Removing View On The Drive")
+
+		print_line("Disabled C Drive")
+	end
+通过注册表来锁定桌面背景：
+"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"下创建（但是我win10没有Systemm目录）
+Wallpaper REG_SZ 值为图片路径
+WallpaperStyle REG_SZ 值为2表示适应整个屏幕
+REG_SZ也就是字符串值S
+REG_BINARY是二进制值B
+REG_DWORD是32位值D
+REG_QWORD是64位值Q
+REG_MULTI_SZ是多字符串值M
+REG_EXPAND_SZ是可扩充字符串值E
+
+
+4.TTL：
+HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\Tcpip\Parameters的DefaultTTL 64
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters 这里也有个DefaultTTL 64
+修改后重启生效
+
+
+5.远程端口：
+reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Wds\rdpwd\Tds\tcp" /v PortNumber 
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v PortNumber
+
+
+6.禁止快捷方式的图标显示  删除了注册表中相关的两个值
+    单击“开始”，单击“运行”，在“打开”框中键入 Regedit，然后单击“确定”。找到并随后选择下列注册表项：HKEY_CLASSES_ROOT\lnkfile\shellex\IconHandler 单击“文件”菜单，然后单击“导出”。在“导出注册表文件”对话框中，键入 LNK_Icon_Backup.reg，然后单击“保存”。注意 默认情况下，此操作将在“我的文档”文件夹中创建此注册表项的备份。在注册表编辑器的右窗口中选择值“(默认)”。 按 Enter 编辑注册表项的值。 删除值，以便值为空白，然后按 Enter。
+    找到并随后选择下列注册表项：HKEY_CLASSES_ROOT\piffile\shellex\IconHandler 单击“文件”菜单，然后单击“导出”。在“导出注册表文件”对话框中，键入 PIF_Icon_Backup.reg，然后单击“保存”。注意 默认情况下，此操作将在“我的文档”文件夹中创建此注册表项的备份。在注册表编辑器的右窗口中选择值“(默认)”。 按 Enter 编辑注册表项的值。 删除值，以便值为空白，然后按 Enter。
+    注销所有用户并再次登录，或重新启动计算机。
+
+7.HKCR\htmlfile\shell\open\command  IE的exe可执行文件的目录
+
+8.文件关联：
+HKCR/文件类型/shell/open/command 记载着指定文件格式的默认开启文件
+
+9.远程注册表禁止共享
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa\restrictanonymous  修改值为1
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\AutoShareServer  修改值为0
+
+10.IE起始页：
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\Start Page
+
+11.禁止指定的程序在桌面添加快捷方式：
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\link 修改成0
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer 下新建一个值为0的二进制项
+
+12.开机启动项
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
+《=》使用msconfig
+
+13.关闭小娜
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\
+如果没有Windows Search项，就自己创建
+项里面要有一个AllowCortana为0的DWORD 32值
+
+14.每一次开机都会加载不一样的用户环境变量
+其中用户变量所在位置：
+HKEY_CURRENT_USER\Environment；
+系统变量所在位置为：\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001
+\Control\Session Manager\Environment
+
+15.HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\Default_Page_URL
+设定了IE的起始页面
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\Default_Search_URL
+设定了IE访问的默认搜索页面
+其中的值是http://go.microsoft.com/fwlink/?LinkId=54896
+搜索的时候URL会变成https://www.baidu.com/s?tn=80035161_2_dg&wd=搜索内容
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\Start Page  被设定为hao.360.cn
+这个键值设置的是主页，并不是浏览器的起始页面，起始页面还是HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Main\Default_Page_URL。
+现在的IE已经能够判断主页是佛发生更改（比较当前注册表中的值与一开始开启程序的时候读取的值）。如果被修改会给出提示，并询问是否进行修改。
+
+HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\DOMStorage\www.2345.com
+其中存的感觉并没有多大意义，除非视为访问记录来查看。不过即便是作为访问记录也只能看到访问了哪几个host。看不到路径。
+
+HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\TypedUrls
+看到自己输入的网址的记录，每一条记录按照顺序从url1 开始命名。可以清空值，但是不建议将值删除。
+
+
+百度联盟中的tn=xxxx劫持：
+计算机\HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\SearchScopes\{64AF4D11-6492-4C25-B014-B6C6CEE3B0C5}
+名字叫做URL的键值的值改成https://www.baidu.com/?wd={searchTerms}（去掉tn就好）
+SearchScopes 目录下面还有很多，bing搜索等
+
+16.桌面上的图标，也可以通过注册表设置一个主键，然后在桌面创建一个explorer.exe进行镜像劫持，每一次点击实际上是执行：explorer.exe "http://xxxxx"
+17.LSA Secrets 对应LSASS 进程
+位于HKEY_LOCAL_MACHINE\SECURITY\Policy\Secrets子键下，但是默认是没有权限访问的。但是看不懂里面的内容。
+①某些服务账户的明文口令字②本季系统最近10位用户的口令字密文③FTP、Web用户的明文口令字④RAS远程访问服务拨号账户的名字和口令字⑤用来访问域控制器的计算机账户和口令字密文。其中的密文已经是加密存储的，所以有LSASecretsView工具。
+DefultPassWord 选项代表系统默认帐号(administrator)信息
+xxxx#0 似乎是ADSL拨号的密码
+
+18.HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\FTH\ExclusionList中是重要开机启动进程  名称——xx.exe
+
+19.去除快捷方式的小箭头：http://soft.chinabyte.com/os/325/11363325.shtml

@@ -1,0 +1,3 @@
+lantern£ºhttps://github.com/getlantern/lantern/releases
+psiphon£ºhttps://s3.amazonaws.com/hum9-lwg8-qa2w/zh/index.html
+Tor£ºhttps://github.com/garethflowers/tor-browser-portable/releases

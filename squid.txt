@@ -1,0 +1,2 @@
+Squid是一个高性能的代理缓存服务器，Squid支持FTP、gopher和HTTP协议。
+图标是只章鱼

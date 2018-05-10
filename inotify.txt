@@ -1,0 +1,252 @@
+	要使用 inotify，必须具备一台带有 2.6.13 或更新内核。Inotify 是一个 Linux特性，它监控文件系统操作，比如读取、写入和创建等。不同于脚本、cron等检测方法，inotify是linux内核的一种特性，一旦有操作发生就可以向响应程序发出通知。
+% grep INOTIFY_USER /boot/config-$(uname -r)
+CONFIG_INOTIFY_USER=y 这说明linux内核支持inotify
+安装 inotify 工具套件（提供一个C库和一些命令执行）：
+inotifywait 仅执行阻塞，等待 inotify 事件。您可以监控任何一组文件和目录，或监控整个目录树（目录、子目录、子目录的子目录等等）。在 shell 脚本中使用 inotifywait。在bash中使用inotifywait 命令可以很好地监视目标文件夹中文件的改变，只要设置，需要设定要监视的目录（可以使用正则进行指定要监视或者^来指定不要监视的）inotifywatch 收集关于被监视的文件系统的统计数据，包括每个 inotify 事件发生多少次。
+
+
+#include <sys/inotify.h>
+	使用 inotify 很简单：创建一个文件描述符，附加一个或多个监视器（一个监视器 是一个路径和一组事件），然后使用 read 方法从描述符获取事件。至于读取可以用阻塞的read，这次深入了解下阻塞和非阻塞。
+	在用户态，inotify 通过三个系统调用和在返回的文件描述符上的文件 I/ 操作来使用，使用 inotify 的第一步是创建 inotify 实例：
+int fd = inotify_init ();
+if (fd < 0)
+{
+      perror ("inotify_init () = ");//#include <errno.h>
+}
+	文件系统的变化事件被称做 watches 的一个对象管理，每一个 watch 是一个二元组（目标，事件掩码），目标可以是文件或目录，事件掩码表示应用希望关注的 inotify 事件，每一个位对应一个 inotify 事件。下面函数用于添加一个 watch：
+int wd = inotify_add_watch (fd, path, mask);Wd 是 watch 描述符
+if( wd < 0) {...}
+下面的函数用于删除一个 watch：
+int ret = inotify_rm_watch (fd, wd);
+On success, inotify_rm_watch() returns zero, or -1 if an error occurred
+	 文件事件用一个 inotify_event 结构表示，它通过由 inotify_init() 返回的文件描述符使用通常文件读取函数 read 来获得： 
+struct inotify_event {但是sizeof这个结构体只有16字节最后一个不占字节，C动态大小结构体
+        __s32           wd;             /* watch descriptor 有符号32位*/
+        __u32           mask;           /* watch mask */
+        __u32           cookie;         /* cookie to synchronize two events */
+        __u32           len;            /* length of name+末尾的对齐填充字节数目 */
+        char            name[];        /* stub for possible name */
+};mask倒是有必要，因为之前指定wd的mask是一个监控的集合，而这里的mask是特定的事件描述。而name它只是为了用户方面引用文件名，文件名是变长的，它实际紧跟在该结构的后面，文件名将被 0 填充以使下一个事件结构能够 4字节对齐。注意，len 也把填充字节数统计在内。
+
+
+	通过 read 调用可以一次获得多个事件，只要提供的 buf 足够大：
+size_t len = read (fd, buf, BUF_LEN); buf 是一个 inotify_event 结构的数组指针，BUF_LEN 指定要读取的总长度，buf 大小至少要不小于 BUF_LEN，该调用返回的事件数取决于 BUF_LEN 以及事件中文件名的长度。Len 为实际读去的字节数，即获得的事件的总长度。
+注意第二个参数形参要求了是char类型。
+if ( len < 0 ) {
+    perror( "read" );
+} 
+	在内核中，每一个 inotify 实例对应一个 inotify_device 结构。结构 inotify_device 在用户态调用 inotify_init（） 时创建，当关闭 inotify_init（）返回的文件描述符时将被释放。结构 inotify_watch（对 inotify_watches 列表的访问受到信号量的限制而同步） 在用户态调用inotify_add_watch（）时创建，在用户态调用 inotify_rm_watch（） 或 close（fd）时被释放。
+	无论是目录还是文件，在内核中都对应一个 inode 结构。
+	发生事件之一时，相应的文件系统代码将显示调用fsnotify_* 通知函数来把相应的事件报告给 inotify 系统，其中*号就是相应的事件名，
+	以上提到的通知函数最后都调用 inotify_inode_queue_event（inotify_unmount_inodes直接调用 inotify_dev_queue_event ），该函数首先判断对应的inode是否被监视，这通过查看 inotify_watches 列表是否为空来实现，如果发现 inode 没有被监视，什么也不做，立刻返回，反之，遍历 inotify_watches 列表，看是否当前的文件操作事件被某个 watch 监视，如果是，调用 inotify_dev_queue_event，否则，返回。函数inotify_dev_queue_event 首先判断该事件是否是上一个事件的重复，如果是就丢弃该事件并返回，否则，它判断是否 inotify 实例即 inotify_device 的事件队列是否溢出，如果溢出，产生一个溢出事件，否则产生一个当前的文件操作事件，这些事件通过kernel_event 构建，kernel_event 将创建一个 inotify_kernel_event 结构，然后把该结构插入到对应的 inotify_device 的 events 事件列表，然后唤醒等待在inotify_device 结构中的 wq 指向的等待队列。想监视文件系统事件的用户态进程在inotify 实例（即 inotify_init（） 返回的文件描述符）上调用 read 时但没有事件时就挂在等待队列 wq 上。
+	inotify 可以监视的文件系统常见事件包括：
+IN_ACCESS：文件被访问
+IN_MODIFY：文件被修改
+IN_ATTRIB，文件属性被修改（包括时间戳）
+IN_CLOSE_WRITE，以可写方式打开的文件被关闭
+IN_CLOSE_NOWRITE，以不可写方式打开的文件被关闭
+IN_CLOSE 上面两个CLOSE的或
+IN_OPEN，文件被打开
+IN_MOVED_FROM，文件被移出监控的目录
+IN_MOVED_TO，文件被移入监控着的目录
+IN_MOVE 上面两个MOVE的或
+IN_CREATE，在监控的目录中新建文件或子目录
+IN_DELETE，文件或目录被删除
+IN_DELETE_SELF，自删除，即一个可执行文件在执行时删除自己
+IN_MOVE_SELF，自移动，即一个可执行文件在执行时移动自己
+IN_ALL_EVENTS 所有事件
+IN_ISDIR 创建的是目录，先if ( event->mask & IN_CREATE )  .标示事件是否是发生在目录之上 
+
+最后要记得
+inotify_rm_watch( fd, wd );
+close( fd );
+
+被检测目录被删除以后就会停止监控，估计已经自动inotify_rm_watch了
+
+#include <sys/stat.h> //mkdir
+#include <unistd.h>  //access //read
+#include <stdio.h>
+#include <sys/inotify.h>
+#include <error.h>
+int main(void) {
+	 	int fd =inotify_init();
+		if(fd < 0) perror("fd error");
+		if( access("/tmp/webcamDir", 0) )
+			mkdir("/tmp/webcamDir",  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH ); 
+		int wd=inotify_add_watch(fd, "/tmp/webcamDir", IN_ALL_EVENTS);
+		if(wd < 0) perror("wd error");
+		char *buf[100];
+		while(1) {
+			if(read(fd, buf, 100)>0 ){
+				printf("get\t");
+			}
+			fflush(stdout);
+		}
+}
+
+
+
+#include <stdio.h>  
+#include <string.h>  
+#include <stdlib.h>  
+#include <sys/inotify.h>  
+#include <unistd.h>  
+  
+#define EVENT_NUM 12  
+  
+char *event_str[EVENT_NUM] =   
+{  
+    "IN_ACCESS",  
+    "IN_MODIFY",  
+    "IN_ATTRIB",  
+    "IN_CLOSE_WRITE",  
+    "IN_CLOSE_NOWRITE",  
+    "IN_OPEN",  
+    "IN_MOVED_FROM",  
+    "IN_MOVED_TO",  
+    "IN_CREATE",  
+    "IN_DELETE",  
+    "IN_DELETE_SELF",  
+    "IN_MOVE_SELF"  
+};  
+  
+int main(int argc, char *argv[])  
+{  
+    int fd;  
+    int wd;  
+    int len;  
+    int nread;  
+    char buf[BUFSIZ];  
+    struct inotify_event *event;  
+    int i;  
+      
+    if(argc < 2)  
+    {  
+        fprintf(stderr, "%s path\n", argv[0]);  
+        return -1;  
+    }  
+      
+    fd = inotify_init();  
+    if( fd < 0 )  
+    {  
+        fprintf(stderr, "inotify_init failed\n");  
+        return -1;  
+    }  
+      
+    wd = inotify_add_watch(fd, argv[1], IN_ALL_EVENTS);  
+    if(wd < 0)  
+    {  
+        fprintf(stderr, "inotify_add_watch %s failed\n", argv[1]);  
+        return -1;  
+    }  
+      
+    buf[sizeof(buf) - 1] = 0;  
+    while( (len = read(fd, buf, sizeof(buf) - 1)) > 0 )  
+    {  
+        nread = 0;
+	printf("len:%d ", len)  ;
+        while( len > 0 )  
+        {  
+            event = (struct inotify_event *)&buf[nread];  
+            for(i=0; i<EVENT_NUM; i++)  
+            {  
+                if((event->mask >> i) & 1)  
+                {  
+                    if(event->len > 0)  
+                        fprintf(stdout, "%s --- %s\n", event->name, event_str[i]);  
+                    else  //beautiful
+                        fprintf(stdout, "%s --- %s\n", " ", event_str[i]);  
+                }  
+            }  
+            nread = nread + sizeof(struct inotify_event) + event->len;  
+            len = len - sizeof(struct inotify_event) - event->len; 
+	    printf("add "); fflush(stdout);
+        }  
+    }  
+      
+    return 0;  
+}  
+ffmpeg：没有IN_CREATE，不过touch命令是会有的
+add 000000004.jpg --- IN_OPEN
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_MODIFY
+add len:32 000000004.jpg --- IN_CLOSE_WRITE
+touch命令：
+add len:32 z --- IN_CREATE
+add len:32 z --- IN_OPEN
+add len:32 z --- IN_ATTRIB
+add len:32 z --- IN_CLOSE_WRITE
+ls命令：
+len:16   --- IN_OPEN
+add len:16   --- IN_ACCESS
+add len:16   --- IN_ACCESS
+add len:16   --- IN_CLOSE_NOWRITE
+
+
+notify 每一个IN_消息都会单独放一个struct inotify_event里面
+
+
+//这个程序一旦touch a这种命令发生在监控文件夹中就会导致read一直返回-1，因为sizeof(struct inotify_event)来read是一定在这时候没有读取完的，name是有内容的，后面还要对齐字节。估计于是fd拒绝访问了吧，否则的话还是可以正常读下去的。
+//简单的更改		struct inotify_event event[2];
+			if( ( a=(long)read(fd, &event[0], sizeof(struct inotify_event)*2) )>0) 
+
+#include <sys/stat.h>
+#include <unistd.h>  
+#include <stdio.h>
+#include <sys/inotify.h>
+#include <error.h>
+
+int main(void) {
+	 	int fd =inotify_init();
+		if(fd < 0) perror("fd error");
+		if( access("/tmp/webcamDir", 0) )
+			mkdir("/tmp/webcamDir",  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH ); 
+
+		int wd=inotify_add_watch(fd, "/tmp/webcamDir", IN_ALL_EVENTS);
+		if(wd < 0) perror("wd error"); long a;
+		struct inotify_event event;
+		while(1){
+			if( ( a=(long)read(fd, &event, sizeof(struct inotify_event)) )>0) {
+				printf("get%ld\t",a);
+				fflush(stdout); 
+			}
+			printf("%ld",a);
+		}
+}
+
+
+
+
+
+自己成功的程序：
+#include <sys/stat.h>
+#include <unistd.h>  
+#include <stdio.h>
+#include <sys/inotify.h>
+#include <error.h>
+
+int main(void) {
+		if( access("/tmp/webCam", 0) )
+			mkdir("/tmp/webCam",  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH ); 
+
+	 	int fd =inotify_init();
+		if(fd < 0) perror("fd error");
+		int wd=inotify_add_watch(fd, "/tmp/webCam", IN_CREATE);
+		if(wd < 0) perror("wd error");
+
+		struct inotify_event  *pevent;
+		char buf[10000]; int length;
+		while( length=read(fd, buf, sizeof(buf)) >0) {
+			for(int i=0;i < length;i+=pevent->len+sizeof(struct inotify_event)) {
+				pevent =(struct inotify_event*)&buf[i];
+				printf("%s --- %d", pevent->name, pevent->mask);
+				fflush(stdout);
+			}
+		}
+		
+}

@@ -1,0 +1,28 @@
+Hexchat是Xchat的升级版，都是开源。irssi也是IRc客户端
+架构是服务器-》频道。每一个频道都有自己的管理员，ops就是管理员的缩写。频道名字都是#开头
+
+命令是与服务器的交互，或许管理员可以看得到
+
+下面每个命令中原因都是可以省略掉的。
+/list #查看所以频道，也可以从交互图形界面处打开
+/list －MIN A －MAX B #现在查看的是人数大于A个人但小于B个人的频道 
+/list >20 #人数大于20的频道
+/list *ABC*   #使用了通配符来限定频道名字
+/list #ABC*   #ABC开头的频道名字
+/join #频道名
+/PART #频道名 离开频道的原因  #退出频道
+/quit 退出原因 #退出服务器
+资料：
+/msg nickserv help 
+/msg NickServ REGISTER 密码 电子邮件地址#注册昵称，然后这个昵称就暂时是你的了。一般不使用
+/msg NickServ IDENTIFY 昵称 密码 #密码验明正身 
+/msg NickServ GROUP #验明正身后，换昵称加为额外的名
+/nick 新的昵称 #换名字
+/whois 昵称 #查看指定人资料，可以看到他加入了那些频道
+/away leave for a while #设置人离开消息
+/back #人回来了
+/who ip 某个ip上所有的人，比如手/who 192.168.1. #irc聊天上的ip一定是可以查询到的，除非用了tor，我安全起见走了vps。
+
+在irc中贴代码或者log,很容易因为大幅滚屏而造成其他聊天者的不悦,所以一般在 http://dpaste.com/ 中贴代码,然后把生成的网址贴在irc里
+
+onion irc曾经Anonymous 开的使用tor Browser和HexChat的服务器，但是2016/7关闭。

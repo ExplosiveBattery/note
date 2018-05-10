@@ -1,0 +1,2 @@
+https://serve.netsh.org/pub/ipv4-hosts/
+https://serve.netsh.org/pub/ipv6-hosts/

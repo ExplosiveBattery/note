@@ -1,0 +1,37 @@
+Rootkit就是让操作系统来撒谎从而隐藏自己。
+植入技术：  关键是装入内核层
+	比较流行的是作为内核的一个模块装入内核层执行。
+	曾使用对/dev/kmem或者/dev/mem 对kernel内存进行读写操作
+截获技术：
+（系统调用表）
+	系统表调用的改动很容易被检测到
+	所以不改变表的话就改变被调用的处理程序，让它们调用rootkit自己的系统调用表
+（中断描述表）
+	通过触发中断改变执行流，并且hook了中断描述表
+（其他技术）
+	使用VFS虚拟文件系统接口来扰乱系统来截获
+
+windows Rootkit：
+	Hacker Defender：
+	主要的三个文件hxdef100.exe、hxdef100.ini和bdcli100.exe
+	hxdef100.ini ：
+		[Hidden Tale] 指明要隐藏的文件
+		[Hidden Processes] 指明要隐藏的进程
+		[Root Process] 指明我们想要控制的程序，包括了上面两节中指出的程序
+		[Hidden Services] 指明隐藏服务
+		[Hidden Regkeys] 隐藏注册表指定内容
+		[Startup Run] 列举在Hacker Defender启动以后要启动的程序，这里指定后门
+		[Free Space] 在这个标题下面加上一个数字，单位默认使用KB，这个数字就会加到磁盘未使用空间中
+		[TCPI] 指明了隐藏的TCP Input Port
+		[TCPO] 指明了隐藏的TCP Output Port
+		[UDP] 指明了要隐藏的UDP端口
+
+linux rootkit：
+	Carbonite 这个内核模块能够冻结Linux中的task_struct 中的进程状态，从而用于发现恶意的LKM。
+
+
+高级技术：
+    现在使用的技术有
+    Carbonite 这个内核模块能够冻结Linux中的task_struct 中的进程状态，从而用于发现恶意的LKM。
+    被rootkit感染的电脑，执行命令的结果是不可信的。可能是文件替换，也可能是系统调用。
+    避免被黑客发现的技术可以用于避免被查杀，对通信和文件也进行加密。

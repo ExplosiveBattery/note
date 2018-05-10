@@ -1,0 +1,120 @@
+在win10下使用碰到问题说由于与Device Guard，VM不能使用。这是因为win10的这个是一个Hyper-V基于虚拟机，用于win10的安全。然而Hyper-V不能喝VMware同时开启，所以要在控制面板-》卸载程序-》启动或关闭windows功能-》把Hyper-V前面的钩钩去掉。然后重启电脑给windows配置一下就可以了。
+
+BIOS设置启用CPU虚拟化解决VMware虚拟机不支持X86_64位linux操作系统安装问题
+安装了VMvituralBox以后导致VMware没网！禁用掉VMBox的的网卡就行了
+
+无法打开虚拟机获取所有权失败：
+https://www.gezila.com/tutorials/58886.html 照着这上面的删除四个文件夹就好。
+
+kali 9G左右
+VMware安装包邮500M，其实虚拟机只用100+M比如手VirtualBOX，加上自己的扩展什么的。虚拟机在win8上需要卸载补丁，才可以使用
+powershell进入powershell，然后符号就变成了PS C:\Users\Administrator>
+get-hotfix -id KB3045999查看有没有这个编号的补丁
+wusa /uninstall /kb:3045999卸载补丁 wusa是“windows Update独立安装程序”的意思
+
+VirtualoBox支持很多虚拟机硬盘格式包括VMware的vmdk。
+
+虚拟化最大的瓶颈就是显卡，除非上专用的虚拟化显卡，英伟达有。OSX虚拟机在显卡上是个瓶颈，原因是虚拟机的显卡性能不足以支持yosemite中大量的透明特效。
+
+VMware还是很友好的，对于能识别出来的都能自动安装，注意最后定义好硬件设置。
+我没有指定iso文件就不小心开机一次了（DHCP界面），之后再指定怎么没有用？这是因为由于你不小心的第一次开机把配置里面指定iso上面有个启动时连接那个钩钩去掉了，你重新打上即可。
+如果在安装的时候，比如说安装kali，要注意GRUB安装到磁盘那一步，要把磁盘选中，再点continue，否则将会导致开机一直开在黑屏。
+
+windows7安装完，问你无法连接到虚拟设备sata0:1，主机上没有相应的设备，是否每次开机都尝试连接此设备，选择是和否都是可以的。
+
+虚拟机上软件模拟又不是真的有硬件 既然没硬件那你又怎么装相应驱动呢。也可能是把驱动虚拟过来了？
+
+不能全屏是因为没有安装VMware Tools。在安装 VMware Tools 之前，删除以前的 /tmp/vmware-tools-distrib 目录。你需要对/media/cdrom（或者/media/cdrom0这其中一样，估计是映射，不能直接在这个目录下解压，cp出来）里面的压缩包进行加压。由于是tar.gz所以解压命令是tar -xzf （注意f必须要是最后一个参数）不过你不能直接在/media/cdrom这个目录下面进行解压，因为被设置为可读。默认解压得到的文件夹是全小写的，即使压缩文件夹里面是有大写字母的。解压以后执行其中的install.pl（加个-d参数全部使用默认参数就不需要自己确定了）。安装成功以后就会有：
+To enable advanced X features (e.g., guest resolution fit, drag and drop, and 
+file and text copy/paste), you will need to do one (or more) of the following:
+1. Manually start /usr/bin/vmware-user
+2. Log out and log back into your desktop session; and,
+3. Restart your X session.
+但是有的系统安装并没有这个提示也没有/usr/bin/vmware-user文件
+
+Enjoy,
+中断tool的安装操作可能会导致之后安装失败，你需要根据提示删除已安装的它自己又不能去卸载的内容。
+
+桌面上的live光盘只需要在设置里面把启动时连接去掉就好了。我怎么需要安装了tools以后才可以使用共享磁盘/mnt/hgfs/disk，之前一直找不到。
+
+
+--the VMware team
+安装后，还要在查看里面保证是按照“自动适应客户机”显示。如果是“居中显示客户机”就不会全屏。双击全屏后的工具栏也可以退出全屏。
+每一个系统都要安装tools。
+重新安装的是时候，shell不要停在/media/cdrom中，这会导致它挂载失败。一旦挂在成功会出现cdrom、cdrom0
+
+对于kali2.0早期版本总是安装不成功，apt-get install vm-tools。
+
+重启后过一会，才会把拖文件这个功能生效。
+
+可以把物理机上的U盘映射给虚拟机，这样子可以做到只允许虚拟机对这个U盘进行读写。想到了共享文件夹。
+
+桥接失败，一旦桥接，虚拟机里面的network就不可以使用，绝对会连不上网。VMware-》编辑-》虚拟网络编辑器 中发现没有桥接网卡，只有“仅主机XXX”“NAT”，自己添加桥接就说无法将网络更改为桥接状态。这时候通过设备管理器把VMware的网络驱动卸载了，燃火移出虚拟网络编辑器里面的一切，然后点击“还原默认设置”。本来以为是路由器，但是我这个路由器系统是支持DHCP的！
+NAT下arp -a
+gateway (192.168.45.2) at <incomplete> on eth0
+? (192.168.45.254) at 00:50:56:ec:9c:e6 [ether] on eth0
+但是192.168.45.2是关着的一样，192.168.45.254倒是开着
+
+把选项卡移出来会重新打开一个VMware，同时交出所有权。移进去的时候又会获得所有权。
+
+
+虚拟机的快捷键：
+C-G 定位到虚拟机
+C-A 定位到物理机
+
+给虚拟机设置内存大了，就会导致虚拟机卡，但是本机不会卡，我给虚拟机设置了7.4G内存，但是实际分出去的内存才4GB左右
+
+一个kali快照有5GB。
+
+VMware“该虚拟机似乎正在使用中”，似乎是因为晚上虚拟机没有挂起就直接关机了。之后说“获取所有权”但是获取失败了。删除文件夹下的.lck文件，不过最好是将之重命名为.backup
+
+
+可以通过搭建让所有VM的流量都走tor过。
+
+双击vmx无效，我就尝试删除Windows XP Professional.vmx.lck这个缓存文件夹，果然再双击就有效了
+
+win10的权限设置不错，vmware居然遇到了说权限不足不能打开.vmdk文件，这时候变管理员运行vmware就好。后来我发现问题出在整个盘那里，Administrator权限倒是都有，但是User权限不够，加上去以后就能在盘里面直接下载东西和VM打开.vmx文件了。
+
+又是一次电脑意外卡死，vmware打开就“虚拟机无法打开内核设备"\\.\Global\vmx86"的解决方法”，：
+在管理员cmd中一次次输入以下命令：
+net start vmci
+net start vmx86
+net start VMnetuserif
+sc config vmci=auto
+sc config vmx86=auto
+sc config VMnetuserif=auto
+net是开服务，sc是改注册表。
+如果还无法运行，则从 VMware Workstation安装目录，找到 ：vmx86.sys（或者是vmx64.sys）和 vmci.sys文件， 复制：vmx86.sys和 vmci.sys文件；我们打开c:\windows\system32\drivers，把vmx86.sys和 vmci.sys文件粘贴进去；重新启动计算机。这样操作后，问题应该能够得到解决。
+
+
+VMware tools 在移动虚拟机文件以后绘出现不稳定的情况，不过移出功能和全屏功能还是很稳定的。但是移入功能可能会出现问题。
+
+发现VM创建的虚拟机的MAC（或者说创建的网络连接）地址是一样的。
+
+
+将exe直接拖到虚拟机中的cmd上，C:\Users\FindMe>C:\Users\FindMe\AppData\Local\Temp\vmware-FindMe\VMwareDnD\7e32d
+c2f\WCE.EXE  是可以运行的。
+
+我创建的震网3，结果都在C:\Users\Battery\AppData\Local\Temp\vmware-Battery\VMwareDnD\963ee805
+
+
+当将USB无线网卡接入kali的时候就会导致虚拟机桥接没有网络，虽然还原默认配置以后在一瞬间是两者都可以使用，但是很快虚拟机就会失去响应。
+一情况吓没有桥接网卡：编辑-》更改网络设置-》更改配置 桥接网卡才会出现 后来删除桥接，自己创建一个桥接会提示“无法将网络更改为桥接状态：没有未桥接的主机网络适配器”。如果卸载不彻底似乎会出现这样的事情。最后的解决办法i是这样的：还原网络默认配置，之后进入更改配置，从而出现桥接2接口，将桥接改成其他模式比如说NAT，然后再改回来。这样一般的模式下就会有桥接了，但是还是不能上网，我之后使用管理员权限重新开启vmware，并关闭了360系列软件，于是问题已经被修复。最后补上一句，真的是360安全卫士的问题，它会导致桥接断网。
+
+如果还原网络默认配置都不能解决断网问题就重装。
+
+
+东西不能从里面直接拖出来，于是就使用对文件夹的复制、粘贴 弄出来。
+
+
+========================================================================================================
+linux下推荐虚拟机：KVM
+
+
+
+========================================================================================================
+Oracle Vitural Box
+就像VM tools，要想支持拖拽功能需要安装vbox增强工具
+如果要删除virualbox适配器中的网卡： https://zhidao.baidu.com/question/1862908620448289467.html
+
+

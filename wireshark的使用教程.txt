@@ -1,0 +1,191 @@
+windows2.2.1 界面与linux下一致，但是最新版的默认是老界面，除非安装的时候将wireshark1这个选项选中
+E:\Study\计算机网络\计算机学院课程 的“实验报告”是很好的对wireshark的使用
+
+
+如果wireshark值抓到返回包：
+https://ask.wireshark.org/questions/27296/wireshark-only-capturing-incoming-packets
+http://blog.csdn.net/lyhdream/article/details/72858303
+interfering software：AV, Firewall, Endpoint Security, VPN Client, etc
+
+使用RawCap 抓捕本地回路的包保存为cap文件，之后使用wireshark打开。
+
+无线网卡有monitor mode，promiscuous mode
+monitor mode 直接从空气中获取无线信号，从而得到包
+promiscuous mode 需要和AP点进行认证  
+
+
+eq就是==的意思
+可以使用位运算符号
+显示的字段中右键可以创建筛选器语句
+
+注意格式：
+	1.过滤IP，如来源IP或者目标IP等于某个IP
+例子:
+ip.src eq 192.168.1.107 or ip.dst eq 192.168.1.107
+ip.src!=192.168.1.208 and ip.src==192.168.1.0/24  
+ip.src==192.168.1.107
+或者
+ip.addr eq 192.168.1.107 // 都能显示来源IP和目标IP
+
+
+
+	2.过滤端口
+例子:
+tcp.port eq 80 // 不管端口是来源的还是目标的都显示
+tcp.port == 80
+tcp.port eq 80 or udp.port eq 80
+tcp.dstport == 80 // 只显tcp协议的目标端口80
+tcp.srcport == 80 // 只显tcp协议的来源端口80
+udp.port eq 15000
+过滤端口范围
+tcp.port >= 1 and tcp.port <= 80
+
+	3.按协议过滤（全部是小写）
+例子:
+tcp
+udp
+arp
+icmp
+http
+smtp
+ftp
+dns
+msnms
+ip
+ssl
+oicq（QQ协议,基于udp）
+bootp
+等等
+排除arp包，如!arp   或者   not arp
+http是基于tcp的，所以你not tcp其实not掉了很多协议。
+	4.过滤MAC（没想到是网卡的eth来作为对象名称）
+太以网头过滤
+eth.dst == A0:00:00:04:C5:84 // 过滤目标mac
+eth.src eq A0:00:00:04:C5:84 // 过滤来源mac
+eth.dst==A0:00:00:04:C5:84
+eth.dst==A0-00-00-04-C5-84 //-会被转换成为:
+eth.addr eq A0:00:00:04:C5:84 // 过滤来源MAC或目标MAC等于A0:00:00:04:C5:84的
+less than 小于 < lt 
+小于等于 le
+等于 eq
+大于 gt
+大于等于 ge
+不等 ne
+
+	5.包长度过滤
+例子:
+udp.length == 26 这个长度是指udp本身固定长度8加上udp下面那块数据包之和，也就是算上了udp头的长度。udp没有len。
+tcp.len >= 7   tcp里面的内容而并不包括tcp头。也就是wireshark显示的len。
+ip.len == 94 除了以太网头固定长度14,其它都算是ip.len,即从ip本身到最后
+frame.len == 119 整个数据包长度,从eth开始到最后
+eth —> ip or arp —> tcp or udp —> data
+
+6.wireshark是对包的分析软件（称为解码），抓包是靠引擎：
+LipcapX	Linux
+WinpcapX windows（X表示版本）
+
+	7.kali运行自带的wireshark都会有个报错弹框，这是权限问题，可以无视。
+
+	8..两层过滤：抓包筛选器（位于抓包选项里面）和显示筛选器（位于显示界面上方）
+capture（capture filter）-》display filter
+
+	9.通过wireshark的使用，发现了路由器会隔一段时间用arp包来判断连接目标是否存活。
+XiaomiCo_d0:f5:e2	AsrockIn_9a:26:31	ARP	60	Who has 192.168.1.147? Tell 192.168.1.1
+AsrockIn_9a:26:31	XiaomiCo_d0:f5:e2	ARP	42	192.168.1.147 is at d0:50:99:9a:26:31
+路由器每次会发四个arp包。不仅仅是路由器，主机也会这样发送。
+目标IP地址全是1，目标mac地址全是0
+
+	10.默认情况下使用端口来区分协议。对于端口特别的包，包的结构就会解析不对。这时候自己对包右键，Decode As。
+
+	11.右键，跟踪流-》选择跟踪的协议，然后就会把这个包参与的流显示出来。
+
+	12.怎么开始捕获呢？
+捕获-》选项-》选中你要的网卡，然后就可以点开始了。
+
+	13.对于大的抓包文件，wireshark性能不太好。所以不适合大企业这种任务大而重的地方。所以有些商业化抓包软件可以基于wireshark做到很好。
+
+
+	15.选中模块然后右键 显示分组字节（其实不是分组字节，而是包的这一部分的字节）
+
+	16.ICMP的v6版本叫做ICMPv6。
+
+	17.给53端口发 udp，会被识别为DNS。所以有decode as这个功能
+
+	18.早期网卡的驱动不会对VLAN TAG进行处理，而是直接送给上层处理，在这种环境下，WireShark可以正常抓到带VLAN TAG的报文。
+而Intel，broadcom，marvell的网卡则会对报文进行处理，去掉TAG后再送到上层处理，所以WireShark在这种情况下通常抓不到VLAN TAG。这时我们需要针对这些网卡做一些设置，WireShark才能够抓取带VLAN TAG的报文。
+
+IP被VLAN的802.1Q封装在里面。
+
+	19.http
+http.request.method == “GET”
+http.request.method == “POST”
+http.request.uri == "/img/logo-edu.gif" //确实是uri
+http.response.code == 200
+http contains “GET”
+http contains “HTTP/1.”
+
+	20.tcp
+
+tcp.flags.syn == 0x02 //也就是tcp.flags == 0x02
+tcp.window_size == 0 //这个注意！
+
+	21.正则表达式
+ 1、wireshark基本的语法字符
+\d          0-9的数字
+\D          \d的补集（以所以字符为全集，下同），即所有非数字的字符
+\w          单词字符，指大小写字母、0-9的数字、下划线
+\W          \w的补集
+\s          空白字符，包括换行符\n、回车符\r、制表符\t、垂直制表符\v、换页符\f
+\S          \s的补集
+.          除换行符\n外的任意字符。 在Perl中，“.”可以匹配新行符的模式被称作“单行模式”
+.*       匹配任意文本，不包括回车(\n)? 。 而，[0x00-0xff]*        匹配任意文本,包括\n
+[…]          匹配[]内所列出的所有字符
+[^…]          匹配非[]内所列出的字符
+—————————————————————————————-
+2、定位字符  所代表的是一个虚的字符，它代表一个位置，你也可以直观地认为“定位字符”所代表的是某个字符与字符间的那个微小间隙。
+^          表示其后的字符必须位于字符串的开始处
+$          表示其前面的字符必须位于字符串的结束处
+\b          匹配一个单词的边界。“\b”表示所在位置的一侧为单词字符，另一侧为非单词字符、字符串的开始或结束位置，也就相当于 
+\B          匹配一个非单词的边界
+—————————————————————————————-
+3、重复描述字符
+{n}          匹配前面的字符n次
+{n,}          匹配前面的字符n次或多于n次
+{n,m}          匹配前面的字符n到m次
+?          匹配前面的字符0或1次
++          匹配前面的字符1次或多于1次
+*          匹配前面的字符0次或式于0次
+
+
+port 80就是在80端口抓tcp或者udp包
+host ip 可以用来限定只抓本机的
+tcp.stream eq 0这类都是跟踪流
+
+	22.http contains "something" 在http中查找字符串something
+	23.不能ip==202.115.44.235，奇怪？只能ip.dst==202.115.44.235这种
+	24.无线嗅探 中 过滤
+	学习网址：http://cdn.ttgtmedia.com/searchNetworking/downloads/Orebaugh_Wireshark_Chapter_6.pdf
+	P301 pdf中 是对fc.type 以及fc.subtype的全部罗列
+	接口.包的某一部分.某一详细部分（显示的时候可能是多个接口的捕获包，不是有一个any选项么）。这里的接口不是接口名字，都是叫wlan，应该是代表无线的意思。
+wlan.sa eq 00:09:5b:e8:c4:03 STA的mac等于指示的值
+wlan.bssid ne ff:ff:ff:ff:ff:ff AP的mac不等于指示的值
+wlan_mgt.tag.interpretation eq "NOWIRE"  指定ESSID名字过滤
+wlan_mgt.tag.interpretation eq "NOWIRE" and !(wlan.bssid eq 00:02:2d:37:4f:89)   支持!和()这两中运算符，这种写法是针对ESSID服务集中指定的设备进行过滤
+wlan.fc.protected ne 1  查看未加密数据包
+wlan.fc.version==1
+eap and ssl.handshake.type eq 11 使用了EAP扩展认证协议
+wlan.wep.iv  过滤还有iv向量的wep包
+wlan.fc.fromds  eq 1  and wlan.fc.tods eq 0      FORM DS 设置为1，TO DS设置为1表示这是一个无线包，相反就是一个有线包
+
+  
+	25.Edit->preference->IEEE 802.11 中设置对wifi的解密信息
+学习网址：https://wiki.wireshark.org/HowToDecrypt802.11
+	https://mrncciew.com/2014/08/16/decrypt-wpa2-psk-using-wireshark/  中使用图片展示了解密效果
+工具： https://www.wireshark.org/tools/
+	https://www.wireshark.org/tools/wpa-psk.html
+wep:a1:b2:c3:d4:e5  wep支持设置十六进制的share key
+wpa-pwd:MyPassword:MySSID
+wpa-psk:0102030405060708091011...6061626364   《=PMK
+指定以后自动解密。wireshark是按照No顺序一个个解密下来的，所以后面的包可能会有些慢还没有被解密，要等上一段时间。
+	26.Static-》IO Graphs 就能看到流量随着时间的变化。这种做法很容易看出一般的攻击者。		
+	Static-》Summary 对所有的流量进行统计分析

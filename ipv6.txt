@@ -1,0 +1,53 @@
+ipv6目前貌似仅支持教育网和科技网等少有的网络，特点是下载速度快，暂时还没有被封堵。其他用户需要自己申请ipv6，来做到基于ipv4的ipv6隧道。
+
+提高网速的原因：
+如果把「网速」定义为信号的传播速度，那除非更换传输介质和减少中间转发环节，否则 IPv6 的确没法提高「网速」。信号在给定介质中的传导速度是恒定的，而且有光速这个物理上限。给定介质的信号衰减通常也是恒定的，这就决定了中间转发环节的数量也几乎是个常数。IPv6 用的大部分还是和 IPv4 一样的光纤骨干，所以没有办法提高信号传播速度。
+
+现在基本使用isatap（ Intra-Site Automatic Tunnel Addressing Protocol） IPv6隧道技术，使用户可以在IPv4网络上访问IPv6资源。川大的ipv6隧道网址是isatap.scu.edu.cn，可以直接web访问，然后就需要web网管登录。能确定的是望江那边是ipv4和ipv6都可以使用，老师称为双栈。
+清华大学 ISATAP隧道路由器的IPv4地址是：isatap.tsinghua.edu.cn。
+清华大学 ISATAP 隧道IPv6地址前缀为：2402:f000:1:1501::/64
+
+支持网站:
+是六维空间（东北大学）、晨光bt这些下载速度可逾10M/S的ipv6论坛下载。种子也需要是支持ipv6才行。
+六维空间： http://bt.neu6.edu.cn/
+晨光BT： http://ipv6.cgbt.cn/
+www.speedtest6.com 这个网址可以返回你的真是ipv4或者v6地址
+如果能访问上述网站就说明已经是ipv6了。
+
+翻墙：
+如果不能直接出去的话，还可以搜索ipv6 hosts来翻墙。
+
+windows命令：(windows7支持，老师曾说win10还不行然而我觉得应该是没问题的)
+netsh interface ipv6 isatap set router 202.115.39.98 #202.115.39.98是scu的ipv6 router，如果不能用了就可以换成别学校的
+netsh interface ipv6 isatap set state enabled
+或者是进入netsh交互：
+netsh
+int ipv6 isatap 设置ipv6，不过其实要先install。
+set router isatap.tsinghua.edu.cn
+set state enable
+exit
+
+
+netsh>int 
+netsh interface>ipv6 
+netsh interface>ipv6>install 
+
+ipconfig /renew6 重新获取ipv6地址，可以用来对付有时候没有获取到ipv6地址的时候。win10还是可以获取ipv6地址的，不过似乎win7稳定点。
+
+Linux命令：
+如果Fedora9换成了2.6.25kernel都是支持ISATAP方式的ipv6tunnel接入的。配置方法如下：
+（1）首先要保证kernel支持ipv6
+（2）接着编辑/etc/sysconfig/network，增加下面这行
+IPV6_DEFAULTGW=youripv6gateway
+（3）然后再编辑/etc/sysconfig/network-scripts/ifcfg-sit1,内容如下： 
+DEVICE=sit1
+ONBOOT=yes
+IPV6INIT=yes
+IPV6TUNNELIPV4=yourisataptunnelIP
+IPV6TUNNELIPV4LOCAL=yourlocalipv4ip
+IPV6ADDR=youripv6address
+（4）最后是ifupsit1
+需注意，ifup-sit不会创建对应的sit1设备，先得手动创建以后才有效的。 
+
+如果想要访问的网页还没有开通ipv6支持：
+http://www.sixxs.org提供了一个通过IPv6网络访问IPv4网络的网关，使用方法是在需要访问的网站域名后加上.sixxs.org，例如直接在浏览器地址栏输入"http://www.microsoft.com.sixxs.org" 即可通过ipv6访问一些国外资源。那就需要来个中转。

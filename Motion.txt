@@ -1,0 +1,25 @@
+用Motion就是做动作捕捉。Motion是Linux下一款轻量级的监控软件。在日常工作模式下，Motion可以提供网络摄像头的功能。当拍摄过程中画面发生变动时，Motion可以保存动作发生时的图片和视频。这对于安保监控有很大帮助。Motion的使用很简单。首先，下载安装Motion：
+sudo apt-get install motion
+
+修改Motion的配置文件/etc/motion/motion.conf，更改下面几个值为：
+daemon on
+stream_localhost off
+
+stream_maxrate 30
+framerate 30
+
+值得注意的是target_dir选项，默认值为/var/lib/motion。这是Motion存储文件的目标文件夹。所存储文件包括了运动捕捉产生的图片或视频。用户motion必须对该目标文件夹有写入权限。同时留意，流媒体的默认端口是8081，我们等下会用到。
+
+此外，在设置文件中，默认的视频设备（videodevice项）是/dev/video0。如果你连接好了摄像头，却无法在/dev下找到video0，那么可以尝试加载V4L2驱动：
+sudo rpi-update
+sudo modprobe bcm2835-v4l2
+
+修改/etc/default/motion，更改守护进程的设置：
+start_motion_daemon=yes
+
+然后，启动Motion：
+sudo service motion start
+
+在同一局域网下的其他电脑上，用浏览器打开192.168.8.113:8081，可以直接看到即时拍摄的流媒体。
+
+动作捕捉的图片和视频将存储在目录/var/lib/motion下。如果想改变动作捕捉的相关参数，例如动作捕捉的敏感度等，可以在/etc/motion/motion.conf中修改。

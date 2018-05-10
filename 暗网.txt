@@ -1,0 +1,79 @@
+tor在linux要求不能用root安装，所以我们就要改安装脚本：
+if [ "`id -u`" -eq 0];then
+	echo "xxxxx"
+把0改成其他数字就就好
+安装后把所有者改回rootchown -r root:root tor安装目录
+
+tor Browser使用前先配置，为了使用tor，其开发者在云端构建了网桥节点meek-xxx,最后走不走本地代理或者网络代理都可以。tor Browser只是tor网络+Browser。IRC中要想走浏览器的话，端口是9150。tor使用的也是ss5.所以开了浏览器以后也就开了一个本地tor代理，你所有的程序只要支持ss5就可以走这里过。
+tor项目曾经由美国海军支持，本来是有直接接入tor网络的代理软件使用9050端口，但是后来官网只剩下windows有这种软件叫做Expert Bundle，其他的都是tor browser。怪不得Anonymous的OnionIRC是要求把Tor Browser开着来进入。
+
+使用注意事项：
+1.不要下载种子、DOC、PDF文件，因为这会Tor代理设置产生一个直接的连接（自己会给出自己的真实ip）。
+2.Tor Browser will block browser plugins such as Flash, RealPlayer, Quicktime, and others: they can be manipulated into revealing your IP address所以你不要自己把插件按回去，估计这些也是建立直接的连接。Tor Browser是基于firefox。
+3.Tor Browser includes HTTPS Everywhere to force the use of HTTPS encryption with major websites that support it
+4.使用tor的桥接，而不是直接靠tor联入tor网络，确保流量走上一圈。
+
+
+暗网（shadow web）(the Dark Web)它也是深网。目前从我搜集到的资料来讲tor加密访问或者劫持节点分析流量。
+暗网里面也有着自己的搜索引擎（和一般爬虫原理不同）和导航。
+除了去丝绸之路之类的交易网站之外其他网站的一般要付钱才能进
+导航站：
+http://thehiddenwiki.org/ 
+https://sites.google.com/site/howtoaccessthedeepnet/working-links-to-the-deep-web
+http://hss3uro2hsxfogfq.onion/
+1.http://newmap.norsecorp.com/ norse attack map
+2.http://22u75kqyl666joi2.onion/ 暗网中文论坛
+3.http://reloadedudjtjvxr.onion/road.php 丝绸之路3.0
+4.http://www.normalpornfornormalpeople.com/ normal人体试验血腥网址（需要账号）
+5.http://prnstmrpfkgkaw5v.onion/ 小福利
+6.http://iuhcjx6fpeafstuu.onion/ Scream bitch！
+7.http://6soqvgf7mrjc7w3j.onion/bbs/index.php 114中文论坛
+8.http://6soqvgf7mrjc7w3j.onion/chat/blab73/index.php 114聊天室 （马克斯AKeD jasonlee1573）
+9.http://xmi6ngumdv6ohjbm.onion/ 天堂庄园CP网址
+10.http://smok6do2tvv6ekv2.onion/ SMOKEBLES
+11.http://kpvz7kpmcmne52qf.onion/wiki/index.php/Main_Page uncensore hidden wiki
+12.http://bdpuqvsqmphctrcs.onion/ Anarchy网址导航
+13.http://xkow4dnkw7cusncz.onion/ 暗网中文论坛2
+14.http://rfwtogljhrrzxyrl.onion/ lolita city
+15.http://mail2tor2zyjdctd.onion/ Mail2tor邮箱
+16.http://underdj5ziov3ic7.onion/category/CHINESE 中文网址导航
+17.http://eg63fcmp7l7t4vzj.onion/ 秘密树洞
+18.http://opea6td2pg66qouf.onion/ torbay论坛中文
+19.http://wiki5kauuihowqi5.onion/ – Onion Wiki
+20.http://newpdsuslmzqazvr.onion/ drug
+21.http://postits4tga4cqts.onion/ matrix留言板
+22.http://kbhpodhnfxl3clb4.onion/ tor搜索引擎
+23.http://loupsycedyglgamf.onion/PSYC/?room=EDN 聊天室
+24.http://www.glowing-bear.org/ glowing bear聊天室
+25.http://b4d3igwmoo5355ur.onion/greatc/login.php 中文聊天室 挂了
+26.http://32pbf32xi6ccm63z.onion/blog/temas/living-room/ 成人porn直播间
+27.http://www.onion.link/ onion city搜索引擎
+28.http://tt3j2x4k5ycaa5zt.onion/chat.php my chat聊天室
+29.http://dtt6tdtgroj63iud.onion/sse/rende ... me=default Shitty onion search
+29.http://2fap3cpmi3coso5y.onion/ porn下载
+30.https://secure.imvu.com/signup/index/?avset=bubbles imvu聊天室(http://www.imvu.com/rooms/?search_terms=Egypt+Cafe+Arab)
+31.https://zh.wikipedia.org/wiki/Wikipedia ... 6%E9%A1%B5 wiki
+32.http://thehiddenwiki.org/ another hideen
+33.http://wtwfzc6ty2s6x4po.onion/ 知名恶心视频网址,需要下载
+34.http://www.bestgore.com/ 变态网址
+35.http://hss3uro2hsxfogfq.onion/ notEvil search
+36.http://imtrjn3qe2tzh5ae.onion/category/news/ anonymous news
+37.http://dtt6tdtgroj63iud.onion 坚壳暗网
+38.http://jl4m7ubpotnu2yos.onion/ TorFlix
+39.http://dtt6tdtgroj63iud.onion/chat/ 无人区聊天室
+40.http://dtt6tdtgroj63iud.onion/forum/index.php 坚壳论坛
+41.http://tt3j2x4k5ycaa5zt.onion/onions.php onion link list
+42.http://2qrdpa2pnlt25ra2.onion/ Italian darknet community
+43.http://tetatl6umgbmtv27.onion/1XrmD/ isis聊天室
+44.http://vlr2sz44rxf5wmuu.onion/ isis red room
+45.http://diaperedxrx4yxwv.onion/forum/ cp
+46.http://es2adizg32j3kob5.onion/ topic link
+47.http://hxnibog5m2ocjeef.onion/ deepweb ministries
+48.http://saemf4erbrvhfddd.onion/ ccp
+深网其实就是阻挡搜索引擎的技术。不过现实中的暗网用tor浏览器结合了匿名访问，看不到ip。
+1.内网 2.需要用户认证 3.其实不是很其作用的robots 4.通过动态技术来不断变化链接，比如说超链接是使用js来跳转的，在后面加上了一些什么东西
+
+暗网里非法交易的只是一小部分
+
+
+美国一直在搞暗网的搜索引擎，一个被公开的就是MEMEX。

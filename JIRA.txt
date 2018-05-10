@@ -1,0 +1,8 @@
+这是一个开发监督系统：
+https://www.zhihu.com/question/20829309
+http://www.csdn.net/article/2015-07-08/2825164
+
+Atlassian 两大产品：
+JIRA一款优秀的问题跟踪管理软件工具，可以对各种类型的问题进行跟踪管理，包括缺陷、任务、需求、改进等。
+Confluence被认为是最好用的企业级Wiki和知识管理工具
+Jira+Git+Confluence+数据库 可以弄成一款管理软件

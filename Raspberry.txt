@@ -1,0 +1,297 @@
+raspberry镜像结尾是.img
+能正常关机就正常关机，虽然是ext4系统但是最好不要直接断电。
+[h264 @ 0xa55ce0] error while decoding MB 94 43, bytestream -7？
+暂时使用VLC代替，可以运行但是不停地出现：
+[75c00508] core input error: ES_OUT_SET_(GROUP_)PCR  is called too late (pts_delay increased to 403 ms)
+[75c00508] core input error: ES_OUT_RESET_PCR called
+[75c00508] core input debug: Buffering 0% 这是在缓冲么
+[75c00508] core input debug: Buffering 11%
+[75c00508] core input debug: Buffering 23%
+[75c00508] core input debug: Buffering 35%
+[75c00508] core input debug: Buffering 47%
+[75c00508] core input debug: Buffering 58%
+[75c00508] core input debug: Buffering 70%
+[75c00508] core input debug: Buffering 82%
+[75c00508] core input debug: Buffering 94%
+直接使用vlc命令会出现下面：
+[016cbc60] core interface error: no suitable interface module
+[0161b8f8] core libvlc error: interface "globalhotkeys,none" initialization failed
+[016cc610] core interface debug: looking for interface module matching "dbus,none": 19 candidates
+[016cc610] dbus interface error: Failed to connect to the D-Bus session daemon: Unable to autolaunch a dbus-daemon without a $DISPLAY for X11
+[016cc610] core interface debug: no interface modules matched
+[016cc610] core interface error: no suitable interface module
+[0161b8f8] core libvlc error: interface "dbus,none" initialization failed
+[75c00508] core input error: Invalid PCR value in ES_OUT_SET_(GROUP_)PCR !
+
+fdsrc ! h264parse ! rtph264pay
+
+树莓派里面有个很奇怪的服务一直想连 192.168.1.88
+tcp        0      1 192.168.1.30:59732      192.168.1.88:24800      SYN_SENT    - 
+
+A、B、B+也就是1,2,3代（内建了蓝牙 4.0 和 802.11n Wi-Fi ）
+GPIO 通用输入输出接口（可以对引脚进行开发：Python GPIO、wiringPi（C语言）、BCM2835 C Library）
+TFT触摸屏需要使用板上面两个DSI接头
+像枪管一样突出来有点多的是电视机顶盒的接口，而有一点点突出来的是用于音频3.5mm接口。
+
+不管你多少外设，最好是给树莓派足额的5V 2A电源，这是树莓派经过一年多两年的实战得出来的经验，否则你的键鼠可能动不了或者很卡，其次，也可能显示器不会显示或者“波动”。使用起来也不会很稳定。供电容易不足的话对树莓派...可能你摄像头不能用之类的
+
+1、树莓派启动方式及支持的系统：
+树莓派开发板没有配置板载FLASH，因为它支持SD卡启动，所有我们需要下载相应镜像，并将其烧写在SD上，启动系统即可
+(这个镜像里包含了我们通常所说的bootloader、kernel、文件系统)
+树莓派由于其开源特性，支持非常多的系统类型（指的文件系统）：
+Raspbian(最常见)、Arch Linux ARM、Debian Squeeze、Firefox OS、Gentoo Linux
+Google Chrome OS、Raspberry Pi Fedora Remix、Slackware ARM
+QtonPi、Slackware ARM、WebOS、RISC OS、FreeBSD
+NetBSD、Android 4.0(Ice Cream Sandwich)
+树莓派是ARM芯片开发平台
+
+2、树莓派镜像下载地址
+http://www.raspberrypi.org/  
+官网（速度较慢）
+http://pan.baidu.com/share/home?uk=671504480#category/type=0  
+树莓派论坛提供的下载地址 （百度网盘速度较快）
+选择系统需谨慎，小心驱动不能识别（老师给我的就键盘与鼠标不能用）
+
+3、镜像烧写:
+准备：
+1)一张2G以上的SD卡及读卡器，最好是高速卡，推荐Class4以上的卡，卡的速度直接影响树莓派的运行速度
+   笔者建议最好4G以上，否则后续开发会使用经常不够用
+2)winXP和win7下安装镜像的工具：Win32DiskImager.zip
+   同样在上一步的网址下载
+3)上一步下载好的镜像
+安装：
+1)解压下载的系统压缩文件，得到img镜像文件
+2)将SD使用卡托或者读卡器后，连上电脑
+3)解压并运行win32diskimager工具
+
+4.不想记供电针口，所以使用micro usb供电：所有android手机的充电线都可以给他供电
+
+5、树莓派访问方式
+默认用户名：pi
+默认密码：raspberry
+
+1)初始启动：
+a、外接HDMI或者AV显示器，USB鼠标、键盘
+    把树莓派当作一个小电脑，可以用外接键盘、鼠标操作树莓派，树莓派启动界面会显示在HDMI或者AV显示器上
+笔者不太建议这种启动方式——抱着个显示、鼠标键盘太不方便了，而且带HDMI的显示器不好找
+（虽然可以用HDMI转VGA接在电脑显示器上代替）
+
+2)其它访问方式（网络访问方式）：
+SSH：
+由于树莓派只有一个串口，当我们开发中需要占用这个串口或者我们希望进行远程开发（通过一个根网线或无线连接到树莓派）
+可以借助Linux系统特有的一种服务SSH来完成（请见后面的文章）
+在桌面环境下，pi启动时会自动进入Raspi-config配置环境；在终端或者远程链接的情况下，使用一下命令进入Raspi-config配置环境。sudo raspi-config。进入以后在Advance里面的A4再开启ssh。
+  A3 Memory Split 内存分配，选择给GPU多少内存
+  A6 Audio 选择声音默认输出到模拟口还是HDMI口
+    0 Auto 自动选择
+    1 Force 3.5mm ('headphone') jack强制输出到3.5mm模拟口
+    2 Force HDMI 强制输出到HDMI
+expand_rootfs –将根分区扩展到整张SD卡（树莓派默认不使用SD卡的全部空间，有一部分保留，建议选中
+Enable Camera启动PI的摄像头模块，如果想启用，选择Enable，禁用选择Disable就行了
+Add to Rastrack把你的PI的地理位置添加到一个全世界开启此选项的地图，建议还是不要开了，免得被跟踪。
+配置完成后确认会重启系统，选项即可生效
+
+使用ssh可以放置到同一个内网环境当中，比较方便的是笔记本连接wifi，然后直接RJ45连接树莓派（共享本地网络连接，自己可以设置好作为网管的ip比如说设置本地连接的ip为192.168.137.1）。
+除此还可以使用ttl线与电脑usb进行串口连接（据说TTL 线烧毁树莓派几率比较高），电脑需要安装转TTL驱动。TTL线中红线和橙线这种颜色亮的一般就是供电线，一般在引脚或者USB头上会帖上个说明图，不要和其它供电方式同时使用！VCC电源，GND地线，TXD和RTX分别是输出和接收。打开 PUTTY 软件，先找到并选择 Serial、Serial line 下面写你的串口号，也就是 COM*，我们这里是 COM5、Speed 下面写 11520。
+单片机与计算机进行串口通信时，单片机的RXD接计算机的TXD，单片机的TXD接计算机的RXD。
+（1）使用串口直通线。设计电路时，单片机的RXD连接电路板DB9的TXD，单片机的TXD连接电路板DB9的RXD，具体实现可在232电平转换芯片处反接。
+（2）使用串口交叉线。设计电路时，因为串口线已做交叉，单片机的RXD连接电路板DB9的RXD，单片机的TXD连接电路板DB9的TXD，均直连即可。
+别忘了路由器我刷机以后都是直接在web界面通过RJ45网口来传输固件。目前接触到的都是串口交叉线。
+
+摄像头：
+raspivid -w 800 -h 600  -t 0 -o - 
+-cd MJPEG: Default output data is H.264, we specify this flag to force output to MJPEG
+raspistill 是拍照，默认很高清，使用mmal，但是因为是sd卡吧，然后就慢了 https://www.zybuluo.com/SiberiaBear/note/55101#raspistill
+raspistill -w 800 -h 600 -tl 0  -o test%d.jpg  产生的大小为默认的1/10左右，所以一下子就出10张jpg
+上面都是使用-t 0来不间断进行下去，raspistill默认每一次拍摄之间有间隔所以使用-tl 0消除。raspistill -w 800 -h 600 -tl 0 -t 0 -o %d.jpg
+
+VNC：
+VNC是linux下面常用的远程桌面，用它可以在windows或者unix主机上方便的通过网络操作远程主机而不需要一个额外的显示器，非常实用
+windows远程桌面：
+远程桌面是windows自带的一个远程桌面登陆系统，需要树莓派上安装sudo apt-get install xrdp（这个机遇vnc）
+sudo apt-get install tigntvncserver之后使用mstsc.exe来远程连接。使用的module是sessman-Xvnc。
+
+以上三种方式都是通过网络对树莓派进行控制，可以说只要知道了树莓派的ip地址，一切控制so easy。所以最好改成静态/etc/network/interfaces
+
+使用samba
+通过samba服务，可以自由、访问修改树莓派家目录下的文件、代码
+1)首先安装 samba：
+sudo apt-get install samba samba-common-bin
+2)然后修改配置文件：
+sudo vi /etc/samba/smb.conf
+下面的配置是让用户可以访问自己的 home 目录。
+a)开启用户认证，找到“##### Authentication #####”，将“#  security = user ”的井号去掉。
+b)配置用户可以读写自己的 home 目录，在“[homes]”节中，把 “read only = yes” 改为 “read only = no” 
+c)找到browseable=no改为yes 否则等会访问时此文件夹会隐藏
+3)重启samba服务：
+sudo /etc/init.d/samba restart
+4)把系统默认用户pi添加到samba ：
+sudo smbpasswd -a pi
+会提示你输入密码：建议跟串口登陆的密码一致，防止密码太多弄混了
+5)windows访问
+任意打开一个文件浏览器，输入ip地址:\\172.20.223.91\pi
+现在就可以从其它机器上访问 pi 这个用户的 home 目录了。
+
+树莓派自己插上USB wifi模块：
+一开始使用与路由器之间的有线连接连入局域网，后来开启wifi模块：
+1.登陆Raspberry Pi，输入sudo iwlist wlan0 scan 命令，可以显示周围所有的无线网络，如下图所示，ESSID即为无线网络名
+2.sudo nano /etc/wpa_supplicant/wpa_supplicant.conf 命令，按回车键，即可进入nano 编辑器，打开wpa_supplicant配置文件
+3.在文件最底部添加
+network={
+ssid="网络名"
+psk="密码"
+....usb网卡
+}
+添加完之后，按ctrl+x，再按y键 最后按回车，wifi网络即可添加完成。添加wifi之后，就将电脑和Raspberry Pi都连入此wifi。
+
+新的树莓派3内置wifi和蓝牙
+iwlist scan #扫描所有接口
+sudo iwlist wlan0 scan
+
+也可以远程桌面一次连接wifi，然后就会将会记录在这里面
+pi@raspberrypi:~ $ sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=GB
+
+network={
+        ssid="B325"
+        psk="ilovetiansi"
+}
+
+network={
+        ssid="Wanna"
+        psk="luozhigang"
+        key_mgmt=WPA-PSK
+}
+也可以选择修改修改/etc/network/interfaces文件（也是这个文件指定了上面那个是无线网卡的配置文件）
+auto lo
+iface lo inet loopback
+iface eth0 inet dhcp
+auto wlan0
+allow-hotplug wlan0 #这个就会让它每次开机都启动
+iface wlan0 inet dhcp
+
+wpa-ssid   接入AP的名字
+wpa－psk   接入AP的密码
+再sudo /etc/init.d/networking restart
+
+
+
+6，虽然Raspberry Pi的系统是基于linux系统，但也可以用类似windows的图形界面来远程访问控制，比较常用的是tightvnc viewer，通过putty登陆Raspberry Pi之后，输入sudo apt-get install tightvncserver 命令，即开始在Raspberry Pi中安装vnc，安装过程中出现yes or no的选择时，选择y即可成功安装，树莓派中tightvnc安装好之后，电脑中也需要安装tightvnc viewer客户端
+在树莓派上开启tightvnc以后，会给一个数字，这个数字加上5900就是要访问的端口。在桌面端访问IP::port。
+
+
+与树莓派支持的USB无线网卡：
+树莓派内置了很多无线网卡的驱动，大家可以在这个网站查找所支持的型号http://elinux.org/RPi_VerifiedPeripherals#USB_Wi-Fi_Adapters 
+将USB无线网卡插入树莓派USB接口（旧版系统会自动重启，新版不会），敲入：lsusb
+网络配置文件/etc/wpa_supplicant/wpa_supplicant.conf
+
+挂载U盘：
+1)手动挂挂载：
+挂载命令：
+sudo mount -o uid=pi,gid=pi /dev/sda1 /mnt/udisk
+用完之后卸载
+sudo umount /mnt/1GB_USB_flash
+注意：
+sda1 是取决于你的实际情况，a表示第一个硬盘，1表示第一个分区。
+FAT 格式U盘 mount 本身就能支持，但如果你的U盘或移动硬盘使用的是 exFAT 格式，mount 会说不支持。没关系，安装 exfat-fuse 软件之后 mount 就支持了。
+sudo apt-get install exfat-fuse
+2)开机挂载：
+如果想开机自动挂载，而不是每次手工执行，可以编辑 /etc/fstab 文件。在末尾添加一行：
+/dev/sda1 /mnt/udisk vfat rw,defaults 0 0
+每次开机就会自动挂载
+3)热插挂载
+需要希望想电脑一样，插上自动识别挂载在某一目录下，拔下自动umount，请按一下操作
+sudo vi /etc/udev/rules.d/10-usbstorage.rules(此文件默认没有，需要新建)
+赋值以下内容即可，会自动在/mnt/udisk目录下挂载U盘
+[ruby] view plain copy
+KERNEL!="sd*", GOTO="media_by_label_auto_mount_end"  
+SUBSYSTEM!="block",GOTO="media_by_label_auto_mount_end"  
+IMPORT{program}="/sbin/blkid -o udev -p %N"  
+ENV{ID_FS_TYPE}=="", GOTO="media_by_label_auto_mount_end"  
+ENV{ID_FS_LABEL}!="", ENV{dir_name}="%E{ID_FS_LABEL}"  
+ENV{ID_FS_LABEL}=="", ENV{dir_name}="Untitled-%k"  
+ACTION=="add", ENV{mount_options}="relatime,sync"  
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat", ENV{mount_options}="iocharset=utf8,umaskk  
+=000"  
+ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", ENV{mount_options}="iocharset=utf8,umaskk  
+=000"  
+ACTION=="add", RUN+="/bin/mkdir -p /mnt/udisk/", RUN+="/bin/mount -o $env{mount__  
+options} /dev/%k /mnt/udisk/"  
+  
+ACTION=="remove", ENV{dir_name}!="", RUN+="/bin/umount -l /mnt/udisk/}", RUN+="//  
+bin/rmdir /mnt/udisk/"  
+LABEL="media_by_label_auto_mount_end"  
+
+如果要作为路由器：如果想用Linux实现最基本的路由（交换机）功能，前提也需要开启内核转发服务
+
+
+搞死我了，树莓派里面记录的是老师那时候的ip 192.168.1.30，我家里K2路由器给的ip全是192.168.2.xxx/24。真是倔，非要我把路由器的LAN口变成192.168.1.1。
+
+灯：
+正常开启：红灯常量，绿灯闪烁（绿灯表示对SD卡的读写）。关机以后红灯常量，绿灯不会再闪烁。
+插入网线以后，橙色灯亮表示连接成功，但是我那个网段问题他还是照样亮。这估计是路由器的问题，明明设定了是192.168.2.xxx，结果怎么还是让它用之前的192.168.1.30。
+
+
+
+应该输入命令 exit 来正常注销；直接关闭ssh窗口后，你的登录其实还在服务器上，如果一连多次的这样强制关闭窗口，用命令 w 或者 who 命令查看时，可以看到很多的用户还在系统上登录，占用了系统的资源。最重要的是，你的这次登录可能只是为了启动一下 WebLogic 或者其他什么应用服务器，直接关闭窗口后，可能会导致你的业务在随后的几分钟内也被终止，这应该不是你所希望看到的吧。
+
+putty与目标系统之间可能会因为putty设置了turn off 心跳包，而目标系统要求用心跳包来验证，所以会导致putty与目标系统之间过一会没有操作就会自己断开连接。你需要在putty的Connection里面设置好过多少时间发一下心跳包就好。
+在putty；里选中就会自动复制到剪切板
+
+
+cat /sys/class/thermal/thermal_zone0/temp可以查看温度（估计是综合CPU使用率），会返回一个五位数，温度就是在第二数字与第三数字之间，单位是摄氏度。没想到还真的有人可以将温度弄到87度，还是需要风扇的。我直接在树莓派上编译安装ffmpeg温度也才52，主要是不知道为什么CPU被限制住了并没有100%。我同时再编译x264，这个编译进程倒是100%。同时编译的时候CPU温度是56摄氏度。
+
+
+静态租约用于给DHCP客户端分配固定的IP地址和主机标识。只有指定的主机才能连接，并且接口须为非动态配置。所以路由器里面社这里，路由器里面也要设置。
+iface wlan0 inet static并sudo /etc/init.d/networking restart(sudo services networking restart却不可以诶Warning: Unit file of networking.service changed on disk, 'systemctl daemon-reload' recommended.)然后导致无线网卡无法搜到信号。
+pi@raspberrypi:~ $ sudo ifconfig wlan0 down
+pi@raspberrypi:~ $ sudo ifconfig wlan0 up
+使用上面的命令也不行，只有重启pi才能让配置错误的wlan0重新获得ip。配置错误就会不能获取和连接网络。
+pi@raspberrypi:~ $ sudo /etc/init.d/networking restart这条命令不会导致ssh和远程桌面连接被断开，可能是因为很快，毕竟没有告知“我要关闭了”这个包。
+其实关键是本地的ifconfig指定，租约到期的时候估计就会按照我指定的静态ip去获取？
+allow-hotplug wlan0
+iface wlan0 inet static
+    wpa-ssid Wanna
+    wpa-psk luozhigang
+    address 192.168.1.30
+    netmask 255.255.255.0
+    gateway 192.168.1.1
+#iface wlan0 inet manual
+#    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+照上面这样改了以后，我发现远程桌面里面wifi扫不出来了，不过iwlist scan和ifconfig以及ssh都表示自己成功连接上了wifi。可能是因为我指定了wpa-ssid？大概吧
+终于路由器里面已分配的DHCP租约我重新绑定了wifi网卡，并拔掉了网线，让它变成了192.3168.1.30（路由器控制页面里面显示），但是实际上ip还是192.168.1.205。好了，拔掉网线以后，翻了一段时间，重新只连接wifi，ip被更改为192.168.1.30。
+
+reboot会要求你输入密码，但是我sudo reboot却不需要。
+
+
+mstsc.exe：变得更加流畅的设置（颜色、分辨率、告知网络情况）
+点击“显示”选项卡。在“显示配置”处将远程桌面显示大小调整为“1024×768像素”，颜色调整为“增强色15位”
+再点击“体验”选项卡，在选择连接速率来优化性能处选为“调制解调器 56Kbps”
+
+
+搭建交叉编译环境。。或者直接安装raspdebain在虚拟机？不行，交互编译的问题在于CPU底层架构。而不是系统问题。树莓派的C/C++交叉编译环境比较简单，只需要安装arm-gcc就好（还是留心点版本问题比较好）。
+sudo apt-get install build-essential git
+mkdir rpi
+cd rpi
+git clone git://github.com/raspberrypi/tools.git
+cd ~/rpi/tools
+git pull origin
+sudo gedit ~/.bashrc
+    【32位系统】
+    export PATH=$PATH:$HOME/rpi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin
+    【64位系统】
+    export PATH=$PATH:$HOME/rpi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin
+arm-linux-gnueabihf-gcc -v
+后来发现arm-linux-gnueabihf-gcc是可以直接apt安装的
+交叉编译软件的时候就在./configure --enable-cross-compile --arch=arm --target-os=linux --cross-prefix=arm-arago-linux-gnueabi- --cc=arm-arago-linux-gnueabi-gcc
+还有位置注意一下--extra-cflags=-I/usr/local/ffmpeg/include --extra-ldflags=-L/usr/local/ffmpeg/lib用于指定libx264的路径，但是指定完以后需要添加--extra-libs=-ldl才能找到该路径。否则会提示 ERROR: libx264 not found
+
+树莓派的csi摄像头（价格比起usb摄像头是贵了不少）据说不是v4l设备，当然就找不到设备文件了...
+在 /etc/modules 中添加bcm2835-v4l2注意是 v4l（L）2 不是 v412，然后树莓派的摄像头就会显示在/dev，一般就是/dev/video0
+PS:module文件内容原本就有一行i2c-dev
+
+这篇文章主要介绍了一些比较高层的应用软件。更底层一点，树莓派摄像头还可以通过Python进行编程。编程是经由PiCamera这一模块实现的。
+
+对SD卡的读写会存在轻微的电流声。我遇到的是声音大小与电源线好坏有关系。

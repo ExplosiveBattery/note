@@ -1,0 +1,292 @@
+C-w 删除当前输入终端的文字
+
+-f image2 /tmp/webCam/%d.jpg 产生的文件名字是从1开始的数字递增，如果是%9d那就是9位数字的递增。
+
+处理空格使用转义或者字符串包起来
+nmap -sn | grep "sn"《=》nmap -sn | grep sn
+ls && ls 《=》 ls;ls
+默认情况下的$PATH是这样的/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin让人疑惑的是寻找执行那个文件的时候是先从/usr/bin(apt安装)开始，然后找到的才是/usr/local/bin（自己编译安装）
+
+只有sudoers用户才能命令前被sudo。
+重启网卡服务： 注意是networking
+service networking restart
+service network-manager restart 尤其是插入usb网卡的时候
+systemctl restart network.service
+
+两个与xshell ssh有关命令：
+	sz：将选定的文件发送（send）到本地机器
+	rz：运行该命令会弹出一个文件选择窗口，从本地选择文件上传到服务器(receive)
+
+
+ssh-keygen -t rsa -C "username@mail.com" 生成ssh密钥对
+ssh -T git@github.com check ssh key
+git config --global user.name "Les1ie"
+git config --global user.mail "xxxx@xx.com"
+配置好的kali推送文件到github一直不能推送上去，问了SCU_Linux的小伙伴们也不清楚， 最后在#linuxba 的irc上问了下，才知道 github的https是 readonly的，只有ssh通道才能推送，记一下 2017.3.16
+sudo hdparm -t /dev/sda 测试硬盘速度
+
+
+
+egrep是用extended regular expression语法来解读的，而grep则用basic regular expression 语法解读
+来自: http://man.linuxde.net/egrep
+使用awk和cut以及grep命令能控制着一个很好的输出
+cut -d 指定分界符
+-f  ：与-d一起使用，指定显示哪个区域。这时候又会默认打印没有分界符的行，除非指定-s
+cut -d : -f 1,3-5,7
+cut -d : -f -2
+
+使用echo >> file不能清空文件的内容，因为>>是追加模式
+Linux /etc/bash.bashrc 下的环境变量 一定要把path export 出来啊。。。
+sudo echo export PATH="$PATH:/home/pi/gst/gst-rtsp-server-1.10.0/examples" >> /etc/bash.bashrc
+
+cp webcam.c back.webcam
+这样子不影响Tab键的使用。
+
+netstat除了可以查看端口以外，还可以查看有哪些套接字开着。
+netstat -pantu（并非所有进程都能被检测到，所有非本用户的进程信息将不会显示，如果想看到所有信息，则必须切换到 root 用户）
+
+screen命令：
+OpenSSH客户端就提供了一个名为“roaming（漫游）”的功能（该功能并未记录在介绍文档中）：如果客户端与SSH服务器的通信链接意外中断，当服务器同样支持roaming功能，那么客户端就可以与服务器重新连接，并重新恢复挂起的SSH会话操作。7.1p2版本的OpenSSH客户端（发布于2016年1月14日）默认禁用了roaming功能。
+系统管理员经常需要SSH 或者telent 远程登录到Linux 服务器，经常运行一些需要很长时间才能完成的任务，比如系统备份、ftp 传输等等。通常情况下我们都是为每一个这样的任务开一个远程终端窗口，因为它们执行的时间太长了。必须等待它们执行完毕，在此期间不能关掉窗口或者断开连接，否则这个任务就会被杀掉，一切半途而废了。
+而GUN的screen提供了会话恢复、多窗口（tmux）、会话共享
+screen -S yourname -> 新建一个叫yourname的session
+screen -ls -> 列出当前所有的session
+screen -r yourname -> reattach 回到yourname这个session
+screen -d yourname -> Detach 远程detach某个session
+screen -d -r yourname -> 结束当前session并回到yourname这个session
+[root@pvcent107 ~]# screen -dmS Urumchi
+[root@pvcent107 ~]# screen -list
+There is a screen on:
+12842.Urumchi   (Detached)
+1 Socket in /tmp/screens/S-root.
+[root@pvcent107 ~]# screen -r Urumchi
+[root@pvcent107 ~]# ping www.ibm.com &
+[1] 9488
+[root@pvcent107 ~]# pstree -H 9488  -H pid是进行显示加亮    还有个tree会显示文件结构
+init─┬─Xvnc
+   ├─acpid
+   ├─atd
+   ├─screen───bash───ping
+   ├─2*[sendmail]
+
+而使用了 screen 后就不同了，此时 bash 是 screen 的子进程，而 screen 是 init（PID为1）的子进程。那么当 ssh 断开连接时，HUP 信号自然不会影响到 screen 下面的子进程了。
+当我创建过一个msf的screen以后： 28897是pid
+root@VM-91-79-debian:~# screen -list
+There is a screen on:
+	28897.msf	(08/22/2017 04:05:00 PM)	(Detached)
+1 Socket in /run/screen/S-root.
+
+
+battery@ubuntu:~$ screendump
+/dev/tty0: 权限不够
+无法读取 /dev/vcsa
+
+
+
+make -j 56
+-j [N], --jobs[=N]          同时允许 N 个任务；无参数表明允许无限个任务。
+任务数的上限取决于CPU同时支持的线程数，不过对于如果I/O次数比较多的，就可以超过“上限”，更好地利用每一刻真正的上限。
+modprobe 内核模块加载工具
+
+curl 192.168.1. 然后相当于向192.168.0.1发包，我只是想说明curl的一些怪异行为。
+curl --head http://192.168.3.139
+
+后台执行进程：  可以用来启动图形界面程序gedit、wireshark、ettercap -G
+[root@VM_206_70_centos ~]# php /path/PE/PE_scan.php&
+[1] 16442
+[root@VM_206_70_centos ~]ps -aux | grep php
+root      1495  0.0  0.5 133584  6064 ?        Ss   Mar17   0:55 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)
+nginx     1509  0.0  0.8 135732  8268 ?        S    Mar17   0:00 php-fpm: pool www
+nginx     1510  0.0  0.7 135732  7660 ?        S    Mar17   0:00 php-fpm: pool www
+root     16442  0.0  0.9 194920  9472 pts/0    T    19:28   0:00 php /path/PE/PE_scan.php
+root     16444  0.0  0.0   9032   672 pts/0    R+   19:28   0:00 grep --color=auto php
+[1]+  Stopped                 php /path/PE/PE_scan.php
+他一直停止后端还不能被kill，因为是STOP状态，只能使用fg命令将之转移到前端。bg命令也不能让他在后端执行起来。
+可问题是之前明明都可以的啊。bg 1或者bg %1无效。
+最后使用了setsid php PE_scan.php&总算是成功在后台运行起来了。
+使用C-Z+bg组合当我们退出Shell的时候，进程也会退出。这时候它的父进程还会终端。
+对于上面这句话的问题我们有两种解决办法：在命令运行前机上nohup来忽略终端结束时传递给子进程的hangup信号（标准输出和标准错误缺省会被重定向到 nohup.out 文件中），或者加上setsid来改变父进程。
+还有种方法就是使用screen命令。
+
+mount -t ntfs -o rw /dev/sda1 /  -o 指定了 读写权限。写错名字了，不应该是/
+umont /   这时候是可以正常卸载的，我还以为会弄掉原来的/，应该自己新建一个空目录然后挂载进去
+mount -t ntfs -o remount,rw /dev/sda1 /  -o 额外指定了，希望重新挂载。但是我失败了....
+
+nohup是永久执行，&是指在后台运行
+
+
+
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root  我是用root账户打开的/etc/crontab，每个用户可以拥有自己的crontab文件
+计划任务：crontab
+# 文件格式说明
+#  ——分钟（0 - 59）
+# |  ——小时（0 - 23）
+# | |  ——日（1 - 31）
+# | | |  ——月（1 - 12）
+# | | | |  ——星期（0 - 7，星期日=0或7）
+# | | | | |
+# * * * * * 用户名 被执行的命令
+
+
+date 命令
+	显示：中用%D等来表示xxx内容，具体使用为date +%D
+	设置：date 10201223 设置为10月20日12点23分
+
+一个常见的错误是，命令行双引号中使用%时，未加反斜线\，例如：
+1 2 3 4 5 touch ~/error_`date "+%Y%m%d"`.txt
+# 正确的例子：
+1 2 3 4 5 touch ~/right_$（date +\%Y\%m\%d）.txt
+# 使用单引号也可以解决问题：
+1 2 3 4 5 touch ~/error_$（date '+%Y%m%d'）.txt
+如果输出结果来自crontab里的命令，那么cron守护进程会用电子邮件将它发给用户。
+若想关闭某个命令的输出结果，可以将输出结果重定向至/dev/null。
+>/dev/null 2>&1(2>&1 时把出错输出也定向到标准输出)
+0,2,4,6,8,10,12,14,16,18,20,22 * * * date >> /var/log/date.log
+而上述设置会使该程序在偶数小时内的每一分钟执行一次
+0 0,2,4,6,8,10,12,14,16,18,20,22 * * * date >> /var/log/date.log或者
+0 */2 * * * date >> /var/log/date.log
+可以在偶数小时的时候执行。
+/sbin/service crond start //启动服务
+/sbin/service crond stop //关闭服务
+/sbin/service crond restart //重启服务
+/sbin/service crond reload //重新载入配置
+service crond status 查看crond守护进程服务当前状态
+systemctl enable crond.service
+systemctl start crond.service
+systemctl daemon-reload  openvas-start 重启服务
+发送邮箱：
+crontab -e 编辑crontab脚本（这样执行以后，属于用户自定义的，会被写到 /var/spool/cron 目录下，生成一个和用户名一致的文件，文件内容就是我们编辑的定时脚本），但不同于/etc/crontab后者是全局的。
+crontab -h(可以看到有-l list)
+MAILTO=example@gmail.com #自己的外部邮箱地址
+如果没有装邮件服务器的要先安装一下：
+yum install sendmail sendmail-cf m4
+最终我的/etc/crontab配置如下：
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=stegano@hellovega.cn #腾讯云的Centos我并没有配置邮件服务器，但是发出来了！root@VM_206_70_centos.localdomain是发件人
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+  30 4  *  *  *  root   setsid php /path/PE/PE_scan.php& >/dev/null 2>&1 #后面没有重定向也行
+  0  18 *  *  *  root   kill $(ps -aux | grep "php PE_scan.php" | awk '{print $2}')
+cat  /var/spool/mail/root 这也就是邮件先存放的地方，你可以视为crontab命令执行结果。
+
+定时任务：
+at命令从标准输入读取一系列命令，把它们收集成一个计划任务，在此后的某个时刻执行。这个任务仍使用当前的环境，并在与计划制定时相同的工作目录和环境变量里执行。
+atq命令列出当前队列里的任务，atrm命令则从队列里删除任务：
+
+at 1145 jan 31 #在一月三十一日上午11：45编译一个C语言程序：
+> cc -o foo foo.c
+> ^D #（光标在行首时使用Control-D退出任务编辑状态）
+atq
+1234 2011-08-12 11:45 cc -o foo foo.c user
+atrm 1234
+atq
+
+
+[root@VM_206_70_centos ~]# killall "php PE_scan.php"
+php PE_scan.php: no process found
+所以遗憾，不过借助要想在crontab中杀死指定的php进程并不是没有办法：
+kill $(ps -aux | grep "php PE_scan.php" | awk '{print $2}')
+
+
+ntsysv图形化查看开机启动服务（估计要求启动开关都在/etc/init.d/下的才能看到），F12 OK，空格 开关任务。
+chkconfig是旧指令，systemctl是新指令。
+使某服务自动启动 	chkconfig --level 3 httpd on 	systemctl enable httpd.service
+使某服务不自动启动 	chkconfig --level 3 httpd off 	systemctl disable httpd.service
+检查服务状态 	service httpd status 	systemctl status httpd.service （服务详细信息） systemctl is-active httpd.service （仅显示是否 Active)
+显示所有已启动的服务 	chkconfig --list 	systemctl list-units --type=service
+启动某服务 	service httpd start 	systemctl start httpd.service
+停止某服务 	service httpd stop 	systemctl stop httpd.service
+重启某服务 	service httpd restart 	systemctl restart httpd.service
+
+[root@VM_210_129_centos ~]# chkconfig --list
+Note: This output shows SysV services only and does not include native
+      systemd services. SysV configuration data might be overridden by native
+      systemd configuration.
+      If you want to list systemd services use 'systemctl list-unit-files'.
+      To see services enabled on particular target use
+      'systemctl list-dependencies [target]'.
+netconsole     	0:off	1:off	2:off	3:off	4:off	5:off	6:off
+network        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+nginx          	0:off	1:off	2:off	3:off	4:off	5:off	6:off
+php-fpm        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+
+
+ls -d /etc/rc*这样就不会查看到文件夹里面的内容
+ls -h 可以查看文件大小（但是需要和-l一起使用才会有效果）
+lsmod 查看启动了的模块
+lspci 对硬件的查看
+我使用mount命令对将远程计算机的 分区挂在到某一个终端正在的目录，然后在那个终端中直接ls没有任何显示，但是退回到父目录以后再进去就能看到有显示了。而且目录下的原来的文件被隐藏。
+
+改日期：
+root@kali:~/Desktop# date -s 2017-04-11
+Tue Apr 11 00:00:00 EDT 2017
+root@kali:~/Desktop# date -s 11:19
+Tue Apr 11 11:19:00 EDT 2017
+两条命令合在一起不行，估计格式不对。
+
+
+mkdir -p 这里递归创建不是-r。
+rm，cp，chmod对目录的操作都需要-r（rmdir只能用来删除空目录）。mv可以直接对目录使用。
+rm -f既然是强制删除的话所以就不会有询问了。
+
+find / -name something
+find / -size +10M(当然单位还有G，K)
+-type f代表搜索的是文件 d代表搜索的是目录
+-perm -4 搜索文件的权限码能和4相与为true
+-ls 相当于顺便进行ls
+-daystart 按照创建时间排序
+
+对于一些目录的搜索需要权限。
+
+grep -anv 【指定字符串】 【文件】
+-a 文本搜索  grep "<text>" <file>
+-n 输出行号
+-v 反向搜索
+grep data * 就会在当期目录下所有文件中 搜索含有data的行
+grep data *.c
+如果将data等输入到一个文件中，每个单词一行，然后就可以grep -f 文件名 被搜索的范围执行。
+-i 不区分大小写
+grep '^123' test
+直接使用正则表达式
+egrep -i '^123' test
+
+tee 指令会从标准输入设备读取数据，将其内容输出到标准输出设备，同时保存成文件。
+tee -a file 输出到标准输出的同时，追加到文件file中。
+tee - 输出到标准输出流两次
+tee file1 file2 - 输出搭配标准输出流，并且输出到两个文件
+
+wc 统计
+-w 统计字数
+-c 统计字节数
+-l 统计行数
+xxxx | wc "{print $2}" 默认是按照空白字符集进行划也就是说明是按照词进行划分。
+ls | wc -l 就能统计文件数目
+
+sort 降序与去重
+-r 反序输出
+-u 去除重复行
+-o 输出文件形式
+battery@ubuntu:~/Desktop$ sort +0 -1 test 按照文件中以空白字符分隔的第一个字段与第二个字段从小到大的顺序进行排序，结果显示到标准输出
+123 123
+123 456
+123 789
+456 789
+789 123
+sort -m file1 fiel2 > file_result 将文件file1与文件file2合并
+
+
+显卡相关命令：https://wiki.deepin.org/index.php?title=%E6%98%BE%E5%8D%A1
+
+sudo update-alternatives -config java 然后就会给出所有java调用的候选可执行文件。

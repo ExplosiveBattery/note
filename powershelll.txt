@@ -1,0 +1,10 @@
+windows下需要使用powershell才能安装Metasploiable3：
+	set-ExecutionPolicy RemoteSigned 开启powershell脚本执行权限
+	安装powershell下的包管理器Chocolatey：
+	iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+	使用choco安装packer：
+	choco install packer
+
+
+Disable-MMAgent –mc  关闭MemoryCompression
+Get-MMAgent  查看MemoryCompression状态

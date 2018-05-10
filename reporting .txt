@@ -1,0 +1,21 @@
+信息记录软件：关键是可以导入扫描结果，并且可以简单建立网页被共享
+kali的reporting tools。推荐MagicTree、Dradis Framework、OWASP_Report_Generator
+
+
+dradis 2016.02版kali里面出了问题，需要重新安装
+apt-get install libsqlite3-dev
+apt-get install mariadb-client mariadb-server libmariadbclient-dev #其实这条命令原本全是mysql，后来发现已经全是这个库了
+apt-get install redis-server
+redis-server #用到了数据库用到了服务器
+apt-get install dradis然后会升级当前dradis #否则就要先卸载再安装
+端口已经从3004改为3000了http://127.0.0.1:3000
+keepnote 不过这个软件不支持文件显示，只能算是一个方便规划笔记的产品
+
+MagicTree可以设置表达式来对字段进行搜索，//xxx其中不同于Unix，使用了/表示根，两条//开头才是最正确的。
+
+
+
+
+纸质报告：
+分成执行摘要和管理员级别报告部分，前者是告诉公司高层，后者是支持详细理解。参考与词汇表放到最后。
+有的报告可能专门有一个地来放插图。

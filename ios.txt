@@ -1,0 +1,9 @@
+ ios的ipa文件是安装包所以也是zip格式：
+_CodeSignature：文件的签名。
+Info.plist: 被加密过的文件，应用名，版本，图标等信息都包含在这个文件中。ipa文件的信息是保存在Info.plist，用开源工具(https://github.com/rodneyrehm/CFPropertyList)就能把里面的内容解密。
+icon2.png，icon.png：不同尺寸的图标文件，也是被加密过的。
+
+
+IOS的QQ登录授权找QQ开放平台
+
+苹果越狱以后可以使用“虚拟定位”这个插件。

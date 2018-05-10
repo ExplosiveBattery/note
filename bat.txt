@@ -1,0 +1,6 @@
+在当期目录下创建一个管理员权限的cmd，名字叫做SysCmd，并将之打开
+sc Create SysCmd binPath="cmd /K start" type=own type=interact 
+sc start SysCmd
+
+echo off 关闭输出   @用于关闭本命令的回显
+所以一般就是@ echo off

@@ -1,0 +1,1 @@
+从2.0开始angular.js已经不叫angular.js了，就叫 angular（少了.js）只是版本号是2.x

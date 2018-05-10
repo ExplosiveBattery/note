@@ -1,0 +1,114 @@
+安装相关：	
+	docker-io 是以前早期的版本，版本号是 1.*，最新版是 1.13，而 docker-ce 是新的版本，分为社区版 docker-ce 和企业版 docker-ee，版本号是 17.* ，最新版是 17.12。
+	深度基于 sid 版本开发，通过 $(lsb_release -cs) 获取的版本信息为 unstable，而docker官方源并没提供 sid 这种unstable版本的docker，所以使用官方教程是安装不成功的。
+		具体：https://bbs.deepin.org/forum.php?mod=viewthread&tid=139514&highlight=%E5%AE%89%E8%A3%85docker
+		我使用：wget -qO- https://get.docker.com/ | sh
+	cat /etc/debian_version 可以知道deepin是基于哪一个debian版本。
+
+	容器只运行一个进程（HTTP 守护进程、应用程序服务器、数据库）时效果最佳，但如果运行一个以上进程，在管理和检索日志以及单独更新进程时就会遇到很多麻烦。
+	配置文件中镜像存储位置设置：（也可以通过自动挂载来改变镜像存储位置）（默认位置/var/lib/docker）
+		在 Ubuntu/Debian 系统下:
+		/etc/default/docker 中 DOCKER_OPTS="-dns 8.8.8.8 -dns 8.8.4.4 -g /mnt"
+		在 Fedora/Centos 系统下:
+		/etc/sysconfig/docker中 other_args="-g /mnt"
+安装原因：
+	污染了本机的开发环境。比如编译安装内核的时候需要安装编译过程中的依赖，但是这些依赖只是过程中需要。
+	软件一般安装在/下，但是如果使用docker可以将软件及需要的依赖包装存放到其他地方。减少了我一键备份的体积。比如数据库、服务器软件。kali的镜像。
+	公司使用Docker，是因为Dockerfile或者docker pull就是环境的一键安装包，而且几乎没有性能损耗。
+原理相关：
+	主要基于Go语言编写
+	Docker创建出的Docker容器是和宿主机共享操作系统的，Docker容器内部运行一个virtualbox应用程序，然后通过virtualbox来运行你的windows等操作系统。如果是在 docker 里面的话 ，关闭了操作系统层面的地址随机化保护 ， 物理机也会关闭 ， 感觉还是比较危险的
+	镜像缓存机制:   docker build过程中每执行一步RUN命令，就生成一个镜像，另外镜像之间有血缘关系，是否需要重新编译两个小时取决于你的修改影响的第一个镜像有多早。简单理解当你修改dockerfile时,当你修改了第N行的RUN命令, N+1之后的命令都要重跑.docker image --tree #查看镜像的依赖关系,名字为none的便是每一步执行了RUN的缓存。对于ADD和COPY命令而言，还需要检查文件的校验和（不考虑文件的最后访问时间与修改时间）。
+	只读层与读写层：  image的所有层都是默认只读的,当你启动一个image当做container运行的时候,docker会在image的只读层上加一层薄薄的可写层.你在container里面做的所有操作都是反映在可写层，使用commit命令会再次产生一层叠在上面。docker和没有persistence分区的live系统很像。docker使用的storage driver有https://blog.csdn.net/vchy_zhao/article/details/70238690。
+	docker并不是足够安全的。 Docker命令没有内置的审计和日志功能，但是sudo有。
+缩小镜像：
+	当然对于公司，功能型与易用型才是重点。对于我的个人笔记本要考虑自己的能力以及磁盘的存储空间。
+	开发 Dockerfile 时分别 RUN 每条命令，目的是分层减少重新 build 的时间，开发好了合并 RUN 为一条，减少分层。
+	Alpine Linux 是一个社区开发的面向安全应用的轻量级 Linux 发行版。基于这种Linux的Docker会小上很多。使用alpine,我构建的symfony＋nginx＋php-fpm的开发环境，只需要60MB。这个在ubuntu的image上，你会不知不觉update到大概600MB左右。alpine 最蛋疼的地方是太精简了 连 tzdata 都没，想要用 TZ env 设时区。alpine使用的是musl libc而其他发行版是glibc。推荐alpine，golang 可以用 scratch。而一般的发行版中debian比较轻量。
+	在 Dockerfile 中， 每一条指令都会创建一个镜像层因为commit，继而会增加整体镜像的大小。如果通过&&将指令一条条连接起来，减少镜像层的创建从而减小体积。如果是创建文件100M的指令，比如RUN dd if=/dev/zero of=/tmp/foo/bar bs=1048576 count=100，即便后来将文件删除了（不在同一层中操作），docker的大小就还是增大了100M。推荐对于一些需要通过 COPY 命令的方式拷贝到镜像里面的文件，可以使用 wget xx -O xxx(或者不使用-O参数,那就要配合cd或者mv来确保文件的位置)(curl -fSL xx -o xx) 的方式，用完之后在同一层中删除
+	删除不必要的内容：编译后的依赖，/var/cache（apt clean && apt clean all），/var/tmp，/tmp
+		Alpine中先apk add --virtual .build-deps将本次安装的所有包封装成一个名为.build-deps的虚拟包。这样做的好处是可以通过apk del .build-deps一键清除这些包
+	压缩镜像：使用docker自带的命令 export 和 import来压缩会导致会丢失镜像原有的一些信息，比如：导出端口，环境变量，默认指令。推荐使用https://github.com/jwilder/docker-squash  ，但是很可能最终的效果不是很大。
+mysql               5.6                          298MB
+Mariadb		    xxxxxx			198MB
+redis               4.0-alpine                 27.5MB
+php                 5.6.31-fpm-alpine     53.9MB
+nginx               1.12-alpine               15.5MB
+	我已经将使用的Dockerfile上传到自己的github/docker
+	使用别人的Dockerfile： https://docs.docker.com/samples/library https://github.com/docker-library
+		nginx:https://github.com/nginxinc/docker-nginx/blob/master/stable/alpine
+		tomcat:Apache Tomcat 8.5.x 旨在替换 8.0.x，并包含从 9.0.x 分支中提取的新特性。
+		php:需要增加pdo_mysql，mysqli
+	不追求最小化可以直接使用：阿里云镜像、网易蜂巢等
+	构建一个php7-alpine： https://segmentfault.com/a/1190000011876870
+创建镜像：
+	tar命令配合一个xxbootxxx可以以当前环境为主创建镜像，但是不如Dockerfile
+连接容器：
+	同一个宿主机上的多个docker容器之间如果想进行通信，可以通过使用容器的ip地址来通信，也可以通过宿主机的ip加上容器暴露出的端口号来通信，前者会导致ip地址的硬编码，不方便迁移，并且容器重启后ip地址会改变，除非使用固定的ip，后者的通信方式比较单一，只能依靠监听在暴露出的端口的进程来进行有限的通信。通过docker的link机制可以通过一个name来和另一个容器通信，link机制方便了容器去发现其它的容器并且可以安全的传递一些连接信息给其它的容器。所以容器间连接推荐使用的是--link参数，而不是通过IP，也不是通过-p映射端口
+	例子：已经有一个nginx容器，并配置期配置文件php为php-fpm:9000。有一个php-fpm容器，并删除配置文件中监听端口前的127.0.0.1。
+	sudo docker run --name php-fpm -d <php-fpm-images-name>
+	sudo docker run --name nginx -p 80:80 -v /path/nginx/www:/var/www  -d --link php-fpm:php-fpm <nginx-images-name>
+	例子：https://www.jianshu.com/p/fcd0e542a6b2
+理解：
+	使用alpine,构建的symfony＋nginx＋php-fpm的开发环境。共享一个 centos或者ubuntu基础镜像
+	Docker to use an HTTP proxy
+	Cloudinsight docker
+	windows docker 与linux docker架构
+命令:
+IMAGEID <=> REPOSITORY:TAG 不过多个REPOSITORY:TAG可能对应一个TAG
+latest tag其实在使用中不是最新的意思，而是默认值(defalut)的意思。也就是说，如果在tag为可选的命令中，我们没有写上tag，如 docker pull entel_zmc_images:zmc_base vs docker pull entel_zmc_images ，前者有确定的tag，而后者没有，这时系统会自动添加一个:latest标签，然后去匹配。
+
+sudo docker info 查看完整的docker信息
+sudo docker build -t nginx ./  按照当期目录下的Dockerfile创建一个nginx:latest镜像
+
+你可以运行下面的命令来启动docker：
+start首先运行下面的命令确保 Docker 服务运行正常：
+sudo docker ps -a
+sudo docker stats -a 持续性查看ps(没有-a就会只显示正在运行的container)
+docker logs xxxx  查看xxx的标准输出
+
+下载以后使用一下命令找出本地想要的docker镜像ID
+docker images
+docker images -a看到一堆<none>:<none>中间镜像，他们不会造成硬盘空间占用的问题（因为这是镜像的父层，必须存在的），这些中间镜像不能被删除
+
+sudo docker tag 466a0faa305d php-fpm:7.2
+为指定image_id镜像增加一个tag
+
+docker run -i -t 镜像ID/bin/bash 然后就会创建一个新的容器并进入可以交互的tty
+-d 后台运行docker容器并打印容器ID。如果不加-d参数，那么容器运行会和终端绑定，如果终端关闭，那么容器也会关闭，但是容器不会被删除。
+-p 80:80 docker容器和外侧的端口映射
+-v 指定一个path进行持久化存储<=>Dockerfile中的VOLUME
+sudo docker run -i -t alpine:3.7 /bin/sh
+sudo docker run --name nginx -p 80:80 -v $PWD/www:/var/www  -d nginx
+sudo docker inspect -f {{.Volumes}} test
+
+sudo docker attach <container_id> 进入容器
+	vega@vega-Laptop:/path/nginx$ sudo docker start f0d45af2262e
+	f0d45af2262e
+	vega@vega-Laptop:/path/nginx$ sudo docker attach f0d45af2262e
+	/ # exit
+	vega@vega-Laptop:/path/nginx$ sudo docker attach f0d45af2262e
+	You cannot attach to a stopped container, start it first
+	上面相当于直接sudo docker start f0d45af2262e -ai
+sudo docker exec -it <container_id or container_name> /bin/sh 不要用attach进入，使用此命令来进入就不会因为exit而关闭容器运行线程
+docker ps 在容器外面执行可以验证所进入的容器镜像
+
+sudo docker container ls -a
+docker stop <container_id> 退出当前container再尝试删除.
+docker rm <container_id>删除容器
+sudo docker rm $(sudo docker container ls -aq) 删除所有容器
+docker rmi <image name>删除镜像。这是使用的是image name。删除镜像前需要删除掉相关container，如果直接-f会删除镜像与相关容器。
+sudo docker rmi -f $(sudo docker images -aq) 删除所有镜像
+删除latest tag:用rmi REPOSITORY:TAG的办法来指定删除即可，latest即默认TAG
+	vega@vega-Laptop:/path/nginx/git$ sudo docker images
+	REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+	alpine              3.7                 3fd9065eaf02        3 months ago        4.15MB
+	alpine              latest              3fd9065eaf02        3 months ago        4.15MB
+	vega@vega-Laptop:/path/nginx/git$ sudo docker rmi alpine
+	Untagged: alpine:latest
+	vega@vega-Laptop:/path/nginx/git$ sudo docker images
+	REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+	alpine              3.7                 3fd9065eaf02        3 months ago        4.15MB
+
+docker cp <containerId>:/file/path/within/container /host/path/target 从Docker容器内拷贝文件到主机上  （我不清楚containerID后面的:要不要）
+

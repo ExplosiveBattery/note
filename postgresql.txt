@@ -1,0 +1,105 @@
+	0.安装：
+完整的安装包需要 170MB左右，因为安装的不仅仅是数据库，还有管理工具pgAdmin等工具。
+还有种是只有数据库，大小为50MB
+	1.安全起见还是安装在windows7 虚拟机中
+	EnterpriseDB and BigSQL都是第三方提供的Postgresql
+	2.命令有点神奇：
+初始化数据库，如果不是通过exe安装，而是直接使用压缩包中的打包软件。就需要自己进行初始化：进入\bin目录
+	initdb --locale=C -E utf-8 -D c:/pgsql/data  #创建data文件夹。创建了一个用户名是postgres无密码的账户，psql -U  Administrator  postgres（这种方式安装的话用户名是本机当前登录账户，可以自己通过-U参数指定账户名，如果创建的是中文用户就会导致，服务不能正常启动）。-locale=C 设置本地语言，估计应该是-locale=chinese的缩写。
+	pg_ctl register -N postgres -D c:/pgsql/data #在服务管理器中注册postgres服务，需要指定data文件。删除指定服务“sc delete 服务名”。如果是中文用户名会导致不能找到文件从而不能启动
+	最后我想讲psql -U test -d postgres 保存为一个bat文件，但是执行的时候会一直循环执行却没有进入数据库
+
+进入：psql -h 172.16.35.179 -U username -d dbname
+帮助：help（显示基本帮助） \h显示SQL命令的说明
+使用指定数据库：\c dbname username serverIP port
+		 \c dbname
+查看数据库：\dn   查看数据库与own
+查看表格：\d    
+列出表中所有字段：\d tablename
+批量执行命令:\i C:\Users\Battery\Desktop\create_db.txt
+	拒绝访问C:: Permission denied 的问题，解决办法是 \i C:/Users/Battery/Desktop/create_db.txt。与windows shell内部的支持不同
+退出数据库：\q
+\du 查看当前postgresql的用户（列出数据库角色）
+创建用户：
+	create user Administrator superuser password '';
+	3.
+通过指示符的变化告知现在处于什么模式： 应该输入什么结束
+postgres(# )
+postgres-# ;
+
+
+创建模式：
+	CREATE SCHEMA schemaname [ AUTHORIZATION username ] [ schema_element [ ... ] ]
+	CREATE SCHEMA AUTHORIZATION username [ schema_element [ ... ] ]
+删除模式：
+	DROP SCHEMA name [, ...] [ CASCADE | RESTRICT ]
+	如果数据库直接存在关联那么不能drop table course;而应该是drop table course CASCADE;
+
+group by必须要是两个表都有的内容：
+postgres=# select student.sname,student.sno,COUNT(sc.sno),AVG(sc.grade) from student,sc where student.sno=sc.sno group by student.sno;
+ sname |    sno     | count |         avg
+-------+------------+-------+---------------------
+ 刘晨  | 15122      |     2 | 85.0000000000000000
+ 李勇  | 15121      |     3 | 88.3333333333333333
+(2 行记录)
+
+postgres=# select AVG(grade) from sc group by sno;
+         avg
+---------------------
+ 85.0000000000000000
+ 88.3333333333333333
+(2 行记录)
+postgres=# select AVG(grade) from sc group by sno limit 1; 使用limit 1自动变成order by desc
+         avg
+---------------------
+ 88.3333333333333333
+(1 行记录)
+	4.如果使用双引号就会被认为是字段。所以在字符串类型比较的时候，只能使用单引号。
+	5.对内置参数的查看与设置：    show 内置参数名字;   set 内置参数名字 新的值;
+对编码的设置： UTF-8 Latin1（这种字符的话中文就不能通过）
+server_encoding;
+client_encoding;  Postgresql会话的客户端编码
+\encoding 查看客户端工具的编码
+	有时候会说是编码不对问题，我就以为设置了utf8以后，shell输入的是ascii（属于Latin1），导致出现问题。于是设置编码为Latin1，虽然已经能够将数据insert数据库，但是由于是按照老师指定的长度创建数据表以及插入指定的数据，中文似乎就会占用两哥字节，导致不能达到老师的要求。后面在其他的机子上尝试，倒是都很顺利。
+	6. group by 要求    字段是被select选中的字段
+postgres=# select * from spj group by sno;
+ERROR:  column "spj.pno" must appear in the GROUP BY clause or be used in an agg
+regate function
+第1行select * from spj group by sno;
+            ^
+postgres=# \d spj
+     数据表 "public.spj"
+ 栏位 |     类型     | 修饰词
+------+--------------+--------
+ sno  | character(5) |
+ pno  | character(5) |
+ jno  | character(5) |
+ qty  | integer      |
+	7.类型：
+ERROR:  type "tinyint" does not exist
+POSTGRESQL里面的最小的是两个字节的smallint 
+	8.感觉报错是不可信的，明明是因为要创建的表格已经存在，结果告诉我说是创建语句中的类型错误。
+	9.over 关键词中不支持group by ，只能使用partition by。
+	10. 主键设置的语法不同：
+postgres:
+create table room
+(
+	roomno varchar(5) not null
+		constraint room_pkey
+			primary key,
+	roomprice integer,
+	state varchar(10),
+	type varchar(100)
+)
+;
+
+Mariadb：
+create table room
+(
+	roomno varchar(5) not null,
+	roomprice integer,
+	state varchar(10),
+	type varchar(100),
+	constraint room_pkey primary key(roomno)
+)
+;

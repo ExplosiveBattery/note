@@ -1,0 +1,13 @@
+硬件配置：
+openwrt最低要求是32M
+定制openwrt的时候，可以定制busybox的
+mips CPU都弱，要快还得arm或者x86
+
+硬件组合：
+电子行业杜邦线可用于实验板的引脚扩展
+
+软件：
+LuCI是lua写的界面，openwrt常常会使用
+无涯7688(用的mtk联发科的linkit方案)，没有通过openwrt官方认证，所以对openwrt支持不是那么友好
+编译自己的openwrt系统，你可能需要自己裁剪掉Makefile中的一些包来解决“路由器缓存不够大”这个问题。
+

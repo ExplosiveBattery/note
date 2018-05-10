@@ -1,0 +1,21 @@
+openwrt最低要求是32M
+定制openwrt的时候，可以定制busybox的
+Collectd+外置
+mips CPU都弱，要快还得arm或者x86
+marvell
+
+raspberry镜像结尾是.img
+
+UPnP端口缓存
+
+LuCI是lua写的界面，openwrt常常会使用
+杜邦线
+
+no-ip动态域名提供商，可以注册一个免费试用30天的DDNS。
+3322动态域名身为最早的动态域名服务提供商pubyun ftp张老师
+freenom 域名解析商，提供api来控制dns解析，可以写脚本来做到ddns。
+
+
+这次实验室里面提供的路由器是无涯7688(用的mtk的linkit方案)
+
+自动不定时弹出光驱、不定时自动锁定。与解除。

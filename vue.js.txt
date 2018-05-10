@@ -1,0 +1,3 @@
+vue.js 是MVVM框架 ( Model/View/ ViewModel)。常见的是Vue+webapack 这种搭配。一种web前端框架。
+Vue 只关注视图层， 采用自底向上增量开发的设计。
+Vue 的目标是通过尽可能简单的 API 实现响应的数据绑定和组合的视图组件。

@@ -1,0 +1,26 @@
+一个现在我执行失败的程序：
+#include "windows.h".
+int main(int argc, char *argv[])
+{
+	char buf[MAX_PATH];
+	HMODULE module;
+
+	module = GetModuleHandle(0);
+	GetModuleFileName(module, buf, MAX_PATH); //buf中存的是文件名字
+	CloseHandle((HANDLE)4);
+	char buf2[]="C:\\Users\\Battery\\a.exe";
+	__asm__ __volatile__(
+		"lea eax, buf2\n\t"
+		"push 0\n\t"
+		"push 0\n\t"
+		"push eax\n\t"
+		"push ExitProcess\n\t"
+		"push module\n\t"
+		"push DeleteFile\n\t"
+		"push UnmapViewOfFile\n\t"
+		"ret\n\t"
+	);
+	return 0;
+}
+//任意两个指令间要么被分号(；)分开，要么被放在两行； 
+//关闭了 exe 文件的 IMAGE（硬编码为4），然后用 UnmapViewOfFile 解除了 exe 文件在内存中的映象，接着通过堆栈传递当前程序的 Handle 给 DeleteFile() ，实现了程序的自删除。 

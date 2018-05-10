@@ -1,0 +1,196 @@
+http://www.laozuo.org/ 老左推荐（说vps商家不稳定建议按月购买，并且备份好）
+http://banwagong.cn/
+客户区https://bandwagonhost.com/clientarea.php
+
+购买bangwagon，用个优惠码少你5、6元。黑色星期五有优惠
+比搬瓦工更烂的vps，rentvps
+Due Data:Wednesday, March 21st, 2018
+postion:洛杉矶的KVM（我买的时候是新开，所以速度相当快1.6M/s，换了源可以5.6M/s）
+IP address:	23.83.249.163	KUprPldjkzgV
+SSH Port:	26343
+RAM:	0.71/512 MB
+SWAP: 	0/64 MB
+Disk usage (/):	0.58/10 GB
+Centos 6 x86 我重装了一个x86_64 minimal版本系统
+年付130元
+有部分朋友购买搬瓦工的VPS还没有付款VPS直接变黑了，显示为“Fraud”，后面不管怎么购买都是Fraud。为什么？ 因为，whmcs自带了maxmind，可以自动判断客户的资料是不是弄虚作假，主要判断依据是：购买时候的IP地址、填写资料的国家、填写资料的电话号码，这三者必须一致，只要不一致就会直接判为欺诈。
+
+据说一般来讲bangwagon网速不行，于是我安装所谓的锐速破解版和finalspeed前提是KVM技术，不过bangwagon是openvz所以用不了（不过也有KVM我买错了）
+基本上在VZ的世界里，内存的分配都是虚的，也就是说原本需要10MB的进程，会被分配到20MB（或更多）。这样一来128MB的保证内存，实际上可用的内存就只有64MB（或更少）。所以为了克服这个缺点，他们就搞了个神马突发内存的，这个才是可用内存的极限，也就是为什么一般上突发是保证的两倍。换句话说，256MB突发内存，实际可用内存就是128MB（或更少）。
+据说第一步需要按操作系统及其版本更换指定内核
+CentOS6 内核更换为： 2.6.32-504.3.3.el6.x86_64
+rpm -ivh http://soft.91yun.org/ISO/Linux/CentOS/kernel/kernel-firmware-2.6.32-504.3.3.el6.noarch.rpm
+rpm -ivh http://soft.91yun.org/ISO/Linux/CentOS/kernel/kernel-2.6.32-504.3.3.el6.x86_64.rpm --force
+CentOS7 内核更换为： 3.10.0-229.1.2.el7.x86_64
+rpm -ivh http://soft.91yun.org/ISO/Linux/CentOS/kernel/kernel-3.10.0-229.1.2.el7.x86_64.rpm --force
+rpm -qa | grep kernel查看内核是否安装成功uname -r也可以，前面那个和ubuntu里面的dpkg -l|grep xxx类似
+重启reboot（一下自己就好了）
+问题
+error: Failed dependencies:
+kernel-firmware >= 2.6.32-431.el6 is needed by kernel-2.6.32-431.el6.x86_64
+grubby >= 7.0.4-1 is needed by kernel-2.6.32-431.el6.x86_64
+dracut-kernel >= 002-18.git413bcf78 is needed by kernel-2.6.32-431.el6.x86_64
+/sbin/new-kernel-pkg is needed by kernel-2.6.32-431.el6.x86_64
+于是
+yum update（这句其实可以省略）
+yum install kernel-firmware grubby dracut-kernel
+再rpm -ivh http://soft.91yun.org/ISO/Linux/CentOS/kernel/kernel-2.6.32-504.3.3.el6.x86_64.rpm --force
+但是发现自己内核是i686，不能安装x86_64，还好bangwagon换系统超方便。
+之后内核安装好了rpm -qa | grep kernel，但是uname -r却显示还是原来的
+
+锐速安装：
+wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder-all.sh && bash serverspeeder-all.sh
+一键卸载：
+chattr -i /serverspeeder/etc/apx* && /serverspeeder/bin/serverSpeeder.sh uninstall -f
+锐速操作指令：
+/serverspeeder/bin/serverSpeeder.sh start #启动锐速
+/serverspeeder/bin/serverSpeeder.sh stop #停止锐速
+/serverspeeder/bin/serverSpeeder.sh restart #重启锐速
+/serverspeeder/bin/serverSpeeder.sh status #锐速运行状态
+
+谷歌BBR安装：
+...
+
+Finaspeed安装（支持bangwagon）：
+若服务器为openvz架构（比如搬瓦工）,客户端只能选择udp协议,其他架构同时支持tcp和udp协议.
+wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/finalspeed/master/install_fs.sh && bash install_fs.sh
+卸载：
+wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/finalspeed/master/install_fs.sh && bash install_fs.sh uninstall
+安装和卸载的sh脚本是一样的，前面wget可以去掉
+操作指令：
+/etc/init.d/finalspeed start #启动
+/etc/init.d/finalspeed stop #停止命令
+/etc/init.d/finalspeed status # 状态命令（查看日志）
+后来2016.5停止维护，转开发xsocks（还是不免费要用破解版，是一种socks5服务器）
+
+bangwagon应该使用kcp加速：
+Kcptun，它是一个非常简单和快速的，基于 KCP 协议的 UDP 隧道，它可以将 TCP 流转换为 KCP+UDP 流。而 KCP 是一个快速可靠协议，能以比 TCP 浪费10%-20%的带宽的代价，换取平均延迟降低 30%-40%，且最大延迟降低三倍的传输效果
+可以做到1080P观看
+浏览器《--》ss客户端:7070《--》kcptun客户端:7071《--》kcptun服务端:446《--》ss服务端:443
+现在kcptun速度仍然不如finalspeed, 但是finalspeed没有手机客户端而kcptun有
+mkdir kcptun
+cd kcptun
+提醒：wget时根据本地系统下载。
+wget https://github.com/xtaci/kcptun/releases/download/v20160701/kcptun-linux-amd64-20160701.tar.gz
+tar -zxf kcptun-linux-amd64-20160701.tar.gz
+创建 start.sh
+	vi /etc/init.d/kcp_start.sh
+	写入以下内容：
+	#!/bin/bash
+	./server_linux_amd64 -l :29900 -t 23.83.249.163:8388 -key hellovega.cn -mtu 1400 -sndwnd 2048 -rcvwnd 2048 -mode fast2 > kcptun.log 2>&1 &
+	server_linux_amd64 对应服务端文件名，请对应修改。ip不能使127.0.0.1,因为我ss的ip设置就是23.83.249.163而不是127.0.0.1
+	-l 表示 Kcptun 的服务端监听端口，用于接收外部请求和发送数据，默认 29900；
+	-t 表示要加速的地址，我这里设置的是我服务器的 Shadowsocks 端口；
+	-key 是 Kcptun 的验证密钥，服务端和本地必须一致才能通过验证，请自行设置；
+	-mode 为加速模式，默认 fast，这里使用 fast2。
+	就会udp        0      0 :::29900                    :::* 
+创建 stop.sh
+	vi /etc/init.d/kcpstop.sh
+	写入以下内容：
+	#!/bin/bash
+	PID=`ps -ef | grep server_linux_amd64 | grep -v grep | awk '{print $2}'`
+	if [[ "" != "$PID" ]]; then
+	echo "killing $PID"
+	kill -9 $PID
+	fi
+创建 restart.sh
+	#!/bin/bash
+	echo "Stopping Kcptun..."
+	/etc/init.d/kcpstop.sh
+	/etc/init.d/kcpstart.sh
+	echo "Kcptun started."
+给权限	
+	chmod +x /etc/init.d/kcp_*
+echo "/etc/init.d/kcp_start.sh" >> /etc/rc.d/rc.local #不是./，也不要在开头加上sh
+客户端：
+http://download.csdn.NET/detail/per_son/9583356  kcptun64位下载
+http://download.csdn.Net/detail/per_son/9583352  kcptun32位下载
+E:\Download\kcptun-windows-amd64-20160701\client_windows_amd64.exe -l :7071 -r 23.83.249.163:446 -key findtheboy -crypt aes-256 -mtu 1400 -sndwnd 2048 -rcvwnd 2048 -mode fast2 -dscp 46
+自己做一个.bat
+响应速度：fast3 > [fast2] > fast > normal > default
+
+
+
+ss安装（先打开finalspeed再打开shadowsocks，然后finalspeed就连上了，如果顺序相反就连不上。）：
+帮瓦工直接在界面处提供安装和卸载
+Shadowsocks server encryption:aes-256-cfb		
+Shadowsocks server port:	443	
+Shadowsocks server password:	NzZmOTFhNj	
+浏览器：
+Proxy type: SOCKS v5
+Proxy IP (Socks Host): 127.0.0.1
+Port: 1080 可以在ss客户端中设置这个
+一键安装没有配置文件：
+首先在搬瓦工的VPS 上点击shadowsocks，然后 stop ， ssh到vps上，输入
+vi /etc/shadowsocks.json（minimal系统没有vim）
+然后配置可以输入
+{ #不支持#注释
+        "server":"23.83.249.163",
+        "port_password":{
+                "443":"findtheboy",
+                "444":"hellovega.cn"#这里就是多用户。用户数任意，注意最后一个用户密码后面没有逗号
+        },
+        "timeout":600,
+        "method":"aes-256-cfb", #还有rc-md5
+        "workers": 10 #最多10连接
+}
+
+把中文换成自己的，然后esc退出编辑，大写的ZZ退出编辑。
+先输入 ssserver -c /etc/shadowsocks.json
+前台运行一下，看有没有错误。
+CTRL+C结束运行，lsls 
+1. 后端启动，输入：
+开始：ssserver -c /etc/shadowsocks.json -d start
+结束：ssserver -c /etc/shadowsocks.json -d stop
+2. 设置开机启动
+设置好了，但是如果只是这样，那每次都要手动启动ss，太麻烦。可以将其加到开机启动项。
+putty输入vi /etc/rc.local，然后将里面的最后带有ssserver的删除，然后加入ssserver -c /etc/shadowsocks.json -d start,再wq保存退出。开机试试效果吧，正常的话，就设置完成了。
+0.无配置文件启动ssserver -p 443 -k password -m aes-256-cfb -d start --user nobody 
+后来见到玉数据库连接的ssr。
+/etc/rc.local和/etc/rc.d/rc.local似乎是一样的，做了软链接吧
+
+有些神奇的事情比如445端口不能用，nmap扫描我这个是开着445的，不过我内部netstat -pantu却没有开。我是openvz机。
+
+ss linux客户端：
+vim config.json
+{
+        "server":"23.83.249.163",
+        "server_port":444,
+        "password":"hellovega.cn",
+        "local_port":7070,
+        "timeout":600,
+        "method":"aes-256-cfb"
+}
+apt install shadowsocks
+sslocal -c config.json  
+-d start/stop/restart  daemon mode 如果不用这个模式，那么一切浏览日志就会被输出到启动它的那个终端。
+然后就用浏览器代理插件或者设置里面本地配置代理
+
+如果你要多用户的话，建议使用非root用户运行ss。
+sudo useradd ssuser //添加一个ssuser用户
+sudo ssserver [other options] --user ssuser //用ssuser这个用户来运行ss
+实现多用户有这么几种1.配置文件中每一个端口一个用户
+2.manyuser后端+sspanel前端 就是一个卖ss账号的网站，这时候的区分就是靠混淆参数
+
+ssh连接突然中断，不知道是不是被入侵了，重启连接
+这一次登录发现ssserver开了很多（这个是正常的ps -aux），但是端口也有很多在监听（这个是很不正常的），killall ssserver暂时解决了这个问题
+似乎banwagong安全做的不好（出过几个面板漏洞），实在不行，我以后弄一个sshd ip限制就稳了：
+	Vim /etc/hosts.allow
+	输入
+	sshd:114.80.100.159:allow
+	vim /etc/hosts.deny
+	输入(表示除了上面允许的，其他的ip 都拒绝登陆ssh)
+	sshd:ALL
+	最后sshd重启
+	service sshd restart
+或者该配置文件：
+	vim /etc/ssh/sshd_config
+	添加一行：
+	allowusers xxx@114.80.100.159
+	注：xxx为你用来登入服务器的用户名
+	最后sshd重启
+	service sshd restart
+
+
+
+自己搭建的SOCKS5不是完全匿名的，访问google的时候就会在下面将我的地理位置进行显示。

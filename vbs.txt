@@ -1,0 +1,2 @@
+set wshshell=createobject("wscript.dll")
+a=wshshell.run("cmd.exe /c xxxx ",0) '第二个参数是指不弹出cmd，隐蔽执行

@@ -1,0 +1,533 @@
+官方文档：
+http://mosquitto.org/api/index/Functions.html
+http://mosquitto.org/man/libmosquitto-3.html
+中文文档：
+https://mcxiaoke.gitbooks.io/mqtt-cn/content/
+
+	0.使用的是mosquitto.h这一种mqtt代理。以下笔记基于3.1或者3.1.1版本。
+	1.安卓推送方案有:
+方案1、使用GCM服务（Google Cloud Messaging）
+简介：Google推出的云消息服务，即第二代的G2DM。
+优点：Google提供的服务、原生、简单，无需实现和部署服务端。
+缺点：该服务在国内不够稳定、需要用户绑定Google帐号，受限于Google。
+ 
+方案2、使用XMPP协议（Openfire + Spark + Smack）
+简介：基于XML协议的通讯协议，前身是Jabber，目前已由IETF国际标准化组织完成了标准化工作。
+优点：协议成熟、强大、可扩展性强、目前主要应用于许多聊天系统中，且已有开源的Java版的开发实例androidpn。
+缺点：协议较复杂、冗余（基于XML）、费流量、费电，部署硬件成本高。
+ 
+方案3、使用MQTT协议（更多信息见：http://mqtt.org/）
+简介：轻量级的、基于代理的“发布/订阅”模式的消息传输协议。mqtt包是基于tcp的应用层协议，实现了异步信息的交流，不需要一方收发信息与另一方多没有什么事请。
+优点：协议简洁、小巧、可扩展性强、省流量(固定同步仅2字节)、省电，目前已经应用到企业领域（参考：http://mqtt.org/software），且已有C++版的服务端组件rsmb。
+缺点：MQTT协议本身，虽然非常适合物联网项目，但是在项目实施的时候有诸多不便：mosquitto等开源产品可扩展性不佳、需要自己签发X509证书、认证与授权不灵活、MQTT服务需要自己运维等。所以，在实施物联网服务的时候，应该采用云端的托管服务，以便聚焦物联网业务，而不是为了基础架构和运维烦恼。
+MQTT 做原生设备的通信，MQTT over WebSocket 主要用于 MQTT 设备跟 Web 端通信。
+
+方案4、使用HTTP轮循方式
+简介：定时向HTTP服务端接口（Web Service API）获取最新消息。
+优点：实现简单、可控性强，部署硬件成本低。
+缺点：实时性差。
+	2.Mosquitto，这里用其做为代理服务器mqtt broker，负责连接和分发。其余的都是client，clinet发布信息，client订阅信息，服务器根据发布订阅关系，对收到的发布消息进行广播。
+	  唯一要配置的就是在解压后的config.mk,安装完后设置文件是mosquitto.conf，当然主要是设置是否支持ssl。linux 中 -c 可以指定设置文件并运行，比如： mosquitto -c /etc/mosquitto.conf。默认启动是绑定的IP是本地IP，端口是1883可以在mosquitto.conf里设置（要去掉前面的#字注释），
+	3.mqtt 固定头部2字节+可变头部+消息体
+	  mqtt的消息头的固定两字节部分：
+Description	7	6	5	4	3	2	1	0
+Fixed header/固定头部
+Message Type(1)	        	DUP flag QoS level	RETAIN 这一位预留
+0	0	0	1	x	 x	x	x
+byte 2	Remaining Length
+Variable header /可变头部
+Protocol Name
+byte 1	Length MSB (0)	0	0	0	0	0	0	0	0
+byte 2	Length LSB (6)	0	0	0	0	0	1	1	0
+byte 3	'M'	0	1	0	0	1	1	0	1
+byte 4	'Q'	0	1	0	1	0	0	0	1
+byte 5	'I'	0	1	0	0	1	0	0	1
+byte 6	's'	0	1	1	1	0	0	1	1
+byte 7	'd'	0	1	1	0	0	1	0	0
+byte 8	'p'	0	1	1	1	0	0	0	0
+Protocol Version Number
+byte 9	Version (3)	0	0	0	0	0	0	1	1
+Connect Flags
+User Name Flag	Password Flag	
+byte 10//如果这一部分为0，那么之后就没有UserName和Passwd消息体字段
+Will Retain	Will QoS	Will Flag	Clean Session	Reserved
+1		1	0	0		1		1		1	x//will flag就是是否使用will，这个为1will的其他配置才会生效，在消息体里面才会有											   		will的几个部分topic、message
+Keep Alive timer
+byte 11	Keep Alive MSB (0)	0	0	0	0	0	0	0	0
+byte 12	Keep Alive LSB (10)	0	0	0	0	1 	0	1	0
+
+Playload/消息体
+Client Identifier(客户端ID)
+1-23个字符长度，客户端到服务器的全局唯一标志，如果客户端ID超出23个字符长度，服务器需要返回码为2，标识符被拒绝响应的CONNACK消息。 
+处理QoS级别1和2的消息ID中，可以使用到。 
+必填项。
+
+Will Topic
+Will Flag值为1，这里便是Will Topic的内容。QoS级别通过Will QoS字段定义，RETAIN值通过Will RETAIN标识，都定义在可变头里面。
+
+Will Message
+Will Flag若设为1，这里便是Will Message定义消息的内容，对应的主题为Will Topic。如果客户端意外的断开触发服务器PUBLISH此消息。 
+长度有可能为0。 
+在CONNECT消息中的Will Message是UTF-8编码的，当被服务器发布时则作为二进制的消息体。
+
+User Name
+如果设置User Name标识，可以在此读取用户名称。一般可用于身份验证。协议建议用户名为不多于12个字符，不是必须。
+
+Password
+如果设置Password标识，便可读取用户密码。建议密码为12个字符或者更少，但不是必须。
+
+
+
+	4.mqtt主题：
+MQTT是通过主题对消息进行分类的，本质上就是一个UTF-8的字符串，不过可以通过反斜杠表示多个层级关系。主题并不需要创建，非要说创建的话就是在使用的时候创建。
+
+主题还可以通过通配符进行过滤。其中，+可以过滤一个层级（单层通配符），而#只能出现在主题最后表示过滤任意级别的层级。举个例子：
+building-b/floor-5：代表B楼5层的设备。（可以理解成父主题下有个子主题）
++/floor-5：代表任何一个楼的5层的设备。
+building-b/#：代表B楼所有的设备。（如果只进行二级划分而不进行三级划分那么他<=>）
+注意，MQTT允许使用通配符订阅主题，但是并不允许使用通配符广播。
+	5.服务质量
+为了满足不同的场景，MQTT支持三种不同级别的服务质量（Quality of Service，QoS）为不同场景提供消息可靠性：
+级别0：尽力而为。消息发送者会想尽办法发送消息，但是遇到意外并不会重试。对于那种过一会发一个消息的就可以选择这种。
+级别1：至少一次。消息接收者如果没有知会或者知会本身丢失，消息发送者会再次发送以保证消息接收者至少会收到一次，当然可能造成重复消息。
+级别2：恰好一次。保证这种语义肯定会减少并发或者增加延时，不过丢失或者重复消息是不可接受的时候，级别2是最合适的。
+服务质量是个老话题了。级别2所提供的不重不丢很多情况下是最理想的，不过往返多次的确认一定对并发和延迟带来影响。级别1提供的至少一次语义在日志处理这种场景下是完全OK的，所以像Kafka这类的系统利用这一特点减少确认从而大大提高了并发。级别0适合鸡肋数据场景，食之无味弃之可惜，就这么着吧。
+	6.消息类型（笃定消息头里面的Messaget Type）
+MQTT拥有14种不同的消息类型：
+CONNECT：客户端连接到MQTT代理	1
+CONNACK：连接确认		2
+PUBLISH：新发布消息		3
+PUBACK：新发布消息确认，是QoS 1给PUBLISH消息的回复	4
+PUBREC：QoS 2消息流的第一部分，表示消息发布已记录	5record
+PUBREL：QoS 2消息流的第二部分，表示消息发布已释放	6release
+PUBCOMP：QoS 2消息流的第三部分，表示消息发布完成	7complish
+SUBSCRIBE：客户端订阅某个主题			8
+SUBACK：对于SUBSCRIBE消息的确认			9
+UNSUBSCRIBE：客户端终止订阅的消息		10
+UNSUBACK：对于UNSUBSCRIBE消息的确认		11
+PINGREQ：心跳			12
+PINGRESP：确认心跳		13
+DISCONNECT：客户端终止连接前优雅地通知MQTT代理（可能是考虑到mqtt本就是用于恶劣的环境，这样子可以尽可能减少资源的消耗么）	14
+	
+       	   如果是Qos 0的话那么用到的消息那么没有确认。不需要MessgaeID，不过可能要设备ID。
+	   如果是Qos 1的话那么用到的消息只有CONNACK、PUBACK。
+	   如果是Qos 2的话那么用到的消息增加PUBREC、PUBREL、PUBCOMP。全是pulish方面的。
+
+	   名字上不太对称的是：client发给serverPUBREL，server返回PUBCOMP；client发给serverPINGREQ，server返回PINGRESP。
+	   注意disconnect没有确认，看似不好其实有点对，网络阻塞的时候确认估计也要GG，所以不如不发等时间到自己断掉，网络线路好的时候就可以直接断开省点资源。
+	7.DUP flag感觉作用和Qos有点重复了,可靠传输就是QoS为01和11的时候
+其是用来在保证消息传输可靠的，如果设置为1，则在下面的变长头部里多加MessageId,并需要回复确认，保证消息传输完成，但不能用于检测消息重复发送。可靠传输是要ID设定的，我平时没有设置ID就直接用Qos1、2来传，那么messageid就是tcp那样进行默认处理吧。
+	8.Qos
+主要用于PUBLISH（发布态）消息的，保证消息传递的次数。
+00表示最多一次 即<=1
+01表示至少一次  即>=1
+10表示一次，即==1
+11保留后用
+	9.Retain
+主要用于PUBLISH(发布态)的消息，表示服务器要保留这次推送的信息，如果有新的订阅者出现，就把这消息推送给它。如果不设那么推送至当前订阅的就释放了。
+	10.固定头部的byte 2（第二个字节）
+是用来保存接下去的变长头部+消息体的总大小的。但是不是并不是直接保存的，同样也是可以扩展的，其机制是，前7位用于保存长度，后一部用做标识。最多可以加至第4个字节。故MQTT协议最多可以实现268 435 455 (0xFF, 0xFF, 0xFF, 0x7F)将近256M的数据。（这是大端存储）
+	11.安装sudo apt-get install mosquitto && apt-get install mosquitto-client
+	   我还把官网包给安装了，我担心没有lib放到对应的地方会导致我用不了库：安装的时候要先ldconfig，这是因为他会把库放到lib的寻找路径中。然后再make。否则就会出现一大串Nothing to be done for 'all'。然而我ldconfig以后，还是有一个这样的问题，不过似乎不影响使用。
+	12.服务器有个通用的问题，大概因为代码没有考虑到吧。就是开启以后，用Ctrl+C强制结束，那么在2-4分钟内（因为TIME_WAIT），这个端口还是被占用的，这时候你可以在结束服务器的那个终端上再开起来，但是不可以在其他终端上开同一个端口的。解决方法是：代码中允许进行端口重用SO_REUSEADDR这一个套接字选项（那么就不会保持几分钟）或者使用服务器-p选项设置一个新的端口。
+	13
+消息队列是协议层上的队列，不同于下面那个。消息是对应用程序（或者说协议）而言的。
+数据包队列为网络层发送数据策略
+	14.
+接收消息队列（in_message）
+接收消息队列，保存收到的消息；加入该队列主要是因为整个消息流程未完成，还有后续交互需要处理，比如说接受到服务器端Qos==2的消息时会将其加入队列，消息状态为：mosq_ms_wait_for_pubrel；当收到相应PUBREL消息时，将其从该队列中移除
+	15.在写之前，我们首先了解一下为什么Android维护长连接需要心跳机制，首先我们知道，维护任何一个长连接都需要心跳机制，客户端发送一个心跳给服务器，服务器给客户端一个心跳应答，这样就形成客户端服务器的一次完整的握手，这个握手是让双方都知道他们之间的连接是没有断开
+	16.Playload，就是消息体即负荷
+	17.对于QoS>0的消息而言，是需要消息ID的，
+	18.mqtt的消息体：先使用16位两个字节来表示长度，然后用特殊的UTF-8，一个字节一字符来表示字符串
+	19.
+keepalive，是在TCP中一个可以检测死连接的机制。
+keepalive原理很简单，TCP会在空闲了一定时间后发送数据给对方：
+1.如果主机可达，对方就会响应ACK应答，就认为是存活的。
+2.如果可达，但应用程序退出，对方就发RST应答，发送TCP撤消连接。
+3.如果可达，但应用程序崩溃，对方就发FIN消息。
+4.如果对方主机不响应ack, rst，继续发送直到超时，就撤消连接。
+
+
+以秒为单位，定义服务器端从客户端接收消息的最大时间间隔。一般应用服务会在业务层次检测客户端网络是否连接，不是TCP/IP协议层面的心跳机制(比如开启SOCKET的SO_KEEPALIVE选项，就是上面讲的这个)。 一般来讲，在一个心跳间隔内，客户端发送一个PINGREQ消息到服务器，服务器返回PINGRESP消息，完成一次心跳交互，继而等待下一轮。若客户端没有收到心跳反馈，会关闭掉TCP/IP端口连接，离线。 16位两个字节，可看做一个无符号的short类型值。最大值，2^16-1 = 65535秒 = 18小时。最小值可以为0，表示客户端不断开。一般设为几分钟，比如微信心跳周期为300秒。
+
+心跳消息的最大间隔时间	
+心跳消息的缓存
+心跳消息的最大并发数
+测试的时候不要忘记调整系统的最大连接数和栈大小，比如Linux上可用ulimit -n20000 -s512命令设置你需要的系统参数。
+
+PINGREQ / PINGRES 心跳
+Client有责任发送KeepAliveTime时长告诉给Server。在一个时长内，发送PINGREQ，Server发送PINGRES确认。
+Server在1.5个时长内未收到PINGREQ，就断开连接。
+Client在1个时长内未收到PINGRES，断开连接。
+一般来说，时长设置为几个分钟。最大18hours，0表示一直未断开。
+
+如果你使用它的mosquitto_loop和mosquitto_loop_forever函数，那么他就会自己处理心跳。如果要使用我们自己的select函数，那么就要经常使用libmosq_EXPORT int mosquitto_loop_misc(	struct 	mosquitto * mosq)这个函数，这个就是用来处理心跳的，所以他的位置就是在select的循环中。//mosquitto_loop_forever第二个参数设置的是内部实现上select的监测时间
+
+  	20.will就是设定client遗言。定义了客户端（没有主动发送DISCONNECT消息）出现网络异常导致连接中断的情况下，服务器需要做的一些措施。可以用来通知自己异常中断了
+	21.connect以后，broker返回一个CONNACK包，可变头部第一个字节为保留，无甚用处。第二个字节为连接握手返回码：
+
+
+n.MQTT的高级玩法——与网页应用的交互。MQTT是基于TCP协议实现，基于HTTP的网页应用便无法与之交互了。为了解决这个问题，许多MQTT代理加上了对WebSockets的支持
+apt-get update
+apt-get install mosquitto
+apt-get install mosquitto-clients在/etc/mosquitto/mosquitto.conf中添加：
+listener 8001
+protocol websockets
+然后要测试的话可以借助：HiveMQ WebSockets Client Showcase：
+http://www.hivemq.com/demos/websocket-client/也可以自己写一个支持mqtt wevbsocks的网页（The Paho JavaScript Client is an MQTT browser-based client library written in Javascript that uses WebSockets to connect to an MQTT Broker.）。对了IBM可以提供测试用的网页版mqtt client和server。
+
+	2.首先也是要初始化库
+mosquitto_lib_init();//注意名字里面有个lib，而且文档里面提到了这个不是线程安全的函数
+	  最后要释放库
+mosquitto_lib_cleanup()
+	3.然后就是初始化一个mosquitto client实例：
+struct mosquitto *mosquitto_new(	id,	 //记得if检查是否创建成功
+ 	clean_session,	 
+ 	obj);	 
+const char *id;//范例上使用的是用getpid()得到的进程pid，我还见过一个范例是NULL
+bool clean_session;//范例使用true（断开连接的时候清空订阅与所有信息）。如果使用false，那么就要设定好过时时间。
+void 	*obj;//随便用，不过一般用作回调函数。在之后的回调函数的设置里面会一直有它。
+
+释放实例：
+void mosquitto_destroy(	mosq);	 
+struct mosquitto *mosq;
+
+重新‘初始化’实例：
+int mosquitto_reinitialise(	mosq,	// 注意单词是se结尾
+ 	id,	 
+ 	clean_session,	 
+ 	obj);	 
+struct mosquitto *mosq;
+const char *id;
+bool clean_session;
+void 	*obj;//随便用，不过一般用作回调函数
+
+	4,范例是设置回调函数：void*都是new一个实例时候传入的用户数据，回调函数的参数都是对象必要的信息
+前三个函数的回调函数参数一样：
+int mosquitto_connect_callback_set(	mosq,	 
+ 	(*on_connect)(struct mosquitto *, void *, int));	 
+struct mosquitto *mosq;
+void (*on_connect)(struct mosquitto *, void *, int result);
+result:
+0 - success
+1 - connection refused (unacceptable protocol version)
+2 - connection refused (identifier rejected)
+3 - connection refused (broker unavailable)
+4-255 - reserved for future use
+
+int mosquitto_disconnect_callback_set(	mosq,	 
+ 	(*on_disconnect)(struct mosquitto *, void *, int));	 
+int mosquitto_publish_callback_set(	mosq,	 
+ 	(*on_publish)(struct mosquitto *, void *, int));//不过publish的int是mid
+
+
+int mosquitto_message_callback_set(	mosq,	 
+ 	(*on_message)(struct mosquitto *, void *, const struct mosquitto_message *));	 
+struct mosquitto *mosq;
+void (*on_message)(struct mosquitto *, void *, const struct mosquitto_message *);
+ 
+int mosquitto_subscribe_callback_set(	mosq,	 
+ 	(*on_subscribe)(struct mosquitto *, void *, int, int, const int *));	 
+struct mosquitto *mosq;
+void (*on_subscribe)(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos);
+qos_count	the number of granted subscriptions (size of granted_qos).
+granted_qos	an array of integers indicating the granted QoS for each of the subscriptions（看来一个订阅函数可以不只一次订阅）
+
+
+
+int mosquitto_unsubscribe_callback_set(	mosq,	 
+ 	(*on_unsubscribe)(struct mosquitto *, void *, int));	 
+struct mosquitto *mosq;
+void (*on_unsubscribe)(struct mosquitto *mosq, void *obj, int mid);
+ 
+int mosquitto_log_callback_set(	mosq,	 
+ 	(*on_unsubscribe)(struct mosquitto *, void *, int, const char *));	 
+struct mosquitto *mosq;
+void (*on_unsubscribe)(struct mosquitto *mosq, void *obj, int level, const char *str);
+level	the log message level from the values: MOSQ_LOG_INFO MOSQ_LOG_NOTICE MOSQ_LOG_WARNING MOSQ_LOG_ERR MOSQ_LOG_DEBUG（也是类型）
+str	the message string.
+
+
+	5.连接：
+int mosquitto_connect(	mosq,	 
+ 	host,	 
+ 	port,	 
+ 	keepalive);	 
+struct mosquitto *mosq;
+const char *host;
+int port;//我见到的都是1883
+int keepalive;//不知道单位是什么，范例里面是60
+_set系列的函数都要在connect之前设置好
+MQTT的掉线重连：如果建立连接的时候，超时设置为0（不检测超时），就不会触发掉线的回调函数了。超时就是为了检测是否“断线”（以超时时间来判断），不检测超时那么也就断不断线不管你。
+
+int mosquitto_connect_bind(	mosq,	 
+ 	host,	 
+ 	port,	 
+ 	keepalive,	 
+ 	bind_address);	 
+struct mosquitto *mosq;
+const char *host;
+int port;
+int keepalive;
+const char *bind_address;//增加一个参数，说是用于“确保交互对象”
+
+	  异步连接：
+int mosquitto_connect_async(	mosq,	 
+ 	host,	 
+ 	port,	 
+ 	keepalive);	 
+struct mosquitto *mosq;
+const char *host;
+int port;
+int keepalive;
+/*Connect to an MQTT broker.  This is a non-blocking call.  If you use mosquitto_connect_async your client must use the threaded interface mosquitto_loop_start.  If you need to use mosquitto_loop, you must use mosquitto_connect to connect the client.*/
+
+mosquitto_connect_bind_async()就是_bind和_async的结合
+
+	  再次连接：
+mosquitto_reconnect(mosq);//是不是还要时间间隔来着，不能频繁操作。。。范例用sleep大约1s
+struct mosquitto *mosq;
+
+	  再次连接（异步版）：
+int mosquitto_reconnect_async(	mosq);	 
+struct mosquitto *mosq;
+
+
+	  延迟连接设置：
+int mosquitto_reconnect_delay_set(	mosq,	 
+ 	reconnect_delay,	 
+ 	reconnect_delay_max,	 
+ 	reconnect_exponential_backoff);	 
+struct mosquitto *mosq;
+unsigned int reconnect_delay;
+unsigned int reconnect_delay_max;
+bool reconnect_exponential_backoff;
+在意外地断连接以后（在使用mosquitto_loop_forever or after mosquitto_loop_start以后），会每隔一秒尝试去重新连接知道成功。
+delay=2, delay_max=10, exponential_backoff=False Delays would be: 2, 4, 6, 8, 10, 10, ...
+reconnect_exponential_backoff	是否使用指数退避算法
+
+	  关闭连接：
+int mosquitto_disconnect(	mosq);	 
+struct mosquitto *mosq;
+
+
+const char *mosquitto_connack_string(	int 	connack_code	)
+返回一个const char*,来描述连接结果
+
+	6.订阅：
+int mosquitto_subscribe(	mosq,	 
+ 	mid,	 
+ 	sub,	 
+ 	qos);	 
+struct mosquitto *mosq;
+int *mid;//范例是NULL，否则就把int给这个指针所指的对象，据说是用于回调函数。
+const char *sub;//想订阅东西的名字吧（C语言传字符串就是指针，虽然还有结构体这种方法）
+int qos;//范例是0
+
+	  取消订阅：
+int mosquitto_unsubscribe(	mosq,	 
+ 	mid,	 
+ 	sub);	 
+struct mosquitto *mosq;
+int *mid;
+const char *sub;
+qos是broker发送其它的client的设置，所以unsubscribe没有这个参数
+
+	7.发布：没有unpulish，其实是设定了的，就是那个固定头部中的retain位。
+int mosquitto_publish(	mosq,	 
+ 	mid,	 
+ 	topic,	 
+ 	payloadlen,	 
+ 	payload,	 
+ 	qos,	 
+ 	retain);	 
+struct mosquitto *mosq;
+int *mid;//NULL
+const char *topic;
+int payloadlen;
+const void *payload;
+int qos;
+bool retain;
+
+
+ 	8.循环：
+int mosquitto_loop(	mosq,	 
+ 	timeout,	 
+ 	max_packets);	 
+struct mosquitto *mosq;
+int timeout;//设置等待select()的时间，单位为毫秒，负数就表示是1s
+int max_packets;//1，预留
+这个函数应该经常被调用用于保持clinet和server之间的交流，因为mosquitto_pulish这些函数一般来讲会把消息立马发出去，但是有些时候就是发不出去的，所以调用这个函数把延迟的消息发出去（当然前提是消息的QoS>0）。
+
+
+	  循环读取：
+int mosquitto_loop_read(	mosq,	 
+ 	max_packets);	 
+struct mosquitto *mosq;
+int max_packets;//叫这个名字的参数现在都还没有被使用，只是预留
+用在你没有使用mosquitto_loop等自带loop函数，而你要自己去监控这socket端口的时候。用来读取。
+
+	  循环写入：
+int mosquitto_loop_write(	mosq,	 
+ 	max_packets);	 
+struct mosquitto *mosq;
+int max_packets;	
+用在你没有使用mosquitto_loop等自带loop函数，而你要自己去监控这socket端口的时候。用来写入。
+	  等待写入：
+bool mosquitto_want_write(	mosq);	 
+struct mosquitto *mosq;
+
+
+int mosquitto_loop_forever(	mosq,	 
+ 	timeout,	 
+ 	max_packets);	 
+struct mosquitto *mosq;//指向对象的指针，也就是实例
+int timeout;/*Maximum number of milliseconds to wait for network activity in the select() call before timing out.  Set to 0 for instant return(不是退出函数).  Set negative to use the default of 1000ms.*/
+int max_packets;//这个参数没有什么用，为未来预留，目前应该设置为1。
+这个函数内置的loop()进行永久的循环，而且当连接lost后会自动reconnect()。要想它断掉要在回调函数中调用mosquitto_disconnect()。这个函数会调用select()来监视client network socket。如果你想要使用自己的select函数，那么就还要配合mosquitto_socket,mosquitto_loop_read,mosquitto_loop_write,mosquitto_loop_misc。他这个loop的意思就是循环调用select()函数吧？？？那这个函数也应该是个循环呀，从之前的语句来讲是可以退出的。
+
+	 
+int mosquitto_socket(	mosq);	 
+struct mosquitto *mosq;
+返回一个sock的句柄，用于当你使用自己的select() 函数时。返回的sock是个int，也就是说使用linux下。
+
+int mosquitto_loop_misc(	mosq);	 
+struct mosquitto *mosq;
+用在你没有使用mosquitto_loop等自带loop函数，而你要自己去监控这socket端口的时候。处理PINGS并且检查是否有包要重发（也就是没法出去的包，和loop_forever那个函数有点像）是read和write函数的合体，可以检测“杂项”事件
+
+bool mosquitto_want_write(	mosq);	 
+struct mosquitto *mosq;
+如果准备好了写入数据就返回true。
+	9.Threaded network loop用于线程的循环
+
+int mosquitto_loop_start(	mosq);
+struct mosquitto *mosq;
+开启新线程来处理交通事故
+
+int mosquitto_loop_stop(	mosq,	 
+ 	force);	 
+struct mosquitto *mosq;
+bool force;
+停止之前创建的线程。第二个参数为false那么就会等待到mosquitto_disconnect函数的调用，程序会卡在这里。
+
+	10.Misc
+int mosquitto_user_data_set(	mosq,	 
+ 	userdata);	 
+struct mosquitto *mosq;
+void *userdata;
+
+
+int mosquitto_max_inflight_messages_set(	mosq,	 
+ 	max_inflight_messages);	 
+struct mosquitto *mosq;
+unsigned int max_inflight_messages;
+设置同一时间最多多少个（默认20个）包在发布（in fight），大于这个数量的就会进入队列等待。如果你把第二个参数那个允许的最大值设的太大就会导致延迟。设置为0，表示没有最大值。
+
+
+int mosquitto_message_retry_set(	mosq,	 
+ 	message_retry);	 
+struct mosquitto *mosq;
+unsigned int message_retry;
+设置重新发送消息的时间间隔，单位是s！默认20
+
+
+
+int mosquitto_sub_topic_tokenise(	subtopic,	 
+ 	topics,	 
+ 	count);	 
+const char *subtopic;
+char ***topics;//指向二维数组的指针，所以就是三维。因为要返回地址，传的是&后的指向字符串的数组
+int *count;//topics有几个元素
+其实就是一个对字符串的拆解
+For example
+subtopic: “a/deep/topic/hierarchy”
+Would result in
+topics[0] = “a” topics[1] = “deep” topics[2] = “topic” topics[3] = “hierarchy”
+<=>
+subtopic: “/a/deep/topic/hierarchy/”
+Would result in
+topics[0] = NULL topics[1] = “a” topics[2] = “deep” topics[3] = “topic” topics[4] = “hierarchy”
+
+char **topics;
+int topic_count;
+int i;
+mosquitto_sub_topic_tokenise("$SYS/broker/uptime", &topics, &topic_count);
+for(i=0; i<token_count; i++){
+    printf("%d: %s\n", i, topics[i]);
+}
+
+int mosquitto_sub_topic_tokens_free(	topics,	 
+ 	count);	 
+char ***topics;
+int count;
+topics的释放函数
+
+
+int mosquitto_topic_matches_sub(	sub,	 
+ 	topic,	 
+ 	result);	 
+const char *sub;
+const char *topic;
+bool *result;
+For example：
+foo/bar would match the subscription foo/# or +/bar non/matching would not match the subscription non/+/+
+
+	11.will系列函数
+int mosquitto_will_set(	mosq,	 
+ 	topic,	 
+ 	payloadlen,	 
+ 	payload,	 
+ 	qos,	 
+ 	retain);	 
+struct mosquitto *mosq;
+const char *topic;
+int payloadlen;
+const void *payload;
+int qos;
+bool retain;
+设置mosquitto的will信息，默认是不带will的，当然要在connect之前调用。这个函数与mosquitto_publish函数好像。
+
+
+int mosquitto_will_clear(	struct mosquitto *mosq);	 
+struct mosquitto *mosq;
+
+	11.用户登录：
+int mosquitto_username_pw_set(	mosq,	 
+ 	username,	 
+ 	password);	 
+struct mosquitto *mosq;
+const char *username;
+const char *password;
+这个函数就是一个用户校验，在服务器上至少是MQTT spec v3.1
+	12.message结构ti的操作：
+int mosquitto_message_copy(	dst,	 
+ 	src);	 
+struct mosquitto_message *dst;
+const struct mosquitto_message *src;
+ 
+int mosquitto_message_free(	message);	 
+struct mosquitto_message **message;
+	13.编译的话要下载openwrt（SDK）解压后，在packages中创建自己的文件夹并且在里面放上源代码，然后写一个MAKEFILE....具体可以看老师给我留的那个文件夹情况。弄好makefile，根据README然后第一件事就是make menuconfig，在里面配置好自己路由器的系统版本等，就可以make了，安全起见我使用了sudo make。然后就会在 bin/ar71xx/packages/base/里面生成许多ipk文件，我找了自己创建的文件夹名字的ipk。这个编译好的其实就是固件firmware。	14.编译出固件之后就要把它上传到板子上。老师给我的板子是WRTnode2P_113A
+	   软件：windows可以使用winscp，linux可以使用scp
+	   方式：1.web页面那样的方式
+		 2.软件方式（我使用了winscp），软件打开左边是本地文件系统，右边是远程登录文件系统
+		 3.命令行方式。在自定义安装winscp的时候，有一个是否加入到%PATH%的选项。
+	15.进入老师给我的板子不是192.168.1.1而是192.168.8.1（这叫LAN口IP），密码就是默认的敲三下（123），账户自然是root。进去以后可以看到硬件信息，网络信息，硬件使用情况，登录信息等等路由器应该有的信息。但是我用Winscp的SCP协议选项访问192.168.8.1:22就会连接上主机然后拒绝访问，然后才知道它更笨=本没有设置密码与ssh连接，在设置密码的时候会设置ssh连接端口22，再用一次winscp就连接上去了。
+	16.
+什么是opkg
+　　Opkg 是一个轻量快速的套件管理系统，目前已成为 Opensource 界嵌入式系统标准。常用于路由、交换机等嵌入式设备中，用来管理软件包的安装升级与下载。
+
+　　opkg update 更新可以获取的软件包列表
+　　opkg upgrade 对已经安装的软件包升级
+　　opkg list 获取软件列表
+　　opkg install 安装指定的软件包
+　　opkg remove 卸载已经安装的指定的软件包
+什么是ipk
+　　openwrt下的程序安装包，用户可以很方便地安装程序。
+
+ipk与内核模块
+　　什么是内核模块呢?这对于初学者无非是个非常难以理解的概念。内核模块是Linux内核向外部提供的一个插口， 其全称为动态可加载内核模块（Loadable Kernel Module，LKM），我们简称为模块。Linux内核之所以提供模块机制，是因为它本身是一个单内核（monolithic kernel）。单内核的最大优点是效率高，因为所有的内容都集成在一起，但其缺点是可扩展性和可维护性相对较差，模块机制就是为了弥补这一缺陷。
+　　模块是具有独立功能的程序，它可以被单独编译，但不能独立运行。它在运行时被链接到内核作为内核的一部分在内核空间运行，这与运行在用户空间的进程是不同的。模块通常由一组函数和数据结构组成，用来实现一种文件系统、一个驱动程序或其他内核上层的功能。
+　　总之，模块是一个为内核（从某种意义上来说，内核也是一个模块）或其他内核模块提供使用功能的代码块。按上面的说法，虽然openwrt编译出的内核模块也是一个ipk包，但它是无法独立地运行的，它们的名字会以kmod-为开头而取。
+

@@ -1,0 +1,439 @@
+下面是WMI获取计算机硬件信息
+#include "WMIInfo.h"
+#include <sstream>
+#include "CharsetConversion.h"
+#include <WinSock2.h>
+#include "string"
+#pragma comment(lib,"Iphlpapi.lib")
+
+//字符集转换
+#ifndef CHARSETCONVERSION_H_
+#define CHARSETCONVERSION_H_
+#include <string>
+std::wstring  StringToWString(const std::string &str);
+std::string WStringToString(const std::wstring &wstr);
+std::string UnicodeToUTF8( const std::wstring& wstr );
+std::wstring UTF8ToUnicode( const std::string& str );
+std::string ws2s(const std::wstring& ws);
+std::wstring s2ws(const std::string& s);
+#endif
+
+//Get Windows system informantion
+static const int kMaxInfoBuffer = 256;
+#define  GBYTES  1073741824
+#define  MBYTES  1048576
+#define  KBYTES  1024
+#define  DKBYTES 1024.0
+void SafeGetNativeSystemInfo(LPSYSTEM_INFO lpSystemInfo);
+const std::string  GetCpuInfo();  //从注册表中读取
+const std::string  GetOsVersion();
+const std::string  GetMemoryStatus();
+const std::wstring GetComputerUerName();
+const std::string  GetDisplayCardinfo(); //这个函数没有被实现
+void  GetNetCardAndIPInfo(std::string &adapter_info, std::string &MAC_address, std::string &IP);//获取网卡适配器信息与网络信息
+const std::string GetOsVersion()
+{
+	std::string os_version("");
+	SYSTEM_INFO system_info;
+	memset(&system_info,0,sizeof(SYSTEM_INFO));
+	GetSystemInfo(&system_info);
+	OSVERSIONINFOEX os; 
+	os.dwOSVersionInfoSize=sizeof(OSVERSIONINFOEX);  
+	if(GetVersionEx((OSVERSIONINFO *)&os))                 
+	{ 
+		switch(os.dwMajorVersion){                      
+		case 4: 
+			//1996年7月发布 
+			switch(os.dwMinorVersion){            
+			case 0: 
+				if(os.dwPlatformId==VER_PLATFORM_WIN32_NT) 
+					os_version="Microsoft Windows NT 4.0 ";             
+				else if(os.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS) 
+					os_version="Microsoft Windows 95 "; 
+				break; 
+			case 10: 
+				os_version="Microsoft Windows 98 "; 
+				break; 
+			case 90: 
+				os_version="Microsoft Windows Me "; 
+				break; 
+			} 
+			break; 
+		case 5: 
+			switch(os.dwMinorVersion){
+				//1999年12月发布 
+			case 0: 
+				os_version="Microsoft Windows 2000 ";  
+				if(os.wSuiteMask==VER_SUITE_ENTERPRISE) 
+					os_version.append("Advanced Server "); 
+				break; 
+				//2001年8月发布 
+			case 1: 
+				os_version="Microsoft Windows XP ";  
+				if(os.wSuiteMask==VER_SUITE_EMBEDDEDNT) 
+					os_version.append("Embedded "); 
+				else if(os.wSuiteMask==VER_SUITE_PERSONAL) 
+					os_version.append("Home Edition "); 
+				else
+					os_version.append("Professional ");
+				break; 
+			case 2: 
+				if(os.wProductType==VER_NT_WORKSTATION &&
+					system_info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64)
+					os_version="Microsoft Windows XP Professional x64 Edition "; 
+				if(GetSystemMetrics(SM_SERVERR2)==0 && os.wSuiteMask==VER_SUITE_BLADE)
+					os_version ="Microsoft Windows Server 2003 Web Edition "; 
+				else if(GetSystemMetrics(SM_SERVERR2)==0 && os.wSuiteMask==VER_SUITE_COMPUTE_SERVER) 
+					os_version=("Microsoft Windows Server 2003 Compute Cluster Edition "); 
+				else if(GetSystemMetrics(SM_SERVERR2)==0 &&  os.wSuiteMask==VER_SUITE_STORAGE_SERVER) 
+					os_version=("Microsoft Windows Server 2003 Storage Server "); 
+				else if(GetSystemMetrics(SM_SERVERR2)==0 &&   os.wSuiteMask==VER_SUITE_DATACENTER) 
+					os_version=("Microsoft Windows Server 2003 Datacenter Edition "); 
+				else if(GetSystemMetrics(SM_SERVERR2)==0 &&   os.wSuiteMask==VER_SUITE_ENTERPRISE) 
+					os_version=("Microsoft Windows Server 2003 Enterprise Edition "); 
+				else if(GetSystemMetrics(SM_SERVERR2)!=0 &&   os.wSuiteMask==VER_SUITE_STORAGE_SERVER)
+					os_version=("Microsoft Windows Server 2003 R2 Storage Server ");
+				break; 
+			} 
+			break; 
+		case 6: 
+			switch(os.dwMinorVersion){ 
+			case 0: 
+				if(os.wProductType==VER_NT_WORKSTATION)
+				{
+					os_version="Microsoft Windows Vista "; 
+					if (os.wSuiteMask==VER_SUITE_PERSONAL)
+						os_version.append("Home ");
+				}				
+				else if(os.wProductType!=VER_NT_WORKSTATION)
+				{
+					os_version="Microsoft Windows Server 2008 ";
+					if ( os.wSuiteMask==VER_SUITE_DATACENTER)
+						os_version.append("Datacenter Server ");
+					else if (os.wSuiteMask==VER_SUITE_ENTERPRISE)
+						os_version.append("Enterprise ");
+				}
+				break; 
+			case 1: 
+				if(os.wProductType==VER_NT_WORKSTATION) 
+					os_version="Microsoft Windows 7 "; 
+				else
+					os_version="Microsoft Windows Server 2008 R2 "; 
+				break; 
+			} 
+			break; 
+		default: 
+			os_version="? "; 
+		} 
+	}
+	SYSTEM_INFO si;
+	SafeGetNativeSystemInfo(&si);
+	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||  
+		si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 )
+		os_version.append("64bit");   
+	else os_version.append("32bit");
+	return os_version;
+}
+
+void SafeGetNativeSystemInfo( LPSYSTEM_INFO lpSystemInfo )
+{
+	if (NULL == lpSystemInfo)
+		return;  
+	typedef VOID (WINAPI *LPFN_GetNativeSystemInfo)(LPSYSTEM_INFO lpSystemInfo); 
+	LPFN_GetNativeSystemInfo nsInfo = 
+		(LPFN_GetNativeSystemInfo)GetProcAddress(GetModuleHandle(_T("kernel32")), "GetNativeSystemInfo");;  
+	if (NULL != nsInfo)  
+	{  
+		nsInfo(lpSystemInfo);  
+	}  
+	else  
+	{  
+		GetSystemInfo(lpSystemInfo);  
+	} 
+}
+
+const std::wstring GetComputerUerName()
+{
+	std::wstring uer_name(L"");
+	wchar_t  buffer[kMaxInfoBuffer];
+	DWORD length=kMaxInfoBuffer;
+	if (GetComputerName(buffer, &length))
+		uer_name.append(buffer,length);
+	return uer_name;
+}
+
+const std::string GetMemoryStatus()
+{
+	std::string memory_info("");
+	MEMORYSTATUSEX statusex;
+	statusex.dwLength = sizeof(statusex);
+	if (GlobalMemoryStatusEx(&statusex))
+	{
+		unsigned long long total = 0, remain_total = 0, avl = 0, remain_avl = 0;
+		double decimal_total = 0, decimal_avl = 0;
+		remain_total = statusex.ullTotalPhys % GBYTES;
+		total = statusex.ullTotalPhys / GBYTES;
+		avl = statusex.ullAvailPhys / GBYTES;
+		remain_avl = statusex.ullAvailPhys % GBYTES;
+		if (remain_total > 0)
+			decimal_total = (remain_total / MBYTES) / DKBYTES;
+		if (remain_avl > 0)
+			decimal_avl = (remain_avl / MBYTES) / DKBYTES;
+
+		decimal_total += (double) total;
+		decimal_avl += (double) avl;
+		char  buffer[kMaxInfoBuffer];
+		sprintf_s(buffer,kMaxInfoBuffer, "%.2f GB (%.2f GB可用)", decimal_total, decimal_avl);	
+		memory_info.append(buffer);
+	}
+	return memory_info;
+}
+
+void GetNetCardAndIPInfo(std::string &adapter_info, std::string &MAC_address, std::string &IP)
+{
+	PIP_ADAPTER_INFO pIp_adapter_info = new IP_ADAPTER_INFO();
+	unsigned long adapter_size = sizeof(IP_ADAPTER_INFO);
+	int ret = GetAdaptersInfo(pIp_adapter_info,&adapter_size);
+	if (ERROR_BUFFER_OVERFLOW == ret)
+	{
+		delete pIp_adapter_info;
+		pIp_adapter_info = (PIP_ADAPTER_INFO)new BYTE[adapter_size];
+		ret=GetAdaptersInfo(pIp_adapter_info,&adapter_size);    
+	}	
+	if (ERROR_SUCCESS == ret)
+	{
+		while (pIp_adapter_info)
+		{
+			adapter_info.append("name: ");
+			adapter_info.append(pIp_adapter_info->AdapterName);
+			adapter_info.append("\ndescription: ");
+			adapter_info.append(pIp_adapter_info->Description);
+			adapter_info.append("\ntype: ");
+			std::string card_type("");
+			switch(pIp_adapter_info->Type)
+			{
+			case MIB_IF_TYPE_OTHER:
+				card_type="other";
+				break;
+			case MIB_IF_TYPE_ETHERNET:
+				card_type="ethernet";
+				break;
+			case MIB_IF_TYPE_TOKENRING:
+				card_type="tokenring";
+				break;
+			case MIB_IF_TYPE_FDDI:
+				card_type="fddi";
+				break;
+			case MIB_IF_TYPE_PPP:
+				card_type="ppp";
+				break;
+			case MIB_IF_TYPE_LOOPBACK:
+				card_type="loopback";
+				break;
+			case MIB_IF_TYPE_SLIP:
+				card_type="slip";
+				break;
+			default:
+				break;
+			}
+			adapter_info.append(card_type);
+			MAC_address.append("\nMACAddr: ");
+			char  buffer[kMaxInfoBuffer];
+			for (DWORD i = 0; i < pIp_adapter_info->AddressLength; i++)
+				if (i < pIp_adapter_info->AddressLength-1)
+				{
+					sprintf_s(buffer,kMaxInfoBuffer, "%02X", pIp_adapter_info->Address[i]);
+					MAC_address.append(buffer);
+					MAC_address.append("-");
+				}
+				else
+				{
+					sprintf_s(buffer,kMaxInfoBuffer, "%02X", pIp_adapter_info->Address[i]);
+					MAC_address.append(buffer);
+					adapter_info.append("\n");
+				}
+
+			IP_ADDR_STRING *pIp_addr_string =&(pIp_adapter_info->IpAddressList);
+			do 
+			{
+				IP.append("IPAddr:");
+				IP.append(pIp_addr_string->IpAddress.String);;
+				IP.append("\nIpMask:");
+				IP.append(pIp_addr_string->IpMask.String);
+				IP.append("\nGateway:");
+				IP.append(pIp_adapter_info->GatewayList.IpAddress.String);
+				IP.append("\n");
+				pIp_addr_string=pIp_addr_string->Next;
+			} while (pIp_addr_string);
+			adapter_info.append("\n");
+			pIp_adapter_info = pIp_adapter_info->Next;
+		}
+
+	}
+	if (pIp_adapter_info)
+	{
+		delete pIp_adapter_info;
+		pIp_adapter_info = nullptr;
+	}
+}
+
+const std::string GetCpuInfo()
+{
+	std::string processor_name("");
+	LPCWSTR  str_path=L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0";
+	HKEY key;
+	if (::RegOpenKeyEx(HKEY_LOCAL_MACHINE,str_path,0,KEY_ALL_ACCESS,&key) == ERROR_SUCCESS)
+	{
+		char processor_value[256];
+		DWORD type = REG_SZ;
+		DWORD value_size = sizeof(processor_value);	
+		if (::RegQueryValueEx(key,L"ProcessorNameString", 0, &type, (LPBYTE)&processor_value, &value_size) == ERROR_SUCCESS)
+			processor_name.append(processor_value,value_size);
+		RegCloseKey(key);
+		
+	}
+	return processor_name;
+}
+
+const std::string  GetDisplayCardinfo()
+{
+	std::string memory_info("");
+	return memory_info;
+}
+
+
+
+
+字符集转换函数实现：
+#include "StdAfx.h"
+#include "CharsetConversion.h"
+#include <Windows.h>
+std::wstring  StringToWString(const std::string &str)
+{    
+	std::wstring wstr;
+	int nLen = (int)str.length();    
+	wstr.resize(nLen,L' ');
+
+	int nResult = MultiByteToWideChar(CP_ACP,0,(LPCSTR)str.c_str(),nLen,(LPWSTR)wstr.c_str(),nLen);
+
+	if (nResult == 0)
+	{
+		return std::wstring(L"");
+	}
+	return wstr;
+}
+//wstring高字节不为0，返回FALSE
+std::string WStringToString(const std::wstring &wstr)
+{    
+	std::string str;
+	int nLen = (int)wstr.length();    
+	str.resize(nLen,' ');
+
+	int nResult = WideCharToMultiByte(CP_ACP,0,(LPCWSTR)wstr.c_str(),nLen,(LPSTR)str.c_str(),nLen,NULL,NULL);
+
+	if (nResult == 0)
+	{
+		return std::string("");
+	}
+	return str;
+
+}
+std::string UnicodeToUTF8( const std::wstring& wstr )
+{
+	char*     pElementText;
+	int    iTextLen;
+	// wide char to multi char
+	iTextLen = WideCharToMultiByte( CP_UTF8,
+		0,
+		wstr.c_str(),
+		-1,
+		NULL,
+		0,
+		NULL,
+		NULL );
+	pElementText = new char[iTextLen + 1];
+	memset( ( void* )pElementText, 0, sizeof( char ) * ( iTextLen + 1 ) );
+	::WideCharToMultiByte( CP_UTF8,
+		0,
+		wstr.c_str(),
+		-1,
+		pElementText,
+		iTextLen,
+		NULL,
+		NULL );
+	std::string str;
+	str = pElementText;
+	delete[] pElementText;
+	return str;
+}
+std::wstring UTF8ToUnicode( const std::string& str )
+{
+	int  len = 0;
+	len = str.length();
+	int  unicodeLen = ::MultiByteToWideChar( CP_UTF8,
+		0,
+		str.c_str(),
+		-1,
+		NULL,
+		0 ); 
+	wchar_t *  pUnicode; 
+	pUnicode = new  wchar_t[unicodeLen+1]; 
+	memset(pUnicode,0,(unicodeLen+1)*sizeof(wchar_t)); 
+	::MultiByteToWideChar( CP_UTF8,
+		0,
+		str.c_str(),
+		-1,
+		(LPWSTR)pUnicode,
+		unicodeLen ); 
+	std::wstring  wstr; 
+	wstr = ( wchar_t* )pUnicode;
+	delete  pUnicode;
+	return  wstr; 
+}
+
+
+std::string ws2s(const std::wstring& ws)
+{
+	std::string curLocale = setlocale(LC_ALL, NULL); // curLocale = "C";
+	setlocale(LC_ALL, "chs");
+	const wchar_t* _Source = ws.c_str();
+	size_t _Dsize = 2 * ws.size() + 1;
+	char *_Dest = new char[_Dsize];
+	memset(_Dest,0,_Dsize);
+//	wcstombs(_Dest,_Source,_Dsize);
+	size_t   i;
+	wcstombs_s(&i, _Dest, _Dsize, _Source, _Dsize);
+	std::string result = _Dest;
+	delete []_Dest;
+	setlocale(LC_ALL, curLocale.c_str());
+	return result;
+}
+std::wstring s2ws(const std::string& s)
+{
+	setlocale(LC_ALL, "chs");
+	const char* _Source = s.c_str();
+	size_t _Dsize = s.size() + 1;
+	wchar_t *_Dest = new wchar_t[_Dsize];
+	wmemset(_Dest, 0, _Dsize);
+	//mbstowcs(_Dest,_Source,_Dsize);
+	size_t   i;
+	mbstowcs_s(&i, _Dest, _Dsize, _Source,_Dsize);
+	std::wstring result = _Dest;
+	delete []_Dest;
+	setlocale(LC_ALL, "C");
+	return result;
+}
+
+
+
+
+long GetCPUFreq()//获取CPU频率,单位: MHZ  
+{  
+int start1,start2;  
+_asm rdtsc  
+   _asm mov start1,eax  
+   Sleep(50);  
+_asm rdtsc  
+   _asm mov start2,eax  
+   return (start2-start1)/50000;  
+}  

@@ -1,0 +1,3 @@
+就把编译结果放到Apache或者nginx目录下就可以了啊。。。。。
+把dist整个目录放到webapps/ROOT下
+还有react大概要改一些配置吧。。。配置下baseurl
