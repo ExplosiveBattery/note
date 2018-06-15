@@ -1,7 +1,7 @@
 C-w 删除当前输入终端的文字
 
 -f image2 /tmp/webCam/%d.jpg 产生的文件名字是从1开始的数字递增，如果是%9d那就是9位数字的递增。
-
+	不过不少程序的-f/-F参数都是用来描述工作在前端还是后台
 处理空格使用转义或者字符串包起来
 nmap -sn | grep "sn"《=》nmap -sn | grep sn
 ls && ls 《=》 ls;ls
@@ -25,7 +25,7 @@ git config --global user.mail "xxxx@xx.com"
 配置好的kali推送文件到github一直不能推送上去，问了SCU_Linux的小伙伴们也不清楚， 最后在#linuxba 的irc上问了下，才知道 github的https是 readonly的，只有ssh通道才能推送，记一下 2017.3.16
 sudo hdparm -t /dev/sda 测试硬盘速度
 
-
+chattr 文件锁
 
 egrep是用extended regular expression语法来解读的，而grep则用basic regular expression 语法解读
 来自: http://man.linuxde.net/egrep
@@ -114,7 +114,7 @@ mount -t ntfs -o remount,rw /dev/sda1 /  -o 额外指定了，希望重新挂载。但是我失败
 
 nohup是永久执行，&是指在后台运行
 
-
+linux下查看二进制模式查看文件 hexdump
 
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -248,7 +248,7 @@ find / -size +10M(当然单位还有G，K)
 -ls 相当于顺便进行ls
 -daystart 按照创建时间排序
 
-对于一些目录的搜索需要权限。
+ifconfig usb0 192.168.3.120 up  将usb0接口作为一个网络端口
 
 grep -anv 【指定字符串】 【文件】
 -a 文本搜索  grep "<text>" <file>
@@ -290,3 +290,8 @@ sort -m file1 fiel2 > file_result 将文件file1与文件file2合并
 显卡相关命令：https://wiki.deepin.org/index.php?title=%E6%98%BE%E5%8D%A1
 
 sudo update-alternatives -config java 然后就会给出所有java调用的候选可执行文件。
+
+ImageMagick图形图像处理开源项目:
+	convert 转换图像格式和大小，模糊，裁剪，驱除污点，抖动，临近，图片上画图片，加入新图片，生成缩略图等。（Python中的opencv也可以用作图像处理）
+	identify 描述一个或较多图像文件的格式和特性。
+	composite 根据一个图片或多个图片组合生成图片

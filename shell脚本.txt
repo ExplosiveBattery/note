@@ -267,3 +267,18 @@ $RANDOM %254
 死循环要用：
 while true 而不是while 1
 for((i=0;i<10;))
+
+
+将指定文件夹中的文件从指定日期按照20180501.jpg开始命名
+#/bin/sh
+PATH=/media/vega/0D6C051A0D6C051A/all/Wallpapers
+dateStringPrefix="20180501 +"
+num=0
+dateStringPostfix=" day"
+
+for i in $(echo $PATH/*); do 
+	newFileName = ${PATH}/$(/bin/date -d "${dateStringPrefix}${num}${dateStringPostfix}" +%Y%m%d).jpg
+	/bin/mv $i $newFileName
+done
+
+

@@ -1,5 +1,4 @@
  	1.支持ARM芯片。树莓派使用的就是ARM芯片，kali 有个for raspberry版本。
- 	1.支持ARM芯片。树莓派使用的就是ARM芯片，kali 有个for raspberry版本。
 	2.无线内核补丁（估计就是内核模块）已经内置了。
 	3.自启动脚本默认不会自启动。所以我的/etc/rc.local配置失败么
 	5.
@@ -303,6 +302,9 @@ A: nc -lp 333 | dd of=/dev/sda
 B: dd if=/dev/sda | nc -nv IP Port -q 1
 
 还可以对内存信息保存一份在远程磁盘上
+
+udp:-u或者--udp 不同源的netcat参数有点区别
+使用nc，构造udp通信有个问题，只能客户端发送给服务器
 
 	18.base64命令中输入明文，按C-D表EOF输出base64.不过有时候要按两下C-D才行，答案还是对的。base64编码，并不一定在末尾都会有=，比如说123。
 sha1sum ： compute and check SHA1 message digest
@@ -978,7 +980,7 @@ systemctl start postgresql(Metasploit服务他会自己帮你开)
 连接都是127.0.0.1:55553，账号msf，密码test。
 	139.
 Hydra的使用（特别注意定时timing的参数），RainbowCrack，Medusa的使用
-Ettercap中间人攻击工具
+Ettercap中间人攻击工具(配合etterfilter自动更改包内容)
 精通Python与Ruby
 setoolkit (Fast-Track的使用)社工攻击
 Google DOCS
@@ -1196,7 +1198,7 @@ driftnet -i eth0 #默认是打开一个显示图片的窗口，然后所有发现的图片都会在上面显示
 		fragrouter就是基于该漏洞开发的规避工具。该工具可以拦截发送给网卡的数据，进行重新分片（22中分片方式），然后再发送。这些分片方式采用乱序、重复分片、空包、交叉发包等措施，以规避检测系统。
 		使用示例：fragrouter -i eth0 -F1&
 	165.beef浏览器攻击框架
-			
+
 在线病毒检测:
 www.virustotal.com
 habo.qq.com 一个对软件行为检测（进程行为、文件行为、网络行为、注册表行为、其他）很完整的平台

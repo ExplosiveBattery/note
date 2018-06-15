@@ -54,6 +54,7 @@ nginx               1.12-alpine               15.5MB
 	Docker to use an HTTP proxy
 	Cloudinsight docker
 	windows docker 与linux docker架构
+	会创建一个虚拟网卡，为docker container提供网络
 命令:
 IMAGEID <=> REPOSITORY:TAG 不过多个REPOSITORY:TAG可能对应一个TAG
 latest tag其实在使用中不是最新的意思，而是默认值(defalut)的意思。也就是说，如果在tag为可选的命令中，我们没有写上tag，如 docker pull entel_zmc_images:zmc_base vs docker pull entel_zmc_images ，前者有确定的tag，而后者没有，这时系统会自动添加一个:latest标签，然后去匹配。
@@ -111,4 +112,17 @@ sudo docker rmi -f $(sudo docker images -aq) 删除所有镜像
 	alpine              3.7                 3fd9065eaf02        3 months ago        4.15MB
 
 docker cp <containerId>:/file/path/within/container /host/path/target 从Docker容器内拷贝文件到主机上  （我不清楚containerID后面的:要不要）
+
+
+
+
+
+
+
+
+
+Kubernetes（k8s）是自动化容器操作的开源平台，这些操作包括部署，调度和节点集群间扩展。分布式架构方案。
+
+
+
 

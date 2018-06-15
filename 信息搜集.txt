@@ -23,7 +23,7 @@ DNS²éÑ¯£º
 	AXFR£ºdig host dnsrecon
 	VERSION.BIND: dig
 	brt: dnsrecon£¨Ä¬ÈÏ10Ïß³Ì£¬»¹¿ÉÒÔ×Ô¼ºÖ¸¶¨Ïß³Ì¸öÊý£© dnsmap foca scrapy.py
-	recon-ng£¬maltego
+	recon-ng£¬maltegoÓëCaseFile£¨ÕâÁ½ÖÖ¹¤¾ßºÜÏñ£¬¿ÉÒÔ»æÖÆÍøÂç½á¹¹£©
 EXIF£ºexif£¬foca£¬metagoofil
 netdiscover£¨-p passive£©¡¢p0f¡¢wireshark
 firefox²å¼þ£ºwhatruns£¨´Ó°üÀïÄÜ·ÖÎö³öÀ´µÄ£¬ÄÜ·ÖÎö³öÀ´µÄ¶¼·ÖÎö³öÀ´ÁË£©
@@ -77,6 +77,7 @@ https://www.opengps.cn/Data/IP/LocHighAcc.aspx
 http://lbs.amap.com/api/webservice/guide/api/ipconfig/ API
 http://lbsyun.baidu.com/index.php?title=webapi/ip-api  API
 https://www.ipip.net/customer.html ÊÕ·Ñ
+https://location.services.mozilla.com/api(¶¨Î»»ùÓÚ»ùÕ¾ºÍwifi£¬ÐèÒªÉêÇëAPI£¬×Ô¼º±à³Ì),deepinÖÐ´æÔÚ/usr/lib/geoclue-2.0/demos/where-am-i Ö±½Ó¾«×¼¶¨Î»
 
 ÍøÕ¾SSLÖ¤ÊéÔÚÏß¼à²â£ºweb.chacuo.net/netsslcheck£¨¶ÔSSLÖ¤Êé»òÕßËµCRTÎÄ¼þ½øÐÐ½âÂë£¬http://web.chacuo.net/netssldecoder£©
 
@@ -1033,7 +1034,7 @@ Source Options:
 
 	
 	
-windows	ÏÂµÄÉ¨ÃèÆ÷ÍÆ¼öÊ¹ÓÃnamp¡¢superscanÒÔ¼°´øÓÐÈõ¿ÚÁîÉ¨ÃèµÄx-scan¡£
+windows	ÏÂµÄÉ¨ÃèÆ÷ÍÆ¼öÊ¹ÓÃnmap¡¢superscanÒÔ¼°´øÓÐÈõ¿ÚÁîÉ¨ÃèµÄx-scan¡£
 	
 Ö÷¶¯ÐÅÏ¢ËÑ¼¯£º
 	robots.txt¡¢Ä¿Â¼±éÀúÂ©¶´
@@ -1059,8 +1060,8 @@ windows	ÏÂµÄÉ¨ÃèÆ÷ÍÆ¼öÊ¹ÓÃnamp¡¢superscanÒÔ¼°´øÓÐÈõ¿ÚÁîÉ¨ÃèµÄx-scan¡£
 	SMTPÉ¨Ãè£ºnmap 
 	¸ºÔØ¾ùºâ¼ì²âLoad balancing detect£ºlbd
 	waf¼ì²â£ºwafw00f
-	ÈõµãÉ¨Ãè£ºnmap£¬openvas£¬Nessus
-	webÐÅÏ¢ËÑ¼¯£ºNikto£¬Vega£¬skipfish£¬w3af£¬Arachni£¬OWASP_ZAP£¬burpsuite
+	ÏµÍ³ÈõµãÉ¨Ãè£ºnmap£¬openvas£¬Nessus£¨Ôø¾­¿ªÔ´£¬ÏÖÔÚÌá¹©free°æ±¾£©,Nexpost£¨Rapid7¹«Ë¾£©£¬Routerpwn£¨Â·ÓÉÆ÷Â©¶´£©
+	webÐÅÏ¢ËÑ¼¯£ºNikto£¬Vega£¬skipfish£¬w3af£¬Arachni£¬OWASP_ZAP£¬burpsuite£¬WPScan£¨×¨ÃÅÉ¨wps£©
 	±»¶¯¼ì²â£ºp0f
 	ÄÚÍø¶Ë¿Ú×ª·¢£ºsocat lcx
 
@@ -1074,7 +1075,6 @@ UDPÊÇÈç¹ûÃ»¿ª·ÅµÄ»°¾Í»á¸ø³öÏìÓ¦
 NetwareÊÇNOVELL¹«Ë¾ÍÆ³öµÄÍøÂç²Ù×÷ÏµÍ³£¨¾ÍÊÇ½áºÏÁËÍøÂçµÄ¹¦ÄÜ£¬°üÀ¨¾ÖÓòÍøµÄ²Ù×÷ÏµÍ³£©¡£Õâ¸öÓëÍøÂç²Ù×÷ÏµÍ³¶ÔÓÚnessusÉ¨ÃèÊÇ´àÈõµÄ£¬Ä¬ÈÏÔÚÅäÖÃÖÐ²»ÓèÒÔÉ¨Ãè¡£ÍøÂç´òÓ¡»úÒ²ÊôÓÚ´àÈõÉè±¸¡£
 Â©¶´É¨Ãè×¢ÒâCVE¡¢OSVDBºÍBID£¨bugtrap£©ºÅÂë¡£
 ¶Ë¿ÚÇÃÃÅ£º¹«ÓÐÔÆÍ¨³£¿ÉÒÔ´Ó»¥ÁªÍøµÄÈÎºÎµØ·½¶¼·ÃÎÊµ½£¬ÕâÊ¹µÃËûÃÇÈÝÒ×ÊÜµ½¸÷ÖÖ¸÷ÑùµÄSSH¹¥»÷¡£Õâµ±È»¿ÉÒÔÍ¨¹ý½ûÓÃSSH·þÎñÀ´·ÀÖ¹£¬µ«ÊÇÕâÑùÒ²ÎÞ·¨Ê¹ÓÃSSHÀ´¹ÜÀí·þÎñÆ÷ÁË¡£¶Ë¿ÚÇÃÃÅÊÇÒ»ÏîºÍ·À»ðÇ½Ò»ÆðÊ¹ÓÃµÄ¼¼Êõ£¬ÔÚÊÕµ½Ò»¸öÌØÊâµÄ¶Ë¿ÚÇÃ»÷Ë³ÐòºóÔÙ¿ªÆôÖ¸¶¨µÄ¶Ë¿Ú¡£ËüÊ¹ÓÃÊý¾ÝÍ·Í¬·þÎñÆ÷½»»»ÒþÃØÐÅÏ¢£¬´ò¿ªÒ»¸öÖ¸¶¨µÄ¶Ë¿Ú¡£ÒþÃØÇÃÃÅ°µºÅ±»·â×°³ÉÒ»×éÓÐÐòµÄ¶Ë¿Ú£¬²¢ÇÒÐèÒª·¢ËÍSYN°üÀ´ÑéÖ¤ÓÐÐ§ÐÔ¡£µ±¶ÔÈÎÒâ¶Ë¿ÚµÄSYN°üµÄÕýÈ·Ë³Ðò±»½ÓÊÕµ½Ê±£¬¿Í»§¶Ë²Å»á±»ÔÊÐí·ÃÎÊ¸Ã¶Ë¿Ú¡£ÕâÖÖ·½·¨ºÜÓÐ¾ÖÏÞÐÔ£¬ÒòÎªÕâÊÇÒ»ÖÖÒþ»ÞÊ½°²È«µÄÊµÏÖ£¬²¢ÇÒ¹¥»÷ÕßÈÔÈ»¿ÉÒÔ±©Á¦¹¥»÷SYN°üÐèÒª·¢ËÍµÄ¶Ë¿ÚË³Ðò¡£
-
 
 
 ¶Ô·À»ðÇ½ÊÇ·ñ´æÔÚµÄÅÐ¶Ï£º
@@ -1181,6 +1181,7 @@ Windows 	XP 	ICMP/TCP/UDP 	128
 
 Í¨¹ýÊµÏÖÖÐ¼äÈË¹¥»÷£º ÏêÇé¿ÉÒÔ¿´ÄÚÍø.txt
 	arpspoof -i eth0 -t 192.168.1.5  192.168.1.1
+	
 
 ¿ÉÒÔ×Ô¼º¹¹Ôì·¢°üµÄscapy£º
 ÕâÊÇÒ»¿î½èÖúpyÊµÏÖµÄÈí¼þ£¬ÄÚ²¿Óï·¨ÓëpyÀàËÆ£¬´æÔÚ¿ÉÒÔÖ±½Ó±»pyµ÷ÓÃµÄ¿â£¨scapy3K¿ªÊ¼Ö§³Öpy3£¬from scapy.all import * £©£¨ÄãÐèÒªpip3 install scapy-python3µÃµ½×îÐÂµÄ·¢²¼°æ£¬Èç¹ûÊÇ´ÓgiÉÏ»ñÈ¡ÄÇÃ´µÃµ½µÄÊÇµ±Ç°µÄ·¢Õ¹°æ£©
@@ -1230,7 +1231,27 @@ Windows 	XP 	ICMP/TCP/UDP 	128
 tor-resolve
 	tor¹¤¾ß°üÄÚ¹¤¾ß£¬¿ÉÒÔÍ¨¹ýtorÍøÂçÀ´½øÐÐDNS²éÑ¯
 	¡¶=¡·ÉèÖÃ²¢Ê¹ÓÃproxychains
-netdiscover£º
+
+''''' 
+python3 °²×°scapy-python3 
+×¢£ºlinux£¬¿ÉÄÜÐèÒªÒÔrootµÇÂ½£¬±ÜÃâ³öÏÖpermission error 
+Scapy»¹°üº¬ÄÚ½¨º¯Êýarping(),¸Ãº¯ÊýÊµÏÖµÄ¹¦ÄÜºÍÒÔÉÏµÄÁ½¸öÃüÁîÀàËÆ£º 
+arping("192.168.1.*") 
+'''  
+from scapy.all import srp, Ether, ARP  
+IpScan = '192.168.114.1/24'  
+try:  
+    ans,unans = srp(Ether(dst="FF:FF:FF:FF:FF:FF")/ARP(pdst=IpScan), timeout=2)  
+except Exception as e:  
+    print(e)  
+else:  
+    for send, rcv in ans:  
+        ListMACAddr = rcv.sprintf("%Ether.src%---%ARP.psrc%")  
+        print(ListMACAddr) 
+
+
+
+netdiscover£º(OS X arp°üÔôÄÑÓöµ½£¬µÚ¶þ²ãÅÐ¶Ï³öÀ´Íø¶Î£¬²¢½«½á¹û½áºÏµÚÈý²ãÉ¨Ãè)
 	-p ²»¿ªÆôÖ÷¶¯É¨Ãè£¬½ö½öÐáÌ½
 	-d ignore home config files for autoscan and fast mode
 	-r range
@@ -1239,6 +1260,10 @@ netdiscover£º
 	netdiscover -l lplist.txt Ê¹ÓÃipµØÖ·ÁÐ±íÎÄ¼þ
 	±»¶¯£º
 	netdiscover -p ×¥È¡arpÏìÓ¦°ü²¢ÇÒ¼ÇÂ¼
+
+	sudo netdiscover -F "ether src not 58:69:6c:4c:47:53 and not host 0.0.0.0"  -r 10.132.0.0/16 -P > scunet_ips.txt
+		-F ÒªÇópcap¹ýÂË¹æÔò£¬¾ßÌå¼ûhttp://www.tcpdump.org/manpages/pcap-filter.7.html
+	³ýÁËÉÏÊöÃüÁîÉ¨ÃèÍø¶Î»¹ÓÐnmap -sn 10.132.0.0/16 > nmap
 
 arping£º
 	BUGS
@@ -1366,6 +1391,7 @@ UDP Data+ICMPÉ¨Ãè ÏòÒ»¸ö¶Ë¿Ú·¢³ö¶à¸öUDPÊý¾Ý°ü£¬¸ù¾ÝÄ¿±êÏµÍ³µÄÏàÓ¦ÄÜÁ¦ÅÐ¶Ï¶Ë¿ÚÊÇ·
 
 nmap£º  ¸Õ¸Õ»¹Ã»É¨³öÀ´ÏÖÔÚ³öÀ´ÁË£¬¸Ä±ä²ÎÊý£¡¶àÉ¨¼¸´Î£¡
 	Ä¬ÈÏÇé¿öÏÂµÄÏÈarpÇëÇóÓëDNS prt·´Ïò²éÑ¯£¬·¢ËÍÊÇTCP SYN±êÊ¶£¬¶Ô·½·µ»ØÁËÒ»¸öSYN+ACK±êÖ¾ÒÔºó¾ÍÖ±½ÓRST½áÊøÁËÁ¬½Ó
+	-T<0-5>: Set timing template (higher is faster)
 	-o ²úÉúÊä³öÎÄ¼þ£¬¿ÉÒÔ²úÉúxml¸ñÊ½µÄÎÄ¼þ -oX xml -oAËùÓÐ¸ñÊ½ ¿ÉÒÔÍ¬Ê±Ê¹ÓÃ¶àÖÖ-o
 	-A Enable OS detection, version detection, script scanning, and traceroute
 	-Pn ×Ô¼º±£Ö¤Ä¿±êÖ÷»úÊÇ¿ª×ÅµÄ¡£
@@ -1379,11 +1405,13 @@ nmap£º  ¸Õ¸Õ»¹Ã»É¨³öÀ´ÏÖÔÚ³öÀ´ÁË£¬¸Ä±ä²ÎÊý£¡¶àÉ¨¼¸´Î£¡
 	Èç¹ûÄãÓÃÁË²ÎÊý-PxÄÇ¾ÍÊÇÆäËü²ãµÄÉ¨ÃèÁË£¬nmapÔÚÉ¨ÃèÇ°ÊÇ»áÓÐDNS²éÑ¯ÒÔ¼°arp¡£
 	-sP½øÐÐpingÉ¨ÃèµÄÊ±ºò£¬Èç¹ûÄ¿±ê×èÖ¹ÁËICMPÊý¾Ý°ü¾Í»á×Ô¶¯ÇÐ»»µ½»ùÓÚTCPÊý¾Ý°üÉ¨Ãè
 	nmap»á¶ÔµÃµ½µÄMACµØÖ·½øÐÐ²úÉÌÊ¶±ð¡£
-		HOST DISCOVERY:
+		HOST DISCOVERY:µ«ÊÇdeepinÉÏÏÂÔØµÄnmapÔõÃ´´ó²¿·Ö¶¼³ÉÁËtcp SYNÉ¨Ãè
+			-sL  DNS PTR ²éÑ¯
+			-sn: Ping Scan - disable port scan
 			nmap 1.1.1.1-254 -PA#»¹¿ÉÒÔÓÃÕâÖÖ·½Ê½À´±íÊ¾ÊÇÒ»¸ö¶Î
 			-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
 			-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
-			-PO[protocol list]: IP Protocol Ping£¨²»ÊÇICMPµÄping£¬¶øÊÇÓÐIPIP°üÍ·µÄ°ü£©£¬µ«ÊÇÕâ¸öÊ¹ÓÃÒ²»á·¢³öICMP£¬IGMPµÄ°ü
+			-PO[protocol list]: DNS²éÑ¯+ARP²éÑ¯+¶à´ÎTCP SYN²éÑ¯£¬ÓÚÊÇËÙ¶È¾ÍºÜÂý
 		SCAN TECHNIQUES:sUºÍsVºÏ²¢¾ÍÊÇsUV
 			-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
 			-sU: UDP Scan
@@ -1448,7 +1476,7 @@ nmap£º  ¸Õ¸Õ»¹Ã»É¨³öÀ´ÏÖÔÚ³öÀ´ÁË£¬¸Ä±ä²ÎÊý£¡¶àÉ¨¼¸´Î£¡
 		nmap -v -p 139,445 192.168.1-20
 		nmap -v -p 139,445 192.168.1,2	
 	²»ÂÛ¶ÔÓÚÄÄÖÖnmapÉ¨Ãè·½Ê½£¬¶¼»áÏÈ½øÐÐÄ¿±ê´æ»îµÄÌ½²é£¨ÓÃtcp SYNÌ½²é443£¬ÓÃtcp ACKÌ½²é80£©£¬Èç¹û´æ»î»òÕßÊ¹ÓÃ-Pn²ÎÊý£¬¾Í»á½øÐÐDNS ptr½âÎöÓëÉ¨Ãè¡£Èç²»´æ»î¾ÍÖ±½ÓÍ£Ö¹¡£	
-	
+	Bypass firewallÖ÷ÒªÓÃµ½¡°IREWALL/IDS EVASION AND SPOOFING:¡±ºÍ¡°MISC:¡±µÄ--send-eth¡£
 nc£º
 	type xxx.txt | nc -nv xxx xx  ÎÄ¼þÖØ¶¨ÏòµÄ·½Ê½ÓÐºÜ¶à
 	¿ÉÒÔÓëtelnet»¥Áª£¬Èç¹ûÍ¨¹ýtelnetÀ´·´µ¯shell£º

@@ -438,7 +438,7 @@ ICMP（Internet Control Message Protocol，主要用于路由发送错误报告）
 
 SFTP和SCP都是基于SSH的，所以端口还是22。
 
-
+NAT是地址映射，NAPT是端口映射
 
 traceroute 有使用两种：使用ICMP的和使用UDP的。Microsoft使用ICMP，所以win95上发出的traceRT应使用的是ICMP，最后会经过几次对目的地的ICMP Request，返回是正常的ICMP Reply；其它包括unix和cisco router都使用UDP，目标端口为高端口号，如果到了目的地就会返回一个「ICMP port unreachable」消息。
 
@@ -616,7 +616,7 @@ telnet 192.168.1.235
 
 常见的邮件协议包括：
 （1）SMTP：简单邮件传输协议，用于发送电子邮件的传输协议；
-（2）                                                                              ：用于接收电子邮件的标准协议；下载的时候,同时删除保存在邮件服务器上的邮件。无状态
+（2）POP3：用于接收电子邮件的标准协议；下载的时候,同时删除保存在邮件服务器上的邮件。无状态
 （3）IMAP：互联网消息协议，是POP3的替代协议。有状态
 这三种协议都有对应SSL加密传输的协议，分别是SMTPS，POP3S和IMAPS。
 
@@ -969,7 +969,11 @@ udp/tcp checksum头部：假如checksum的运算结果为0，那么传输的checksum将全为1（即用
 
 tcp四次挥手的时候，两个方向的断开是独立的，每个方向发送一个FIN，对方回复一个ACK，但同时，TCP规定ACK可以捎带在其他数据包当中，所以你看到的主动断开连接一方本应收到的ACK，是被对方的FIN包捎带过来的，就变成了三个包。并不是所有的情况下都是这样，典型的一种情况是，主动断开的一方发送FIN之后，被动一方仍然有数据要继续发送，就会先ACK这个FIN，然后继续发送数据（在此过程中主动断开一方仍然会继续ACK这些数据），直到数据发送完毕之后再发送FIN并接收对方的ACK
 
-。
+
+校园中通常采用锐捷的RG SAM+portal(如果是二代协议叫做eportal)作为无线WiFi mac认证、计费系统。这套系统由Supplicant（客户端）、NAS设备（支持802.1x端口认证功能的交换机，Authenticator）、Radius Server（Authentication Server，SAM服务器）。客户端要么安装了客户端，要么需要通过IE访问被重定向的网址。Windows服务器系统会采用MSQL，linux系统一般是redhat+Oracle。EAP在802.1x中改为EAPOL（EAP over LAN）。
+
+
+
 公用端口：0-1023
 注册端口：1024-49151
 动态端口/私有端口：49152-65535
@@ -994,6 +998,7 @@ RMI registry 1099/tcp
 M$ SQL 1433 TCP and UDP
 SQL server浏览器 udp 1434
 ingreslock 1524   使用telnet连接就获取root
+radius 默认使用1812tcp作为认证端口、1813tcp用于记账
 nfs tcp/udp 2049
 Mysql 3306
 远程桌面RDP 3389

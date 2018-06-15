@@ -36,13 +36,13 @@ nano piÌå»ý·Ç³£Ð¡ÇÉ£¬ÓÃµÄÊÇÈ«Ö¾h3ÎÞÂÛÊÇ×ö¹¤»¹ÊÇÍâ¹Û¶¼ºÜ²»´í£¬ÊµÄË¹ú²úÁ¼ÐÄ¡£ÉÏÃæ¿
 
 Cortex A9¿ª·¢°åÊÇ¸ö´ó¼Ò»ï£¬ÓÃµÄÊÇÇ¿º·µÄCortex a9,´ó¼ÒÓÃµÄÒ»Ð©°²×¿Éè±¸¾ÍÊÇÓÃµÄÕâ¸öÐ¾Æ¬£¬ËùÒÔÅÜµÄÊÇ°²×¿ÏµÍ³£¬Õâ¸öÊÇÕýÔÚÑÐ¾¿µÄ£¬ÒªÓÃµ½Ò»¸öÖÇÄÜÎïÁªÍøÅ©ÒµÉÏÃæµÄ¿ØÖÆ°å¡£Õâ¸öÓ¦¸ÃËã¿ª·¢°åµÄ¶¥¶ËÁË
 
-
 ¡¡¡¡MT7688ÄÚ½¨MIPS24KEc/580MHz´¦ÀíÆ÷£¬256MBÄÚ´æÒÔ¼°AES128/256¼ÓÃÜÒýÇæ£¬¿É´¦Àí¸üÎª¸´ÔÓ»òÊý¾ÝÃÜ¼¯ÐÍµÄÖÇÄÜ¼Ò¾ÓÉè±¸£¬±ÈÈçIPÍ¶Ó°»ú¼°¼ÒÍ¥¼à¿ØÏµÍ³¡£
 ¡¡¡¡¶øMT7681ÔòÖ÷ÒªÕë¶ÔÈçµÆÅÝ¡¢ÃÅËø¡¢²å×ùµÈÐ¡ÐÍÉè±¸£¬Ö§³Ö802.11n£¬¿ÉÇáËÉÎªÇ¶ÈëÊ½Éè±¸Éè¼ÆÍøÂç·þÎñ£¬ÕûºÏµçÔ´¹ÜÀíµ¥Ôª¡¢µÍÔÓÑ¶·Å´óÆ÷¡¢ÉäÆµÇÐ»»Æ÷£¬ËùÓÐ¹¦ÄÜ¶¼ÕûºÏÔÚ40Õë½ÅµÄ5*5ºÁÃ×µÄ·â×°ÖÐ¡£
 ¡¡¡¡Smart ConnectionÔòÊÇÁª·¢¿Æ¼¼ÑÐ·¢µÄÒ»¿îÓ¦ÓÃ³ÌÐò£¬¿ÉÒÔÈÃ²»Í¬µÄÖÇÄÜ¼Ò¾ÓÉè±¸Í¨¹ýWiFiÍøÂ·ÔÚÍ¬Ò»½çÃæÏÂÏà»¥Á¬½Ó£¬Ö§³ÖAndroid¡¢iOS¡¢WindowsÒÔ¼°LinuxÆ½Ì¨£¬Í¬Ê±Ò²Ö§³Ö·Ç´îÔØMTKÐ¾Æ¬µÄÖÇÄÜÊÖ»ú¡£
 
 ÍòÓÃ±íÕâ¸ö¶«Î÷ºÜÖØÒª£¬²»È»xxxÉÕ»µÁË
 ¹«Í·¾ÍÊÇ²åÍ·ÉÏÊÇÕëµÄ£¬Ä¸Í·¾ÍÊÇ²åÍ·ÉÏÊÇ¿×µÄ¡£
+ÎïÁªÍø¿¨ ÊÇÔËÓªÉÌÕë¶ÔIOT³öµÄ¡£
 
 ÉãÏñÍ·£º
 ÍøÂ·¼à¿ØÉãÏñÍ·£¨¼ò³ÆIPC£©ÍÆ¼öÓ©Ê¯ezvizÕâÅÆ×Ó¡£Ó©Ê¯¼à¿ØÊÇº£¿µÍþÊÓµÄ¡£Ëü²»½ö½öÊÇÉãÏñÍ·£¬×Ô´øÔÆ´æ´¢£¬»¹´øÁË¶ÔÊÓÆµµÄ´¦Àí£¬±ÈÈç×ÔÊÊÓ¦ÂëÁ÷µ÷Õû¼¼Êõ¡¢µ±ÊÓÆµ³öÏÖ±ä»¯µÄÊ±ºò²Å»á±»¼ÇÂ¼£¬ÕâÖÖ¼¼Êõ¿ÉÒÔ¼õÉÙÍøÂçÖÐµÄ·¢°üÒÔ¼°SD¿¨µÄÄÚ´æÊ¹ÓÃ£¬Õâ¶ÔÈÝÁ¿±¾Éí¾Í²»ÊÇºÜ´óµÄSD¿¨µ¹ÊÇºÜÖØÒª¡£ÉãÏñÍ·±ßÉÏµÄºìÍâµÆÖé¾ÍÊÇÎªÁËÈÃÍíÉÏÄÜ¿´µÄ¸ü¼ÓÇåÎú¡£
