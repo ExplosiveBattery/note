@@ -1,8 +1,14 @@
 java中建议数据成员命名的时候不要加上m_，类的构造函数中通过this.value=value来进行赋值。
 
+idea java gradle项目中获取resources文件夹下文件：
+xxxx.class.getClassLoader().getResourceAsStream("dura_dist.txt"); 获取内容
+SetPlace.class.getClassLoader().getResource("dura_dist.txt").getPath(); 获取绝对路径
+
+idea打开gradle项目，要么open-》xxx.gradle不能是项目文件夹，要么import project
+
 	0.Java applet：Java在web里的小程序
 	  Android会使用到Java里面常用的库，但是只是这样。所以我就没有怎么学习JavaFX，这个时下流行的java窗口。说C++：用过JNI的人都知道本地的C/C++库，至少要编译多次。不同的框架就代表者不同的编译环境。而且直接用C++编译运行的话。C++并不能很好的屏蔽掉硬件差异。所以对于开发来说调试来说，都是一个比较艰巨的任务。所以C++没有被选为Android的开发语言。
-	  Java SE 是客户端。Java EE 是服务器端。
+	  Java SE 是客户端。Java EE 是服务器端。Java ME是微型版，嵌入式开发。
 	0.5 JavaFX界面的制作比Java Swing好
 	1. .java文件-》.class文件然后和库文件一起转到JVM里面（类加载器），同时会对代码进行字节码验证和安全审计。
 	2.java的import java.xxxx导入类就好比C++里面的#inlcude<头文件> using xxxxx一样，之后的使用可以简化名字，否则要使用全名。import 使用通配符就好比C++ using了命名空间一样。
@@ -13,7 +19,7 @@ import java.util.Scanner; //这是一个用于扫描输入文本的类
 public class ComputerAverage {  //类名的命名规则
 	public static void main(String[] args) { //args.length  基本遇到的都是length函数，这里却是成员
 						 //Integer.parseInt(args[0])+1
-
+//void main通过System.exit(flag ? 1:0);返回不同的结果值，不能通过return
 		Scanner input =new Scanner(System.in);//不要同时声明多个这个，又没有锁。扫描输入流
 
 		System.out.print("Enter three number");//和System.in一样，估计是个对象
@@ -1506,3 +1512,9 @@ fnum.format(Float.parseFloat("12.3456"))
 ArrayList<E>中的“E”也是类型参数。只是表示容器中元素Element的时候，习惯用“E”。
 	126.Java 远程调用RMI：https://blog.csdn.net/a19881029/article/details/9465663
 	能够让在某个java虚拟机上的对象像调用本地对象一样调用另一个java 虚拟机中的对象上的方法，使用socket实现
+	127.为什么java不推荐使用vector
+1.因为vector是线程安全的，所以效率低，这容易理解，类似StringBuffer
+2.Vector空间满了之后，扩容是一倍，而ArrayList仅仅是一半
+3.Vector分配内存的时候需要连续的存储空间，如果数据太多，容易分配内存失败
+4.只能在尾部进行插入和删除操作，效率低
+	128. jps(Java Virtual Machine Process Status Tool)是JDK提供的一个显示当前所有java进程pid的命令,

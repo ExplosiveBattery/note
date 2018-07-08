@@ -1,9 +1,9 @@
+大型数据库：Mariadb、分布式redius、分布式nosql、DB2、Oracle
+
 看一下一共有多少个配置文件：
 root@ubuntu:/etc/mysql/conf.d# mysql --help | grep my.cnf
                       order of preference, my.cnf, $MYSQL_TCP_PORT,
 /etc/my.cnf /etc/mysql/my.cnf ~/.my.cnf
-
-
 kali中/etc/mysql/mysql.conf.d/mysqld.cnf（而不是网上说的/etc/mysql/my.cnf） 里面的bind-address= 127.0.0.1与本地进行了绑定，所以默认情况下将只有本地可以访问数据库。
 
 按照类名设置数据字段名，因为这是最好的可读性。不过反正使用的时候大小写都是可以的。

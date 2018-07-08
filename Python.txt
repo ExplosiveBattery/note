@@ -4012,7 +4012,7 @@ import getpass
 pwd = getpass.getpass('password: ') 就像是linux用户root的时候一样
 
 如果要能够被*号隐藏，那么只能自己编写函数了。回退键的功能由sys.stdout.write函数实现。
-
+	182.运行在JVM上：JPython
 
 界面：PyQt4
 程序外部参数输入：argparse、from optparse import OptionParser

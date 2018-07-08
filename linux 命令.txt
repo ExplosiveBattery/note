@@ -1,4 +1,7 @@
 C-w É¾³ýµ±Ç°ÊäÈëÖÕ¶ËµÄÎÄ×Ö
+aptitude ¸ß¼¶µÄapt£¬¸üºÃµØ¹ÜÀíÒÀÀµ¹ØÏµ£¬±ÈÈç½µ¼¶ £º https://blog.csdn.net/adparking/article/details/7176655
+apt-cache madison package ²é¿´Ö¸¶¨packageµÄ°æ±¾
+apt-cache search dde-launcher ËÑË÷Ïà¹ØÃû×ÖÓë×¢ÊÍµÄpackage
 
 -f image2 /tmp/webCam/%d.jpg ²úÉúµÄÎÄ¼þÃû×ÖÊÇ´Ó1¿ªÊ¼µÄÊý×ÖµÝÔö£¬Èç¹ûÊÇ%9dÄÇ¾ÍÊÇ9Î»Êý×ÖµÄµÝÔö¡£
 	²»¹ý²»ÉÙ³ÌÐòµÄ-f/-F²ÎÊý¶¼ÊÇÓÃÀ´ÃèÊö¹¤×÷ÔÚÇ°¶Ë»¹ÊÇºóÌ¨
@@ -13,12 +16,23 @@ service networking restart
 service network-manager restart ÓÈÆäÊÇ²åÈëusbÍø¿¨µÄÊ±ºò
 systemctl restart network.service
 
+systemd-analyze blame µÃµ½¸÷¸ö³ÌÐò¿ª»úÊ±¼ä
+
 Á½¸öÓëxshell sshÓÐ¹ØÃüÁî£º
 	sz£º½«Ñ¡¶¨µÄÎÄ¼þ·¢ËÍ£¨send£©µ½±¾µØ»úÆ÷
 	rz£ºÔËÐÐ¸ÃÃüÁî»áµ¯³öÒ»¸öÎÄ¼þÑ¡Ôñ´°¿Ú£¬´Ó±¾µØÑ¡ÔñÎÄ¼þÉÏ´«µ½·þÎñÆ÷(receive)
 
+source /etc/profile  Ë¢ÐÂprofile£¬²»Ðèlogout¶øÉúÐ§
+
+ËùÎ½µÄ´ý»ú£¨standby£©¡¢¹ÒÆð£¨suspend£©¡¢Ë¯Ãß£¨sleep£©Ó¦¸Ã¶¼ÊÇÒ»¸ö¸ÅÄî£¬ÄÚ´æºÍ´¦ÀíÆ÷´¦ÓÚ¼Óµç×´Ì¬,ÆäÓàÉè±¸¶Ïµç¡£
+systemctl hibernate #ÐÝÃß
+systemctl suspend  #´ý»ú 
+systemctl suspend-hybrid #»ìºÏ´ý»ú
+systemctl powersave #Ê¡µçÄ£Ê½
+systemctl hibernate ÐÝÃß(ÐÝÃßÒ»°ã¾ÍÊÇ°ÑÄÚ´æÖÐµÄÊý¾ÝÐ´ÈëÓ²ÅÌ,swapÎÄ¼þ£¬swap·ÖÇøµÄ´óÐ¡¾ÍÓëÆä¹¦ÄÜÓÐ¹ØÏµ£¬»¹ÓÐÐéÄâÄÚ´æµÄ¹¦ÄÜ£¬×ÜÖ®swap¾ÍÊÇ³äµ±ÄÚ´æµÄÌæ²¹½ÇÉ«)
 
 ssh-keygen -t rsa -C "username@mail.com" Éú³ÉsshÃÜÔ¿¶Ô
+ssh-copy-id ½«±¾»úµÄpub key¸´ÖÆµ½Ö¸¶¨Ö÷»úµÄ.ssh/authorized_keysÎÄ¼þÖÐ£¨ssh·þÎñÆ÷²Å»áÓÐÕâ¸öÎÄ¼þ£©
 ssh -T git@github.com check ssh key
 git config --global user.name "Les1ie"
 git config --global user.mail "xxxx@xx.com"
@@ -38,7 +52,7 @@ cut -d : -f -2
 Ê¹ÓÃecho >> file²»ÄÜÇå¿ÕÎÄ¼þµÄÄÚÈÝ£¬ÒòÎª>>ÊÇ×·¼ÓÄ£Ê½
 Linux /etc/bash.bashrc ÏÂµÄ»·¾³±äÁ¿ Ò»¶¨Òª°Ñpath export ³öÀ´°¡¡£¡£¡£
 sudo echo export PATH="$PATH:/home/pi/gst/gst-rtsp-server-1.10.0/examples" >> /etc/bash.bashrc
-
+unset¿ÉÒÔÈ¡Ïûexport
 cp webcam.c back.webcam
 ÕâÑù×Ó²»Ó°ÏìTab¼üµÄÊ¹ÓÃ¡£
 
@@ -180,6 +194,8 @@ MAILTO=stegano@hellovega.cn #ÌÚÑ¶ÔÆµÄCentosÎÒ²¢Ã»ÓÐÅäÖÃÓÊ¼þ·þÎñÆ÷£¬µ«ÊÇ·¢³öÀ´ÁË£
   30 4  *  *  *  root   setsid php /path/PE/PE_scan.php& >/dev/null 2>&1 #ºóÃæÃ»ÓÐÖØ¶¨ÏòÒ²ÐÐ
   0  18 *  *  *  root   kill $(ps -aux | grep "php PE_scan.php" | awk '{print $2}')
 cat  /var/spool/mail/root ÕâÒ²¾ÍÊÇÓÊ¼þÏÈ´æ·ÅµÄµØ·½£¬Äã¿ÉÒÔÊÓÎªcrontabÃüÁîÖ´ÐÐ½á¹û¡£
+cat *   #ÊÇ¸öÉ§²Ù×÷£¬Èç¹ûÓÐ¶þ½øÖÆÎÄ¼þÒ²»á±»cat³öÀ´¡£±¾ÖÊÉÏÊÇshell½âÎö*£¬²¢¶à´Îµ÷ÓÃcat¡£
+
 
 ¶¨Ê±ÈÎÎñ£º
 atÃüÁî´Ó±ê×¼ÊäÈë¶ÁÈ¡Ò»ÏµÁÐÃüÁî£¬°ÑËüÃÇÊÕ¼¯³ÉÒ»¸ö¼Æ»®ÈÎÎñ£¬ÔÚ´ËºóµÄÄ³¸öÊ±¿ÌÖ´ÐÐ¡£Õâ¸öÈÎÎñÈÔÊ¹ÓÃµ±Ç°µÄ»·¾³£¬²¢ÔÚÓë¼Æ»®ÖÆ¶¨Ê±ÏàÍ¬µÄ¹¤×÷Ä¿Â¼ºÍ»·¾³±äÁ¿ÀïÖ´ÐÐ¡£

@@ -52,6 +52,7 @@ class=value
 
 IP:
 ip查询与定位：
+https://www.ipip.net/ip.html
 https://www.boip.net/ipv4/121.48.197.198  根据ip查询，得到ASN号码、whois信息
 https://www.boip.net/asn 根据ASN来查询
 ip.cn
@@ -1252,6 +1253,7 @@ else:
 
 
 netdiscover：(OS X arp包贼难遇到，第二层判断出来网段，并将结果结合第三层扫描)
+	-P 默认shell满屏幕就会不再记录，-P的存在就是为了让其他程序能够使用扫描结果
 	-p 不开启主动扫描，仅仅嗅探
 	-d ignore home config files for autoscan and fast mode
 	-r range
@@ -1264,6 +1266,8 @@ netdiscover：(OS X arp包贼难遇到，第二层判断出来网段，并将结果结合第三层扫描)
 	sudo netdiscover -F "ether src not 58:69:6c:4c:47:53 and not host 0.0.0.0"  -r 10.132.0.0/16 -P > scunet_ips.txt
 		-F 要求pcap过滤规则，具体见http://www.tcpdump.org/manpages/pcap-filter.7.html
 	除了上述命令扫描网段还有nmap -sn 10.132.0.0/16 > nmap
+
+
 
 arping：
 	BUGS
@@ -1314,7 +1318,7 @@ arping：
 traceroute：
 	一些网络设备会屏蔽ICMP，ping出去但是不返回。所以中间会出现***。不过自然支持arp包的传递。
 
-ping：
+ping：(对MAC、Linux有效，对Win10大部分版本无效)
 	没想到ping win10已经行不通了
 	-c 指定发送包的数量
 	-r 不去查看本地路由表，直接发包给直接与接口相连网络中的某一个设备。
