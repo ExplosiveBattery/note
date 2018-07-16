@@ -1,6 +1,7 @@
 shell的开头用#!/bin/bash而不是#!/bin/shell（虽然可能有时候没给你报错gedit的时候还可能带有变色），kali的shell实际上是在/usr/bin/gnome-shell。执行脚本的时候其实相当于重新开了个进程bash，所以语句...变量...是这样
 ``反引号等价于$(..)
-
+$[...]用于计算内部s表达式
+当shell碰到第一个单引号时，它忽略掉其后直到右引号的所有特殊字符。即单引号一定表示字符串常量。
 
 #!/bin/bash
 for i in seq 9
@@ -262,7 +263,7 @@ $RANDOM %254
 
 死循环要用：
 while true 而不是while 1
-for((i=0;i<10;))
+for((i=0;i<10;))   这种格式for循环里面的变量不带$
 
 
 将指定文件夹中的文件从指定日期按照20180501.jpg开始命名
@@ -276,5 +277,41 @@ for i in $(echo $PATH/*); do
 	newFileName = ${PATH}/$(/bin/date -d "${dateStringPrefix}${num}${dateStringPostfix}" +%Y%m%d).jpg
 	/bin/mv $i $newFileName
 done
+
+
+#产生这样的日志格式表示某一个用户对App的使用情况记录 {"userId":2000,"day":"2017-03-01","begintime":1488326400000,"endtime":1488327000000,"data":[{"package":"com.browser1","activetime":480000},{"package":"com.browser","activetime":120000}]}
+
+#!/bin/bash
+# 为了方便看到效果，一切相关数字都设置的很小
+logNumOfOneDay=20 #设置每日上限用于跟换日期
+dayAdd=0
+userSum=3 #用户总数
+packageSum=5  #应用总数
+secondSum=$[24*3600] #秒总数
+host=127.0.0.1
+port=8888
+
+while true; do
+	for((i1=0;i1<$logNumOfOneDay;++i1)); do
+		beginSecond=$[$RANDOM % $secondSum]
+		activetime=$[$RANDOM % (($secondSum-$beginSecond) % 10800)] #认为一次不会超过3小时
+		endSecond=$[$beginSecond + $activetime]
+		echo {\
+			\"userId\":$[$RANDOM % $userSum],\
+			\"day\":\"$(/bin/date -d "+$dayAdd day" +%Y-%m-%d)\",\
+			\"begintime\":$(/bin/date -d "+$dayAdd day +$beginSecond second" +%s)000,\
+			\"endtime\":$(/bin/date -d "+$dayAdd day +$endSecond second" +%s)000,\
+			\"data\":[\
+				{\"package\":\"com.app$[$RANDOM % $packageSum]\",\"activetime\":$[$activetime]000}\
+			]\
+		} > /dev/tcp/$host/$port
+		break
+		sleep 0.4
+	done
+	break
+	dayAdd=$[$dayAdd+1]
+	sleep 1.5
+done 
+
 
 

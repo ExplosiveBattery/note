@@ -165,6 +165,6 @@ LFUÊÇ×î½ü×î²»³£ÓÃÒ³ÃæÖÃ»»Ëã·¨(Least Frequently Used),Ò²¾ÍÊÇÌÔÌ­Ò»¶¨Ê±ÆÚÄÚ±»·ÃÎÊ´
 
 ÆäÊµÄÚ´æ·ÖÅäÒ»°ãÓÐÈý¸öÔ­Ôò£¬×î¿ì¡¢×îÓÅºÍ×î²î¡£×î¿ì±È½ÏºÃÀí½â£¬¾ÍÊÇÑ°ÕÒµ½ºÏÊÊµÄ½Úµã¾ÍÁ¢¼´·ÖÅäÄÚ´æ£¬ÎÒÃÇÔÚÇ°ÃæÒ»Æª²©¿Í²ÉÓÃµÄ¾ÍÊÇÕâ¸ö·½·¨¡£×îÓÅÄØ£¬¾ÍÊÇÑ°ÕÒ¿ÉÒÔÂú×ãµ±Ç°ÄÚ´æ·ÖÅäµÄ×îÐ¡½Úµã£¬ÕâÑù²»»áÓÐºÜ´óµÄÀË·Ñ£¬µ«ÊÇÓÐ¿ÉÄÜ»á²úÉúËéÆ¬½Úµã¡£×îºóÒ»ÖÖ¾ÍÊÇ×î²î·ÖÅäËã·¨£¬ËµÊÇ×î²îÐ§¹ûÎ´±Ø×î²î¡£ÒòÎªÔÚ´óµÄÄÚ´æ·ÖÅäµÄÊ±ºòÖÁÉÙ²»»áºÜ¿ì²úÉúÄÚ´æËéÆ¬£¬¶ÔÕû¸öÏµÍ³µÄÎÈ¶¨À´ËµÓÐ¿ÉÄÜÊÇºÃÊÂ¡£
 
-
+ÎÄ¼þwrite²Ù×÷(´ÓÇ°FUSEÃ»ÓÐ³öÀ´Ö®Ç°£¬LinuxµÄÎÄ¼þÏµÍ³ÍêÈ«¹¤×÷ÔÚÄÚºËÌ¬)¡¢¶ÔÍøÂçÊý¾ÝµÄsend²Ù×÷ ¶¼ÊÇÏµÍ³µ÷ÓÃ£¬Ò²¾ÍÊÇ»á´¥·¢ring0
 
 biolinux ¾ÍÊÇ ubuntu¡£ ÅäÌ×°²×°ÁËÒ»ÏµÁÐÉúÎïÐÅÏ¢Ñ§µÄÈí¼þ¶øÒÑ¡£ 
