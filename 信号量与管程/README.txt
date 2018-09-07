@@ -1,0 +1,1 @@
+如果想要学习使用函数的话请看实验二中的xxx文件夹下的代码示例，其windows vs c文件夹代码已经在VS2015上测试可行，linux下代码已经在Ubuntu16.04下测试可行，使用的编译语句gcc YourFileName.c -lpthread

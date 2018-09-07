@@ -302,7 +302,7 @@ while true; do
 			\"begintime\":$(/bin/date -d "+$dayAdd day +$beginSecond second" +%s)000,\
 			\"endtime\":$(/bin/date -d "+$dayAdd day +$endSecond second" +%s)000,\
 			\"data\":[\
-				{\"package\":\"com.app$[$RANDOM % $packageSum]\",\"activetime\":$[$activetime]000}\
+				\{\"package\":\"com.app$[$RANDOM % $packageSum]\",\"activetime\":$[$activetime]000\}\  #这一行的{}需要转义
 			]\
 		} > /dev/tcp/$host/$port
 		break
@@ -314,4 +314,33 @@ while true; do
 done 
 
 
+创建变量指向带有空格的路径：
+dir='/home/vega/Documents/Tencent Files/641370196' #不能够 ls $dir 自动按照空格分隔成两部分
+# dir="'/home/vega/Documents/Tencent Files/641370196'" #还是无效，似乎所有的引号都会被$dir解掉，所以应该直接在$dir外套一层
+# ls /home/vega/Documents/Tencent\ Files/641370196
+ls "$dir" #因为$dir中有空格，所以不能配合for循环使用
 
+
+#!/bin/bash
+IMAGE_DIR=/home/vega/Desktop/NewFolder1234
+echo ${IMAGE_DIR: -4} #输出1234
+
+
+
+
+#!/bin/bash
+DIR=$1
+for i in $(echo $DIR/*); do 
+	if [ ${i: -3} = 'jpg' ]; then
+		# SUB_DIR=$(echo $i | awk -F. '{print $1}')
+		# echo $SUB_DIR
+		echo $i
+	fi
+done
+输出： 相对路径是不会被shell自动转换为绝对路径的，但是在文件系统路径识别函数中是可以被识别的
+vega@vega-Laptop:~/Documents/Tencent Files/641370196/FileRecv/done$ ./haha.sh ./
+.//2012河姆渡B309_1.jpg
+.//2012河姆渡B310_1.jpg
+.//2012河姆渡B311_1.jpg
+.//2012河姆渡B312_1.jpg
+echo $i | awk -F. '{print $2}' 出来也不是我想要的，多了两个斜杠，推荐echo $i | awk -F. '{print $2}' | cut -b 3- ，使用awk去掉后缀，在用cut或者${xxxx字符串表示法}去掉多余的前缀

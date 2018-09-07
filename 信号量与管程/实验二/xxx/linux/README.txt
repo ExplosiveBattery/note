@@ -1,0 +1,1 @@
+使用了Ubuntu 16.04系统，才能成功支持pthread库。之前试过了kali以及Ubuntu 12，但是都只是能编译成功

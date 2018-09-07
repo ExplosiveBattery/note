@@ -352,7 +352,7 @@ virtual circuit networks£¨ÐéµçÂ·ÍøÂç£©
 ÐÅµÀ»®·ÖÐ­Òé£¨Ê±·Ö¸´ÓÃ¡¢Æµ·Ö¸´ÓÃ£©£ºTDMA,CDMAÊÇµçÂ·½»»»
 Ëæ»ú½ÓÈëÐ­Òé£ºCSMAÊÇ·Ö×é½»»»
 ÂÖÁ÷Ð­Òé£ºÂÖÑ¯Ð­Òé¡¢ÁîÅÆ´«µÝÐ­Òé
-
+È«Ë«¹¤´«Êä²»ÐèÒª CSMA/CD
 
 
 arpÊÇ¶þ²ãÐ­Òé£¬ËùÒÔ²»¿ÉÂ·ÓÉ£¬µ«ÊÇ´æÔÚÌØÊâÇé¿ö±»Â·ÓÉÆ÷×ª·¢¡£Á¬½ÓIP²ãÓëÊý¾ÝÁ´Â·²ã¡£pingµÈÃüÁîºÜÈÝÒ×´¥·¢arp request¡£
@@ -550,7 +550,12 @@ DNSÔÚ½øÐÐÇøÓò´«ÊäµÄÊ±ºòÊ¹ÓÃTCPÐ­Òé,ÆäËüÊ±ºòÔòÊ¹ÓÃUDPÐ­Òé
 
 OpenSSL ÊÇÒ»¸ö°²È«Ì×½Ó×Ö²ãÃÜÂë¿â£¬ÄÒÀ¨Ö÷ÒªµÄÃÜÂëËã·¨¡¢³£ÓÃµÄÃÜÔ¿ºÍÖ¤Êé·â×°¹ÜÀí¹¦ÄÜ¼°SSLÐ­Òé
 TLSÐ­Òé£¬Ç¿ÖÆhttpsÁ¬½Ó
-SSL¿ÉÄÜ»¹ÐèÒª¿Í»§¶ËÖ¤Êé
+SSL¿ÉÄÜ»¹ÐèÒª¿Í»§¶ËÖ¤Êé£¨Í¨³£½ðÈÚ»ú¹¹£©
+
+
+
+httpsÊ¹ÓÃssl+HTTP£¬µ«ÊÇÔÚÖ¤Êé°ä²¼µÄ¶ÔÏó²¢²»Ò»¶¨ÊÇÄ¿±êÓòÃû£¬ip.cnµÄÖ¤ÊéÉÏÐ´×Å°ä²¼¸ø¡°sni.cloudflaressl.com¡±£¬°ä·¢ÕßÀ´×Ô¡°CloudFlare Inc ECC CA-2¡±¡£ Ò»°ã¶øÑÔ£¬ÓÉ CA Òµ½ç·¢³öµÄÊý×ÖÖ¤Êé£¬ÓÐ±ðÓÚ¹úÄÚä¯ÀÀÆ÷ÒµÕß±È¶ÔÓòÃûÐÅÏ¢µÈ·½Ê½£¬²ÉÈ¡¸üÎªÑÏ¸ñµÄÆóÒµ¼°ËùÓÐÈ¨ÑéÖ¤£¬ÎªµçÉÌ»·¾³Ê÷Á¢¸üÎª¿ÉÐÅµÄÔË×÷»·¾³¡£
+
 
 ICMPÖ±½Ó·â×°ÔÚIP°üÄÚ£¬ËùÊ¹ÓÃIPÐ­ÒéºÅÎª1¡£PingÓÃµ½µÄÊÇICMPÐ­Òé¡£²»ÊÇ¶Ë¿Ú¡£ICMPÃ»ÓÐ¶Ë¿ÚºÅ¿ÉÑÔ¡£
 
@@ -680,6 +685,15 @@ https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml ÒÑ·ÖÅäµ
 MSRPC : tcp 135  linuxµÄ111»òÕßSolaris 32771¶Ë¿ÚÉÏrpcÒ²Ã»ÓÐÉí·ÝÑéÖ¤
 	ÔÚMSRPCÊµÏÖÖÐ£¬¿ÉÒÔ²ÉÓÃÈçÏÂµÄÍøÂç´«ÊäÐ­Òé£º¢Ùncacn_ip_tcp£ºTCP/IP´«ÊäÐ­Òé£¬Ê¹ÓÃTCP135¶Ë¿Ú¢Úncadg_ip_udp:UDP/IP´«ÊäÐ­Òé£¬Ê¹ÓÃUDP135¶Ë¿Ú¢Ûncacn_np:SMBÃüÃû¹ÜµÀ´«ÊäÐ­Òé£¬Ê¹ÓÃSMBµÄTCP139»ò445¶Ë¿Ú¢Üncalrpc:±¾µØÍøÂçRPC´«Êä¢Ýncacn_http:HTTP´«ÊäÐ­Òé£¬»ùÓÚIIS·þÎñ£¬È±Ê¡ÅäÖÃÔÚTCP593¶Ë¿Ú¡£Ö§³ÖÔ¶³Ì¹ý³Ìµ÷ÓÃµÄ·þÎñ½ø³ÌÆô¶¯Ê±£¬ÐèÒª×¢²á×Ô¼ºµÄ·þÎñ·ÃÎÊµã£¬½Ó¿Ú±êÊ¶·ûÒÔ¼°·þÎñ°æ±¾ºÅ£¬Ò»¸öÌØÊâµÄRPC·þÎñ
 	Õâ¸ö¶Ë¿Ú¿ª·ÅµÄÒ»¸öÄ¿µÄ£¬Ê¹Ô¶³ÌÓÃ»§ÄÜ¹»OutLookÁ¬½Óµ½Ê¹ÓÃExchange ServerµÄ·þÎñÆ÷ÉÏ£¬Ê¹ÓÃÎ¢ÈíµÄÒ»Ð©³ÌÐòÐèÒª¿ª×ÅÕâ¸ö135¶Ë¿Ú¡£
+
+
+
+
+SSH: (°²È«Íâ¿ÇÐ­Òé)
+	SSHÊÇÓÉ¿Í»§¶ËºÍ·þÎñ¶ËµÄÈí¼þ×é³ÉµÄ£¬ÓÐÁ½¸ö²»¼æÈÝµÄ°æ±¾·Ö±ðÊÇ£º1.xºÍ2.x¡£ ÓÃSSH 2.xµÄ¿Í»§³ÌÐòÊÇ²»ÄÜÁ¬½Óµ½SSH 1.xµÄ·þÎñ³ÌÐòÉÏÈ¥µÄ¡£OpenSSH 2.xÍ¬Ê±Ö§³ÖSSH 1.xºÍ2.x¡£
+	Á¬½Ó¹ý³ÌÀàËÆÓÚHTTPs£¬¶àÒ»²½¶Ôssh°æ±¾µÄÑéÖ¤Ð­ÉÌ£¬https://blog.csdn.net/qwertyupoiuytr/article/details/71213463
+
+
 
 
 NetBiosÃû×Ö·þÎñ£ºudp 137  ¹ã²¥
@@ -980,7 +994,7 @@ tcpËÄ´Î»ÓÊÖµÄÊ±ºò£¬Á½¸ö·½ÏòµÄ¶Ï¿ªÊÇ¶ÀÁ¢µÄ£¬Ã¿¸ö·½Ïò·¢ËÍÒ»¸öFIN£¬¶Ô·½»Ø¸´Ò»¸öACK£
 ¾µÏñ¶Ë¿Ú£º°Ñ¶Ë¿ÚµÄÁ÷Á¿ÍêÈ«¸´ÖÆÒ»·Ýµ½ÁíÍâÒ»¸ö¶Ë¿Ú¡£ºÃÒ»µãµÄ½»»»»úÓÐ´Ë¹¦ÄÜ¡£¹«Ë¾ÄÚ²¿¿ÉÒÔÓÃÓÚÁ÷Á¿µÄÍêÈ«Í³¼Æ¡£¶øÕâÐèÒªÒ»¿é×¨ÃÅµÄÍø¿¨¡£Èç¹ûÁ÷Á¿ÒÑ¾­³¬¹ýÍ©Â®£¬ÄÇÃ´¾Í¶à¸öÍø¿¨ºÍ½»»»»úÉÏµÄ¶à¸ö¶Ë¿ÚË«·½À¦°ó³ÉÒ»¸öÍø¿¨ºÍÒ»¸öÐéÄâ¶Ë¿Ú¡£¹«Ë¾¿ÉÒÔ´ïµ½Ò»Ìì50G
 FTP Êý¾Ý´«Êä tcp 20
 FTP ¿ØÖÆ tcp 21
-ssh tcp22
+ssh tcp22    sftp¡¢scp
 Telnet tcp 23
 Smtp tcp 25
 DNS udp 53

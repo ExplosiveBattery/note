@@ -23,6 +23,7 @@ systemd-analyze blame 得到各个程序开机时间
 	rz：运行该命令会弹出一个文件选择窗口，从本地选择文件上传到服务器(receive)
 
 source /etc/profile  刷新profile，不需logout而生效
+但是只能刷新执行了这条命令的shell，而且deepin15.5使用这条命令之后you-get会出问题，但是仅仅export不会
 
 所谓的待机（standby）、挂起（suspend）、睡眠（sleep）应该都是一个概念，内存和处理器处于加电状态,其余设备断电。
 systemctl hibernate #休眠
@@ -41,6 +42,9 @@ sudo hdparm -t /dev/sda 测试硬盘速度
 
 chattr 文件锁
 
+dirname 目录（不带文件名）
+basename 文件名（不带目录）
+
 egrep是用extended regular expression语法来解读的，而grep则用basic regular expression 语法解读
 来自: http://man.linuxde.net/egrep
 使用awk和cut以及grep命令能控制着一个很好的输出
@@ -48,6 +52,8 @@ cut -d 指定分界符
 -f  ：与-d一起使用，指定显示哪个区域。这时候又会默认打印没有分界符的行，除非指定-s
 cut -d : -f 1,3-5,7
 cut -d : -f -2
+cut -b 4- /home/vega/Desktop/NewFolder/5.jpg #对文件操作
+echo /home/vega/Desktop/NewFolder/5.jpg | cut -b 4- - #对字符串操作
 
 使用echo >> file不能清空文件的内容，因为>>是追加模式
 Linux /etc/bash.bashrc 下的环境变量 一定要把path export 出来啊。。。
@@ -101,6 +107,16 @@ make -j 56
 -j [N], --jobs[=N]          同时允许 N 个任务；无参数表明允许无限个任务。
 任务数的上限取决于CPU同时支持的线程数，不过对于如果I/O次数比较多的，就可以超过“上限”，更好地利用每一刻真正的上限。
 modprobe 内核模块加载工具
+
+
+查看指定任务的线程数： 四种方法
+1。 使用top命令，具体用法是 top -H
+        加上这个选项，top的每一行就不是显示一个进程，而是一个线程。
+2。 使用ps命令，具体用法是 ps -xH
+        这样可以查看所有存在的线程，也可以使用grep作进一步的过滤。
+3。 使用ps命令，具体用法是 ps -mq PID
+        这样可以看到指定的进程产生的线程数目。
+更进一步，其实一些系统监控工具，在本质上也是读取的系统产生的文件罢了。比如说进程这个事情，现在假设有进程号为 5000 的进程，查看这个进程的所有具体信息，在哪查看呢?看看这个目录吧，/proc/5000/ 这里面有你所有想要的。其实stat代表着当前的一些信息。
 
 curl 192.168.1. 然后相当于向192.168.0.1发包，我只是想说明curl的一些怪异行为。
 curl --head http://192.168.3.139
@@ -215,6 +231,13 @@ php PE_scan.php: no process found
 所以遗憾，不过借助要想在crontab中杀死指定的php进程并不是没有办法：
 kill $(ps -aux | grep "php PE_scan.php" | awk '{print $2}')
 
+vega@vega-Laptop:~$ echo a.a | awk -F. '{ print $1 }' 
+ 
+a
+vega@vega-Laptop:~$ echo a.a | awk -F. '{print $1}'
+a
+
+
 
 ntsysv图形化查看开机启动服务（估计要求启动开关都在/etc/init.d/下的才能看到），F12 OK，空格 开关任务。
 chkconfig是旧指令，systemctl是新指令。
@@ -259,7 +282,7 @@ rm -f既然是强制删除的话所以就不会有询问了。
 
 find / -name something
 find / -size +10M(当然单位还有G，K)
--type f代表搜索的是文件 d代表搜索的是目录
+-type f代表搜索的是文件 d代表搜索的是目录(find ./ -type d包含了当前目录以及当前目录下的所有目录，对比ls -a就能够理解了)
 -perm -4 搜索文件的权限码能和4相与为true
 -ls 相当于顺便进行ls
 -daystart 按照创建时间排序
@@ -277,6 +300,19 @@ grep data *.c
 grep '^123' test
 直接使用正则表达式
 egrep -i '^123' test
+
+vega@vega-Laptop:~/Desktop$ cat test.txt 
+123
+123
+asfd
+asdff
+vega@vega-Laptop:~/Desktop$ cat test.txt | uniq #去除重复的部分后显示
+123
+asfd
+asdff
+vega@vega-Laptop:~/Desktop$ cat test.txt | uniq -d  #显示重复的部分
+123
+# uniq -w32是指寻找前32个字符相同的行
 
 tee 指令会从标准输入设备读取数据，将其内容输出到标准输出设备，同时保存成文件。
 tee -a file 输出到标准输出的同时，追加到文件file中。
@@ -303,6 +339,25 @@ battery@ubuntu:~/Desktop$ sort +0 -1 test 按照文件中以空白字符分隔的第一个字段与
 sort -m file1 fiel2 > file_result 将文件file1与文件file2合并
 
 
+xargs： 	默认命令效果是无视换行符、以空格为定界符的echo，空格是默认单词边界符（定界符）
+转换文本格式： -d 指定定界符 -0指定null即0x00为定界符 -n 指定每一行显示的元素个数
+组合多个命令（特别是针对不能够从文件中读取内容的命令）: -i默认替换符{}  -I指定自己的替换符
+vega@vega-Laptop:~/Desktop$ echo "nameXnameXnameXname" | xargs -dX -n2
+name name
+name name
+vega@vega-Laptop:cat url-list.txt | xargs wget #将文件中的url分别传送给wget，不过wget本身有一个-i参数
+vega@vega-Laptop: ls #准备使用-i -I参数
+1kk.zip  3kk.zip  5kk.zip  b.rar  d.rar  f.rar  h.rar  j.rar  mini.txt  ni.txt
+2kk.zip  4kk.zip  a.rar    c.rar  e.rar  g.rar  i.rar  k.rar  nii.txt
+vega@vega-Laptop: find . -type f -name "*.txt" | xargs -i cp {}  /tmp/k/
+vega@vega-Laptop: ls /tmp/k/
+mini.txt  nii.txt  ni.txt
+vega@vega-Laptop: find . -type f -name "*.txt" | xargs -I {} cp {}  /tmp/n/
+vega@vega-Laptop: ls /tmp/n/
+mini.txt  nii.txt  ni.txt
+使用tesseract对一个文件夹中的图片都进行文字识别，很明显不能使用shell中的通配符写法，可以使用find ./ -type f -print0 | xargs -0 -i tesseract {} stdout -l chi_sim
+加一个文件复制到各个子目录下：find ./ -type d -print0 | xargs -0 -I{} cp '/home/vega/.deepinwine/Deepin-QQ/dosdevices/c:/users/vega/My Documents/Tencent Files/641370196/FileRecv/text.csv' {}/  需要注意的是文件还会被复制到当前目录下，不想要的话需要进行处理
+
 显卡相关命令：https://wiki.deepin.org/index.php?title=%E6%98%BE%E5%8D%A1
 
 sudo update-alternatives -config java 然后就会给出所有java调用的候选可执行文件。
@@ -311,3 +366,16 @@ ImageMagick图形图像处理开源项目:
 	convert 转换图像格式和大小，模糊，裁剪，驱除污点，抖动，临近，图片上画图片，加入新图片，生成缩略图等。（Python中的opencv也可以用作图像处理）
 	identify 描述一个或较多图像文件的格式和特性。
 	composite 根据一个图片或多个图片组合生成图片
+
+
+查找重复文件并显示文件名：  并不是说一样的文件名而是一样的文件内容
+相关命令：
+	文件hash命令： sha开头系列 md5sum
+	要想使hash命令能够对各个文件（关键是要对子目录中的文件也会生效）使用： find ./ -type f -print0 | xargs -0 md5sum 
+	find ./ -type f -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36- 通过md5来寻找出当前目录下的重复文件，最后通过cut命令裁剪36开始到之后的字符。find的-print0选项以及xargs的-0选项，以0x00作为每一个文件名的结束尾，因为文件名中可能出现空格或者换行等空白字符。中间还必须要sort，和uniq神奇选项--all-repeated=separate有关。
+	find -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | xargs -I{} -n1 find -type f -size {}c -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36- 配合文件大小先进行一步筛选，而不是直接对所有文件计算md5
+
+
+串口通信： /dev/ttyxxxxx 相关内容
+	fuser /dev/ttyUSB0 可以查看占用设备的进程信息
+

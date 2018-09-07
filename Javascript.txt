@@ -1445,3 +1445,10 @@ id=1&choose=通过
 encodeURI()=>id=1&choose=%E9%80%9A%E8%BF%87
 encodeURIComponent()=>将=,&都进行了编码
 	98.移除<table>中的<tr> , 使用remove(index) (效果是删除整个) 或者removeChild(node) (node通过target.parentNode.parentNode得到) (报错说node找不到,consolo.log却可以输出node) 都不行,  最终直接target.parentNode.parentNode.remove().
+	99.节点类
+  var Graph = function(formData){
+   this.form=formData;
+   this.evalue=0;
+   this.udirect=0;
+   this.parent=null;
+  };

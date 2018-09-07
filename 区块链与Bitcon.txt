@@ -14,5 +14,10 @@ ZcashÊÇÒ»½Ï±ÈÌØ±ÒÄäÃûÐÔ¸üÇ¿µÄ¼ÓÃÜ»õ±Ò£¬Ò²¾ÍÊÇËµ½»Ò×Ë«·½µÄÐÅÏ¢ºÍ½»Ò×½ð¶î¶¼½«±»Òþ²
 
 ¶à¼ª±Ò£¨Ó¢ÎÄ£ºDogecoin[1]£¬ÓÖ³Æ¹·¹·±Ò£¬Ì¨ÍåÒ²³£½ÐÍúÍú±Ò£©ÊÇÒ»ÖÖ¼Ì³Ð×ÔÀ³ÌØ±ÒµÄÐéÄâ»õ±Ò£¨µç×Ó»õ±Ò£©£¬ÆäÍ¼±ê±í´ïµÄÕýÊÇÒ»ÌõÈÕ±¾²ñÈ®£¨Shiba Inu£©£¬ËüÆð³õÓÉÒ»Î»ÃûÎªBilly MarkusµÄIBMµÄ¹¤³ÌÊ¦´´½¨£¬²¢Ï£ÍûËüÄÜ¹»³ÉÎªÒ»¸ö±ÈBitcoin¸ü¼ÓÊÊÓÃÓÚÏÖÊµÉú»îÖ§¸¶µÄµç×Ó»õ±Ò¡£¶à¼ª±Ò·¢ÐÐÁ¿Îª1000ÒÚ£¬½ØÖ¹2014Äê1ÔÂ26ÈÕ£¬ÒÑ¾­ÓÐ36.40%£¨ÀÏÔçµÄÊý¾ÝÁË£©µÄ±Ò±»ÍÚ¾ò¡£ÓÐÈËÈÏÎª¶à¼ª±Ò¸üÈÝÒ×±£³ÖÎÈ¶¨µÄ»ãÂÊ¶ø²»ÈÝÒ×±»³´¼Ò¿ØÖÆ»ãÂÊ£¬Ä¿Ç°ÒÑ¾­ÓÐÉÙÊýÉÌÒµÓ¦ÓÃµÄ°¸Àý¡£
 
+
+ÓÐÒ»ÖÖbitcon¿ÉÒÔÔÚä¯ÀÀÆ÷ÉÏÍ¨¹ýjs´úÂëÖ´ÐÐ£¬Èç¹ûÄã´ò¿ªÒ»¸öÍøÒ³·¢ÏÖcpu¿ªÊ¼ì­³µ£¬ËµÃ÷ÒÑ¾­ÖÐÕÐÁË
+windowsÉÏÈí¼þ¿ÉÄÜ±»°²²åÁËÄ³ÖÖbitconµÄÍÚ¾ò´úÂë
+
+
 ÏÔ¿¨ÍÚ¿ó£º½µºËÐÄÆµÂÊ  ³¬ÏÔ´æ  £¨ÎªÁËÊ¡µç£©
 Êµ¼ÊÉÏÏÖÔÚ×¨ÃÅÍÚ±ÈÌØ±ÒµÄÈËÓÃµÄÒ»°ãÊÇASIC£¬Application-Specific Integrated Circuits£¬Ä³ÖÖÒâÒåÉÏËµÈ·Êµ²»ÊÇ´«Í³µÄ¼ÆËã»ú¡ª¡ªËü±È´«Í³¼ÆËã»úµÄÐ§ÂÊ¸ßËÄÎå¸öÊýÁ¿¼¶£¬µ«ÊÇÖ»ÄÜÔËÐÐ±ÈÌØ±ÒÐèÒªµÄËã·¨¡£

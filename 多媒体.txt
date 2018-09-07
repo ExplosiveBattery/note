@@ -7,6 +7,24 @@ linesize Ò»ÐÐÊý¾ÝµÄ¿í¶È£¬ÀýÈçyuv420pÆäÖÐyÊÇÒ»ÐÐ£¬uvÊÇÒ»ÐÐ£¬·Ö±æÂÊ´¦ÓÚ480pµÄÊ±ºò£
 ¶ÔÓÚÖÐÎÄ¶øÑÔ£¬Huffuman°´ÕÕ×Ö½ÚÀ´Ñ¹Ëõ¶ø²»ÊÇ°´ÕÕ×Ö·ûÎªµ¥Î»Ñ¹Ëõ±È½ÏºÃ£¬ÒòÎª×Ö½ÚµÄÖØ¸´ÐÔ¸ü´ó¡£¿ÉÒÔÍÆ¹ã£ºÓ¢ÎÄ×Ö·û°´ÕÕ¸ÅÂÊ´Ó´óµ½Ð¡ÅÅ£¬¹Û²ì1-8Î»Ö®¼äÊ²Ã´Çé¿ö£¬ÒÔ¶àÉÙÎ»Îªµ¥Î»ÄÜ¹»µÃµ½×îºÃµÄÑ¹Ëõ£¿µ±È»»¹Òª¿¼ÂÇÎ»µÄÑ¹Ëõ±È£¬±ÈÈçÄãÊÇ½²4Î»Ñ¹Ëõµ½1Î»£¬¶øÒÔ×Ö½ÚÎªµ¥Î»ÄÜ¹»½«8Î»Ñ¹Ëõµ½1Î»¡£
 
 ---------------------------------------------------------------------------------------------------------------
+Í¼ÏñµÄpng¸ñÊ½Ò²»áÓÐ¼¸ÖÖ²»Í¬µÄÑ¹Ëõ°ì·¨£¬jpgÒ²ÓÐ²»Í¬Äê´ú°æ±¾µÄÑ¹ËõËã·¨£¬pngÀïÃæ±È½ÏÍÆ¼öµÄÊÇtinypng£¨https://www.v2ex.com/t/151976£©
+
+
+---------------------------------------------------------------------------------------------------------------
+ÒôÆµ±àÂëµÄ¼¸ÖÖ¸ñÊ½£ºraw£¨Î´Ñ¹ËõµÄpcm»òwav¸ñÊ½£©¡¢speex£¨speex¸ñÊ½£©¡¢speex-wb£¨¿íÆµspeex¸ñÊ½£©
+
+web api±ÈÈçÌÚÑ¶ÔÆ¶¼»áÖ±½ÓÔÚÏÂ·½¼òµ¥½éÉÜÊ¹ÓÃÁËÊ²Ã´¼¼Êõ£¬ÀàËÆÆ½Ì¨»¹ÓÐ speakin¡¢¿Æ´ó·ÉÑ¶¡¢°Ù¶ÈÓïÒô£¨°Ù¶ÈÔÆ£©¡¢°¢ÀïÔÆ¡¢Google¡¢Î¢Èí¡£ÌÚÑ¶ÔÆËµËûÃÇµÄÉùÎÆÊ¶±ð¿ÉÒÔ¾Ü¾ø·ÂÃ°Â¼Òô»Ø·ÅµÄÆÛÕ©£¬»ùÓÚÉùÎÆÌØÕ÷ºÍËµ»°ÄÚÈÝÍ¬Ê±ÑéÖ¤¡£
+Ê¶±ðÒôÉ«£¬ÉùÎÆÊ¶±ð(Voiceprint Recognition, VPR)£¬Ò²³ÆÎªËµ»°ÈËÊ¶±ð(Speaker Recognition)¡£Í¨¹ý»úÆ÷Ñ§Ï°Ê¶±ðÉùÒôÃ»ÓÐ»úÆ÷Ñ§Ï°Ê¶±ðÍ¼ÏñÈÝÒ×£¬ÒòÎªÊý¾Ý¼¯ÉÏÄÑµÃ¡£ÓÐÁ½Àà·¢Õ¹·½Ïò£¬¼´Ëµ»°ÈË±æÈÏ(Speaker Identification)ºÍËµ»°ÈËÈ·ÈÏ(Speaker Verification)¡£Ç°ÕßÓÃÒÔÅÐ¶ÏÄ³¶ÎÓïÒôÊÇÈô¸ÉÈËÖÐµÄÄÄÒ»¸öËùËµµÄ£¬ÊÇ¡°¶àÑ¡Ò»¡±ÎÊÌâ£»¶øºóÕßÓÃÒÔÈ·ÈÏÄ³¶ÎÓïÒôÊÇ·ñÊÇÖ¸¶¨µÄÄ³¸öÈËËùËµµÄ£¬ÊÇ¡°Ò»¶ÔÒ»ÅÐ±ð¡±ÎÊÌâ¡£ÒôÉ«±¾ÉíÊÇÒ»¸öºÜÁýÍ³µÄ¸ÅÄî£¬ÊÇÖ¸²»Í¬µÄÉùÒôµÄÆµÂÊ±íÏÖÔÚ²¨ÐÎ·½Ãæ×ÜÊÇÓÐÓëÖÚ²»Í¬µÄÌØÐÔ£¬ÒôÉ«ÉÏµÄ²îÒìÔÚÐÅºÅ´¦ÀíµÄ²ãÃæ¿ÉÒÔ±íÊ¾ÎªÔÚÆµÓò²»Í¬Æµ¶ÎÄÜÁ¿·Ö²¼Çé¿öµÄ²îÒì¡£²ÉÓÃÄ¿Ç°×îÏÈ½øµÄÉùÎÆ¼¼ÊõIvector¼¼Êõ£¬ÅäºÏPLDA¼¼ÊõÀ´½µµÍÐÅµÀ²îÒìµÄÓ°Ïì£¬ÌáÉýÊ¶±ðÐÔÄÜ£¬ÎÄ±¾Ïà¹ØÉùÎÆÈÏÖ¤ÊµÑéÐÔÄÜ´ïµ½µÈ´íÂÊ0.7%¡£ÉùÎÆÊ¶±ðµÄ½á¹ûÊÇ²»¿ÉÄÜÖ±½ÓÅª³ÉÒ»´®HashÖ®ÀàµÄÊý×Ö£¬ÒòÎªÌØÕ÷ÌáÈ¡±¾ÉíÊÇ²»ÍêÈ«µÄ£¬ËùÒÔ¶ÔÓÚÃ¿Ò»¶ÎÓïÒô£¬×îÖÕµÃµ½µÄ¡°Hash¡±¶¼»á²»Í¬£¬ËùÒÔÐèÒª½¨Á¢Ò»¸öÄ£ÐÍÀ´°ïÖúÊ¶±ð¡£
+
+Í¨¹ý¹Û²ìÎÒÃÇµÄÆµÆ×·åÖµºÍºÏ²¢µÄ·åÖµÆµÂÊÒÔ¼°ËüÃÇÖ®¼äµÄÊ±¼ä²î£¬ÎÒÃÇ¿ÉÒÔµÃµ½Ò»¸ö¿ÉÒÔµ±×÷¸èÇúµÄÎ¨Ò»Êý×ÖÖ¸ÎÆµÄµÄ¹þÏ£¡£
+
+VAD£¨Voice Activity Detection£©£¬Í¨³£×÷Îª¶Ô»°ÇÐ¸îµÄÒÀ¾Ý¡£
+---------------------------------------------------------------------------------------------------------------
+Ò»¸öÊÓÆµ²¥·ÅÆ÷°üº¬£ºÎÄ¼þ¸ñÊ½½âÎö£¨Demuxer£©¡¢ÒôÊÓÆµ½âÂë£¨Decoder£©¡¢ÒôÊÓÆµäÖÈ¾Êä³ö£¨Renderer£©£¬FFmpegÖÐ¶¼ÓÐ¶ÔÓ¦µÄÊµÏÖ¡ª¡ªavformat¡¢avcodec¡¢avdevice¡£
+
+ÊÓÆµÈÝÆ÷£º MP4Ö»ÊÇÒ»¸ö·â×°¸ñÊ½£¬ËüÀïÃæ¿ÉÄÜÊÇMPEG4±àÂë£¬Ò²¿ÉÄÜÊÇH.264£¬»òÕßH.265¡£MP4¡¢rmvb¡¢rm¡¢flv¡¢AVI¡¢mov¡¢WMV¡¢mkv
+ÊÓÆµ²¿·ÖÓëÒôÆµ²¿·ÖÊÇÍ¨¹ýÊý¾Ý¿éµÄÊ±¼ä´ÁÀ´ÊµÏÖÍ¬²½¡£Èç¹ûÒôÆµÂýÁË¾Í»á±»¶ªÆúÒ»²¿·Ö¡£
+
 MPEG±ê×¼£¬ÏÖÔÚµ½ÁËMPEG-4
 
 h264/AVC H.264 is a codec used to create MP4 files
@@ -21,3 +39,4 @@ base64±àÂë£º
 ÓÉÓÚ²»Í¬µÄÉè±¸¶Ô×Ö·ûµÄ´¦Àí·½Ê½ÓÐÒ»Ð©²»Í¬£¬ÕâÑùÄÇÐ©²»¿É¼û×Ö·û¾ÍÓÐ¿ÉÄÜ±»´¦Àí´íÎó£¬ÕâÊÇ²»ÀûÓÚ´«ÊäµÄ¡£ËùÒÔ¾ÍÏÈ°ÑÊý¾ÝÏÈ×öÒ»¸öBase64±àÂë£¬Í³Í³±ä³É¿É¼û×Ö·û£¬ÕâÑù³ö´íµÄ¿ÉÄÜÐÔ¾Í´ó½µµÍÁË¡£Ò²¾ÍÊÇËµÖ÷ÒªÊÇÎªÁË´¦Àí²»¿É¼û×Ö·û£¬µ«ÊÇÕâÑùÒ²¾ÍÊÇÒâÎ¶×ÅÑ¸À×ºÍÐý·çÏÂÔØÁ´½ÓÊ¹ÓÃbase64±àÂëÓÐ×ÅÆäËûµÄÓÃÍ¾£¬¿ÉÄÜ¾ÍÊÇÏëÈÃÒ»°ãÈË²»¶®»òÕßÊ¹µÃ×Ô¼ºµÄÁ´½ÓÊÇ±¾Èí¼þ×¨ÓÃµÄ¡£
 Ñ¸À×µÄ¡°×¨ÓÃµØÖ·¡±Ò²ÊÇÓÃBase64¼ÓÃÜµÄ¡£µ«ÊÇ²»ÊÇÖ±½Ó½øÐÐµÄ£¬http://µØÖ·µÄÇ°ºó·Ö±ðÌí¼ÓAAºÍZZ£¬Ö®ºóÔÙ½øÐÐbase64¼ÓÃÜ¡£
 QQÐý·çµØÖ·µÄ±àÂë¸ü¼òµ¥£¬²»¼ÓÈÎºÎ×Ö·û£¬Ö±½Ó¾Í¶ÔµØÖ·½øÐÐBase64±àÂëÁË
+

@@ -1,0 +1,5 @@
+linux下的话有的系统都会出现段错误，确定是因为系统里面库的问题，最后测试了Ubuntu16.04是可以的。
+windows下可惜选择用VS或者VC6.0搭建好linux环境（补充pthread.h）库就好：http://blog.csdn.net/qianchenglenger/article/details/16907821
+
+
+因为环境原因，本文件夹下代码没有实际测试过，但是应该基本没什么大问题，毕竟算法逻辑还是很简单的
