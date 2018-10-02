@@ -3,6 +3,18 @@ shellµÄ¿ªÍ·ÓÃ#!/bin/bash¶ø²»ÊÇ#!/bin/shell£¨ËäÈ»¿ÉÄÜÓÐÊ±ºòÃ»¸øÄã±¨´ígeditµÄÊ±ºò»
 $[...]ÓÃÓÚ¼ÆËãÄÚ²¿s±í´ïÊ½
 µ±shellÅöµ½µÚÒ»¸öµ¥ÒýºÅÊ±£¬ËüºöÂÔµôÆäºóÖ±µ½ÓÒÒýºÅµÄËùÓÐÌØÊâ×Ö·û¡£¼´µ¥ÒýºÅÒ»¶¨±íÊ¾×Ö·û´®³£Á¿¡£
 
+Bash µÄ±äÁ¿¿ÉÒÔÉùÃ÷ÎªÊý×éºÍÕûÊýÊý×Ö¡£×¢ÒâÊý×ÖÀàÐÍÃ»ÓÐ¸¡µãÊý¡£Èç¹û²»½øÐÐÉùÃ÷£¬Ä¬ÈÏÊÇ×Ö·û´®ÀàÐÍ¡£±äÁ¿µÄÉùÃ÷Ê¹ÓÃ declare ÃüÁî£º
+$ declare [-aixr] variable
+-a £º ¶¨ÒåÎªÊý×éÀàÐÍ
+-i £º ¶¨ÒåÎªÕûÊýÀàÐÍ
+-x £º ¶¨ÒåÎª»·¾³±äÁ¿
+-r £º ¶¨ÒåÎª readonly ÀàÐÍ
+Ê¹ÓÃ [ ] À´¶ÔÊý×é½øÐÐË÷Òý²Ù×÷£º
+$ array[1]=a
+$ array[2]=b
+$ echo ${array[1]}
+
+
 #!/bin/bash
 for i in seq 9
 do

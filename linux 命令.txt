@@ -1,16 +1,44 @@
+less、more、cat、tac（cat反向）、echo、head、tail、od（十六进制查看）
+
+which xxxx
+返回执行命令使用的可执行文件路径
+
+
+$ tar [-z|-j|-J] [cv] [-f 新建的 tar 文件] filename...  ==打包压缩
+$ tar [-z|-j|-J] [tv] [-f 已有的 tar 文件]              ==查看
+$ tar [-z|-j|-J] [xv] [-f 已有的 tar 文件] [-C 目录]    ==解压缩
+-z ：使用 zip；
+-j ：使用 bzip2；
+-J ：使用 xz；
+-c ：新建打包文件；
+-t ：查看打包文件里面有哪些文件；
+-x ：解打包或解压缩的功能；
+-v ：在压缩/解压缩的过程中，显示正在处理的文件名；
+-f : filename：要处理的文件；
+-C 目录 ： 在特定目录解压缩。
+
+
+last 按时间顺序倒叙显示登录者账号信息
+
+
+将 last 输出的信息所有小写转换为大写： last | tr '[a-z]' '[A-Z]'
+col 将 tab 字符转为空格字符
+join file1 file2 将有相同数据的那一行合并在一起。
+paste file1 file2 直接将两行粘贴在一起。
+
 C-w 删除当前输入终端的文字
 aptitude 高级的apt，更好地管理依赖关系，比如降级 ： https://blog.csdn.net/adparking/article/details/7176655
-apt-cache madison package 查看指定package的版本
+apt-cache madison dde-launcher 查看指定package的版本
 apt-cache search dde-launcher 搜索相关名字与注释的package
 
--f image2 /tmp/webCam/%d.jpg 产生的文件名字是从1开始的数字递增，如果是%9d那就是9位数字的递增。
+-f image2 /tmp/webCam/%d.jpg 产生的文件名字是从1开始的数字递增，如果是%9d那就是9位数字。
 	不过不少程序的-f/-F参数都是用来描述工作在前端还是后台
 处理空格使用转义或者字符串包起来
 nmap -sn | grep "sn"《=》nmap -sn | grep sn
 ls && ls 《=》 ls;ls
 默认情况下的$PATH是这样的/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin让人疑惑的是寻找执行那个文件的时候是先从/usr/bin(apt安装)开始，然后找到的才是/usr/local/bin（自己编译安装）
 
-只有sudoers用户才能命令前被sudo。
+只有sudoers用户才能命令前被sudo
 重启网卡服务： 注意是networking
 service networking restart
 service network-manager restart 尤其是插入usb网卡的时候
@@ -26,22 +54,26 @@ source /etc/profile  刷新profile，不需logout而生效
 但是只能刷新执行了这条命令的shell，而且deepin15.5使用这条命令之后you-get会出问题，但是仅仅export不会
 
 所谓的待机（standby）、挂起（suspend）、睡眠（sleep）应该都是一个概念，内存和处理器处于加电状态,其余设备断电。
-systemctl hibernate #休眠
+systemctl hibernate #休眠(休眠一般就是把内存中的数据写入硬盘,swap文件，swap分区的大小就与其功能有关系，还有虚拟内存的功能，总之swap就是充当内存的替补角色)
 systemctl suspend  #待机 
 systemctl suspend-hybrid #混合待机
 systemctl powersave #省电模式
-systemctl hibernate 休眠(休眠一般就是把内存中的数据写入硬盘,swap文件，swap分区的大小就与其功能有关系，还有虚拟内存的功能，总之swap就是充当内存的替补角色)
 
 ssh-keygen -t rsa -C "username@mail.com" 生成ssh密钥对
 ssh-copy-id 将本机的pub key复制到指定主机的.ssh/authorized_keys文件中（ssh服务器才会有这个文件）
 ssh -T git@github.com check ssh key
 git config --global user.name "Les1ie"
 git config --global user.mail "xxxx@xx.com"
-配置好的kali推送文件到github一直不能推送上去，问了SCU_Linux的小伙伴们也不清楚， 最后在#linuxba 的irc上问了下，才知道 github的https是 readonly的，只有ssh通道才能推送，记一下 2017.3.16
-sudo hdparm -t /dev/sda 测试硬盘速度
+配置好的kali推送文件到github一直不能推送上去，问了SCU_Linux的小伙伴们也不清楚， 最后在#linuxba 的irc上问了下，才知道 github的https是 readonly的，只有ssh通道才能推送，记一下
 
-chattr 文件锁
+类似于chmod, chmod只是改变文件的读写、执行权限，更底层的属性控制是由chattr来改变的。有时候你发现用root权限都不能修改某个文件，大部分原因是曾经用chattr命令锁定该文件了。但是它并不适合所有的目录。chattr命令不能保护/、/dev、/tmp、/var目录。
+lsattr
+chattr 改变文件/文件夹的读写属性  
+“+文件属性” 就是添加该属性；“-文件属性”去掉此属性；“=文件属性” 此文件有且只有这属性
++i 禁止写入   -i 取消禁止
++a 只允许追加操作
 
+下面这些在写shell脚本的时候挺有用：
 dirname 目录（不带文件名）
 basename 文件名（不带目录）
 
@@ -51,7 +83,7 @@ egrep是用extended regular expression语法来解读的，而grep则用basic regular expres
 cut -d 指定分界符
 -f  ：与-d一起使用，指定显示哪个区域。这时候又会默认打印没有分界符的行，除非指定-s
 cut -d : -f 1,3-5,7
-cut -d : -f -2
+cut -d : -f -2  #省略了-前面的1
 cut -b 4- /home/vega/Desktop/NewFolder/5.jpg #对文件操作
 echo /home/vega/Desktop/NewFolder/5.jpg | cut -b 4- - #对字符串操作
 
@@ -65,12 +97,12 @@ cp webcam.c back.webcam
 netstat除了可以查看端口以外，还可以查看有哪些套接字开着。
 netstat -pantu（并非所有进程都能被检测到，所有非本用户的进程信息将不会显示，如果想看到所有信息，则必须切换到 root 用户）
 
-screen命令：
+screen命令（更好用的是tmux，可以放到后台还以再拉回前台）：
 OpenSSH客户端就提供了一个名为“roaming（漫游）”的功能（该功能并未记录在介绍文档中）：如果客户端与SSH服务器的通信链接意外中断，当服务器同样支持roaming功能，那么客户端就可以与服务器重新连接，并重新恢复挂起的SSH会话操作。7.1p2版本的OpenSSH客户端（发布于2016年1月14日）默认禁用了roaming功能。
 系统管理员经常需要SSH 或者telent 远程登录到Linux 服务器，经常运行一些需要很长时间才能完成的任务，比如系统备份、ftp 传输等等。通常情况下我们都是为每一个这样的任务开一个远程终端窗口，因为它们执行的时间太长了。必须等待它们执行完毕，在此期间不能关掉窗口或者断开连接，否则这个任务就会被杀掉，一切半途而废了。
 而GUN的screen提供了会话恢复、多窗口（tmux）、会话共享
 screen -S yourname -> 新建一个叫yourname的session
-screen -ls -> 列出当前所有的session
+screen -ls -> 列出当前所有的session（ls是list的简写）
 screen -r yourname -> reattach 回到yourname这个session
 screen -d yourname -> Detach 远程detach某个session
 screen -d -r yourname -> 结束当前session并回到yourname这个session
@@ -100,31 +132,44 @@ There is a screen on:
 battery@ubuntu:~$ screendump
 /dev/tty0: 权限不够
 无法读取 /dev/vcsa
+打印ttyX的屏幕内容，我使用之后打印出了deepin开机的时候出现的错误
 
-
+screenfetch 打印系统信息与硬件信息，非原生命令
 
 make -j 56
 -j [N], --jobs[=N]          同时允许 N 个任务；无参数表明允许无限个任务。
 任务数的上限取决于CPU同时支持的线程数，不过对于如果I/O次数比较多的，就可以超过“上限”，更好地利用每一刻真正的上限。
-modprobe 内核模块加载工具
+
 
 
 查看指定任务的线程数： 四种方法
 1。 使用top命令，具体用法是 top -H
         加上这个选项，top的每一行就不是显示一个进程，而是一个线程。
-2。 使用ps命令，具体用法是 ps -xH
+2。 使用ps命令，具体用法是 ps -axH
+	-ax 显示所有的（虽然不是很明白）
+	-H 显示线程
         这样可以查看所有存在的线程，也可以使用grep作进一步的过滤。
 3。 使用ps命令，具体用法是 ps -mq PID
+	-q  -p 的quick mode
+	-m  Show threads after processes.
         这样可以看到指定的进程产生的线程数目。
 更进一步，其实一些系统监控工具，在本质上也是读取的系统产生的文件罢了。比如说进程这个事情，现在假设有进程号为 5000 的进程，查看这个进程的所有具体信息，在哪查看呢?看看这个目录吧，/proc/5000/ 这里面有你所有想要的。其实stat代表着当前的一些信息。
+
+使用ps命令查看内存是不准确的，因为其返回的是一个进程所用的所有空间，而由于linux的共享内存机制
+top -p <PID>
 
 curl 192.168.1. 然后相当于向192.168.0.1发包，我只是想说明curl的一些怪异行为。
 curl --head http://192.168.3.139
 
-后台执行进程：  可以用来启动图形界面程序gedit、wireshark、ettercap -G
+wget就是垃圾，经常下东西下到一半突然变成0KB/s，务必加上-t 0参数使之无限重连，-T 3设置超时事件(触发-T之后会重新下载)，虽然它支持断电续传，使用-c参数，但是在docker build的时候没有办法这么做！听说还是单线程下载。
+下载中断一般都是因为： Read error at byte 或者 Read Timeout
+
+
+后台进程(仅仅含有&，不一定就会运行成功)，可以用来启动图形界面程序gedit、wireshark、ettercap -G。要想不挂起需要加上nohup或者setsid，记得处理stdout、stderr流
+nohup 无疑能通过忽略 HUP 信号来使我们的进程避免中途被中断，但如果我们换个角度思考，如果我们的进程不属于接受 HUP 信号的终端的子进程，那么自然也就不会受到 HUP 信号的影响了。setsid ———— run a program in a new session。或者使用screen。
 [root@VM_206_70_centos ~]# php /path/PE/PE_scan.php&
 [1] 16442
-[root@VM_206_70_centos ~]ps -aux | grep php
+[root@VM_206_70_centos ~]# ps -axu | grep php
 root      1495  0.0  0.5 133584  6064 ?        Ss   Mar17   0:55 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)
 nginx     1509  0.0  0.8 135732  8268 ?        S    Mar17   0:00 php-fpm: pool www
 nginx     1510  0.0  0.7 135732  7660 ?        S    Mar17   0:00 php-fpm: pool www
@@ -134,17 +179,14 @@ root     16444  0.0  0.0   9032   672 pts/0    R+   19:28   0:00 grep --color=au
 他一直停止后端还不能被kill，因为是STOP状态，只能使用fg命令将之转移到前端。bg命令也不能让他在后端执行起来。
 可问题是之前明明都可以的啊。bg 1或者bg %1无效。
 最后使用了setsid php PE_scan.php&总算是成功在后台运行起来了。
-使用C-Z+bg组合当我们退出Shell的时候，进程也会退出。这时候它的父进程还会终端。
-对于上面这句话的问题我们有两种解决办法：在命令运行前机上nohup来忽略终端结束时传递给子进程的hangup信号（标准输出和标准错误缺省会被重定向到 nohup.out 文件中），或者加上setsid来改变父进程。
-还有种方法就是使用screen命令。
 
+/etc/fstab
 mount -t ntfs -o rw /dev/sda1 /  -o 指定了 读写权限。写错名字了，不应该是/
 umont /   这时候是可以正常卸载的，我还以为会弄掉原来的/，应该自己新建一个空目录然后挂载进去
 mount -t ntfs -o remount,rw /dev/sda1 /  -o 额外指定了，希望重新挂载。但是我失败了....
 
-nohup是永久执行，&是指在后台运行
-
 linux下查看二进制模式查看文件 hexdump
+objdump 显示文件信息
 
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -158,18 +200,15 @@ MAILTO=root  我是用root账户打开的/etc/crontab，每个用户可以拥有自己的crontab文件
 # | | | |  ——星期（0 - 7，星期日=0或7）
 # | | | | |
 # * * * * * 用户名 被执行的命令
-
-
-date 命令
-	显示：中用%D等来表示xxx内容，具体使用为date +%D
-	设置：date 10201223 设置为10月20日12点23分
-
 一个常见的错误是，命令行双引号中使用%时，未加反斜线\，例如：
 1 2 3 4 5 touch ~/error_`date "+%Y%m%d"`.txt
 # 正确的例子：
-1 2 3 4 5 touch ~/right_$（date +\%Y\%m\%d）.txt
+1 2 3 4 5 touch ~/right_$（date +%Y%m%d）.txt
 # 使用单引号也可以解决问题：
 1 2 3 4 5 touch ~/error_$（date '+%Y%m%d'）.txt
+date 命令
+	显示：中用%D等来表示xxx内容，具体使用为date +%D
+	设置：date 10201223 设置为10月20日12点23分
 如果输出结果来自crontab里的命令，那么cron守护进程会用电子邮件将它发给用户。
 若想关闭某个命令的输出结果，可以将输出结果重定向至/dev/null。
 >/dev/null 2>&1(2>&1 时把出错输出也定向到标准输出)
@@ -236,8 +275,14 @@ vega@vega-Laptop:~$ echo a.a | awk -F. '{ print $1 }'
 a
 vega@vega-Laptop:~$ echo a.a | awk -F. '{print $1}'
 a
+#按照分隔符来取分段，cut命令也可以
+awk 语法详解 https://www.cnblogs.com/xudong-bupt/p/3721210.html 
 
-
+sed -i "s/shan/hua/g"  lishan.txt #正则替换字符串
+sed -i '1 i\插入字符串' filename #在第一行前插入文本
+sed -i '$ a\插入字符串' filename #在最后一行插入
+sed -i '/pattern/ i "插入字符串"' filename #在匹配行前插入
+sed -i '/pattern/ a "插入字符串"' filename #在匹配行后插入
 
 ntsysv图形化查看开机启动服务（估计要求启动开关都在/etc/init.d/下的才能看到），F12 OK，空格 开关任务。
 chkconfig是旧指令，systemctl是新指令。
@@ -261,12 +306,14 @@ network        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 nginx          	0:off	1:off	2:off	3:off	4:off	5:off	6:off
 php-fpm        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 
+modprobe 内核模块加载工具
 
 ls -d /etc/rc*这样就不会查看到文件夹里面的内容
 ls -h 可以查看文件大小（但是需要和-l一起使用才会有效果）
 lsmod 查看启动了的模块
 lspci 对硬件的查看
-我使用mount命令对将远程计算机的 分区挂在到某一个终端正在的目录，然后在那个终端中直接ls没有任何显示，但是退回到父目录以后再进去就能看到有显示了。而且目录下的原来的文件被隐藏。
+lsof 
+我使用mount命令对将远程计算机的分区挂在到某一个终端正在的目录，然后在那个终端中直接ls没有任何显示，但是退回到父目录以后再进去就能看到有显示了。而且目录下的原来的文件被隐藏。
 
 改日期：
 root@kali:~/Desktop# date -s 2017-04-11
@@ -280,6 +327,7 @@ mkdir -p 这里递归创建不是-r。
 rm，cp，chmod对目录的操作都需要-r（rmdir只能用来删除空目录）。mv可以直接对目录使用。
 rm -f既然是强制删除的话所以就不会有询问了。
 
+#有比find改良的查找命令
 find / -name something
 find / -size +10M(当然单位还有G，K)
 -type f代表搜索的是文件 d代表搜索的是目录(find ./ -type d包含了当前目录以及当前目录下的所有目录，对比ls -a就能够理解了)
@@ -336,10 +384,12 @@ battery@ubuntu:~/Desktop$ sort +0 -1 test 按照文件中以空白字符分隔的第一个字段与
 123 789
 456 789
 789 123
+但是-1却没有什么用，很奇怪，按照所学应该按第二列倒序
 sort -m file1 fiel2 > file_result 将文件file1与文件file2合并
 
 
 xargs： 	默认命令效果是无视换行符、以空格为定界符的echo，空格是默认单词边界符（定界符）
+xargs与shell中使用通配符的区别？前者是多次执行命令，相当于一个循环；后者是传入多个参数。
 转换文本格式： -d 指定定界符 -0指定null即0x00为定界符 -n 指定每一行显示的元素个数
 组合多个命令（特别是针对不能够从文件中读取内容的命令）: -i默认替换符{}  -I指定自己的替换符
 vega@vega-Laptop:~/Desktop$ echo "nameXnameXnameXname" | xargs -dX -n2
@@ -373,9 +423,57 @@ ImageMagick图形图像处理开源项目:
 	文件hash命令： sha开头系列 md5sum
 	要想使hash命令能够对各个文件（关键是要对子目录中的文件也会生效）使用： find ./ -type f -print0 | xargs -0 md5sum 
 	find ./ -type f -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36- 通过md5来寻找出当前目录下的重复文件，最后通过cut命令裁剪36开始到之后的字符。find的-print0选项以及xargs的-0选项，以0x00作为每一个文件名的结束尾，因为文件名中可能出现空格或者换行等空白字符。中间还必须要sort，和uniq神奇选项--all-repeated=separate有关。
-	find -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | xargs -I{} -n1 find -type f -size {}c -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36- 配合文件大小先进行一步筛选，而不是直接对所有文件计算md5
+	find ./ -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | xargs -I{} -n1 find -type f -size {}c -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36- 配合文件大小先进行一步筛选，而不是直接对所有文件计算md5
 
 
 串口通信： /dev/ttyxxxxx 相关内容
 	fuser /dev/ttyUSB0 可以查看占用设备的进程信息
+
+
+ipcs 命令用简短格式写入一些关于当前活动消息队列、共享内存段、信号量。
+ipcrm 指定id移出ipcs中可以看到的一个东西
+
+vega@vega-Laptop:~$ sysctl kern.ipc.shmmax
+sysctl: cannot stat /proc/sys/kern/ipc/shmmax: No such file or directory
+
+
+vega@vega-Laptop:~$ ulimit -a
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 63239
+max locked memory       (kbytes, -l) 64
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) 8192
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 63239
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
+
+
+查看ssd是否4K对齐：
+先用sudo dmesg查看挂载名称：
+[68872.938982] sd 3:0:0:0: [sdb] 1953525168 512-byte logical blocks: (1.00 TB/932 GiB)
+[68872.939058] sd 3:0:0:0: [sdb] Write Protect is off
+[68872.939060] sd 3:0:0:0: [sdb] Mode Sense: 43 00 00 00
+[68872.939219] sd 3:0:0:0: [sdb] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+[68872.941331]  sdb: sdb1
+[68872.942435] sd 3:0:0:0: [sdb] Attached SCSI disk
+vega@vega-Laptop:/media/vega/Samsung_T5$ fdisk -lu /dev/sdb
+fdisk: cannot open /dev/sdb: Permission denied
+vega@vega-Laptop:/media/vega/Samsung_T5$ sudo fdisk -lu /dev/sdb
+Disk /dev/sdb: 931.5 GiB, 1000204886016 bytes, 1953525168 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+Disklabel type: dos
+Disk identifier: 0x4589be89
+Device     Boot Start        End    Sectors   Size Id Type
+/dev/sdb1        2048 1953522112 1953520065 931.5G  7 HPFS/NTFS/exFAT
+start开始的扇区能被8整除，就表示4k对齐了
 
