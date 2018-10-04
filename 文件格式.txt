@@ -4,7 +4,7 @@ Marker Number(1 byte)：JFIF的marker为E0，Exif的marker为E1（gstreamer解开rtp中jpe
 Data size(2 bytes) 上的值=n+2
 
 
-
+word文件可以用写字板去显示。写字板也可以保存成doc格式。但docx不行。
 txt与doc后缀可以相互转换，但是还是txt转doc还是要让word自己重新生成一个文档的
 
 epub这个格式的电子书里面其实就是html文件。试了一下两种电子书阅读器，一个超链接之间关系做的不错，但是不能去复制上面的文字；我比较喜欢的是“极速pdf阅读器”，就像看一张张连续的图片一样。
