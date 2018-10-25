@@ -1,4 +1,4 @@
-	AJAX大家已经都知道了，是为了实现异步通讯（前端的显示与后台的异步操作），提高用户体验度，而将很多旧知识（XML,DOM,JavaScript,HTML,jQuery,Css……）重新融合的一个新的知识框架。而，XMLHttpRequest对象则是其中的重重之中。家臣有：DOMString、Document、FormData、Blob、File、ArrayBuffer这些类型。也就是在XMLHttpRequest Level 2背景下，我们Ajax可以发送任意这些类型的数据。如果不使用ajax，那么在返回的内容中加上“<script>history.go(-1);</script>”，就能回到原页面。
+	AJAX大家已经都知道了，是为了实现异步通讯（前端的显示与后台的异步操作），提高用户体验度，而将很多旧知识（XML,DOM,JavaScript,HTML,jQuery,Css……）重新融合的一个新的知识框架。而，XMLHttpRequest对象则是其中的重中之重。家臣有：DOMString、Document、FormData、Blob、File、ArrayBuffer这些类型。也就是在XMLHttpRequest Level 2背景下，我们Ajax可以发送任意这些类型的数据。如果不使用ajax，那么在返回的内容中加上“<script>history.go(-1);</script>”，就能回到原页面。
 	跟着XMLHttpRequest闯南走北很多年，看名字似乎很嚣张且高深莫测。实际上，在JavaScript中，DOMString就是String。规范解释说DOMString指的是UTF-16字符串，而JavaScript正是使用了这种编码的字符串，因此，在Ajax中，DOMString就等同于JS中的普通字符串。
 	Document实际上就是XMLHttpRequest中数据返回属性之responseXML，也就是可以解析为XML的数据
 	XMLHttpRequest 2.0新增FormData对象， 比起普通的ajax, 使用FormData的最大优点就是我们可以异步上传一个二进制文件。

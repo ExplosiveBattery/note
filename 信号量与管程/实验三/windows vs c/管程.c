@@ -23,7 +23,7 @@ int main(void) {
 	InitializeCriticalSection(&csBuf2);
 	InitializeConditionVariable(&cvBuf1Read);
 	InitializeConditionVariable(&cvBuf1Write);
-	InitializeConditionVariable(&cvBuf2Write);
+	InitializeConditionVariable(&cvBuf2Read);
 	InitializeConditionVariable(&cvBuf2Write);
 
 	//创建三个线程
