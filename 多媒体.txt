@@ -35,6 +35,9 @@ h265/HEVC £¨265Ò²ÊÇÔÚ264ÉÏÐÞ¸ÄÓÅ»¯µÄ£¬ÓÐ×¨ÀûÏÞÖÆ£©265µÄ±à½âÂëÆ÷ÏÖÔÚ¶¼ÒÑ¾­ÓÐÁË£¬µ
 Gap EncodingÀàËÆÑ¹ËõÔ­Àí£º
 	Given a sorted list of integers x, y, z, ¡­, represent by x, y-x, z-y, ¡­ 
 
+ÓÖÒ»´Î¿´°¢ÀïÔÆÖ±²¥£¬ÖÐ¼ä³öÁËÎÊÌâ±ÀÁË£¬½á¹ûä¯ÀÀÆ÷¼´Ê¹±ðÈËºÃÁËÎÒÒ²Òª¹ýÍ¦¾ÃµÄÒ»¶ÎÊ±¼ä²ÅºÃ¡£²»¹ýÇÐÊÖ»úµ¹ÊÇÄÜ¡°ÂíÉÏ¡±ºÅ£¬¹À¼ÆÊÇ´¨´óµÄÍøÂçÇé¿öÔ­Òò¡£
+
+
 base64±àÂë£º
 ÓÉÓÚ²»Í¬µÄÉè±¸¶Ô×Ö·ûµÄ´¦Àí·½Ê½ÓÐÒ»Ð©²»Í¬£¬ÕâÑùÄÇÐ©²»¿É¼û×Ö·û¾ÍÓÐ¿ÉÄÜ±»´¦Àí´íÎó£¬ÕâÊÇ²»ÀûÓÚ´«ÊäµÄ¡£ËùÒÔ¾ÍÏÈ°ÑÊý¾ÝÏÈ×öÒ»¸öBase64±àÂë£¬Í³Í³±ä³É¿É¼û×Ö·û£¬ÕâÑù³ö´íµÄ¿ÉÄÜÐÔ¾Í´ó½µµÍÁË¡£Ò²¾ÍÊÇËµÖ÷ÒªÊÇÎªÁË´¦Àí²»¿É¼û×Ö·û£¬µ«ÊÇÕâÑùÒ²¾ÍÊÇÒâÎ¶×ÅÑ¸À×ºÍÐý·çÏÂÔØÁ´½ÓÊ¹ÓÃbase64±àÂëÓÐ×ÅÆäËûµÄÓÃÍ¾£¬¿ÉÄÜ¾ÍÊÇÏëÈÃÒ»°ãÈË²»¶®»òÕßÊ¹µÃ×Ô¼ºµÄÁ´½ÓÊÇ±¾Èí¼þ×¨ÓÃµÄ¡£
 Ñ¸À×µÄ¡°×¨ÓÃµØÖ·¡±Ò²ÊÇÓÃBase64¼ÓÃÜµÄ¡£µ«ÊÇ²»ÊÇÖ±½Ó½øÐÐµÄ£¬http://µØÖ·µÄÇ°ºó·Ö±ðÌí¼ÓAAºÍZZ£¬Ö®ºóÔÙ½øÐÐbase64¼ÓÃÜ¡£
