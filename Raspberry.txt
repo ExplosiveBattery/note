@@ -263,6 +263,15 @@ iface wlan0 inet static
 照上面这样改了以后，我发现远程桌面里面wifi扫不出来了，不过iwlist scan和ifconfig以及ssh都表示自己成功连接上了wifi。可能是因为我指定了wpa-ssid？大概吧
 终于路由器里面已分配的DHCP租约我重新绑定了wifi网卡，并拔掉了网线，让它变成了192.3168.1.30（路由器控制页面里面显示），但是实际上ip还是192.168.1.205。好了，拔掉网线以后，翻了一段时间，重新只连接wifi，ip被更改为192.168.1.30。
 
+/etc/wpa_supplicant/wpa_supplicant.conf 这个文件中设多个
+network = {
+	ssid="xxx"
+	psk="password"
+	key_mgmt=WPA-PSK
+}
+sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf  会自动按照文件中的配置连接上其中一个wifi
+
+
 reboot会要求你输入密码，但是我sudo reboot却不需要。
 
 
