@@ -1,4 +1,5 @@
 LOG_DEG日志输出/var/log/messages。
+日志级别从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL
 
 linux下的syslog通用日志：
 	  1.这个日志除了可以记在本地文件，也可以通过网络发往其他主机，甚至看样子存在专门的syslog服务器（重视存储能力）。这个日志在多个系统下都是通用的，我还没见过有什么日志是不通用的，感觉就是编码关系。

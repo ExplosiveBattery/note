@@ -1,3 +1,4 @@
+	0. MASM是Microsoft Macro Assembler 的缩写，是微软公司为x86 微处理器家族开发的汇编开发环境，
 	1.debug命令只支持32位操作系统，所以要在64位系统上使用就要借助DosBox这个软件。下面稍微介绍下DosBox的使用：
 	  DosBox就是模拟一个Dos系统，和书上讲的一样可以Alt+Enter最大化。已经绝种的Debu命令居然可以传输文件
 	2.又一次查看到一条命令是

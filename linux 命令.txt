@@ -59,12 +59,21 @@ systemctl suspend  #待机
 systemctl suspend-hybrid #混合待机
 systemctl powersave #省电模式
 
+
+alias rm='xxx' //创建命令的别名 只保证当前终端有效
+如果需要使用原来的rm命令：   \rm
+
 ssh-keygen -t rsa -C "username@mail.com" 生成ssh密钥对
 ssh-copy-id 将本机的pub key复制到指定主机的.ssh/authorized_keys文件中（ssh服务器才会有这个文件）
 ssh -T git@github.com check ssh key
 git config --global user.name "Les1ie"
 git config --global user.mail "xxxx@xx.com"
 配置好的kali推送文件到github一直不能推送上去，问了SCU_Linux的小伙伴们也不清楚， 最后在#linuxba 的irc上问了下，才知道 github的https是 readonly的，只有ssh通道才能推送，记一下
+
+
+script -a <filename> 记录终端的命令，但是一些远程主机不允许下载，所以需要本地终端能提供一个命令记录的日志功能
+
+
 
 类似于chmod, chmod只是改变文件的读写、执行权限，更底层的属性控制是由chattr来改变的。有时候你发现用root权限都不能修改某个文件，大部分原因是曾经用chattr命令锁定该文件了。但是它并不适合所有的目录。chattr命令不能保护/、/dev、/tmp、/var目录。
 lsattr
