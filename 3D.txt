@@ -17,21 +17,22 @@ objÊÇ3DÄ£ÐÍÎÄ¼þ¸ñÊ½£¨²»°üº¬¶¯»­¡¢²ÄÖÊÌØÐÔ¡¢ÌùÍ¼Â·¾¶¡¢¶¯Á¦Ñ§¡¢Á£×ÓµÈÐÅÏ¢£©£¬ÎÄ¼þÖ
 openGLÊÇÃæÏò¹ý³ÌµÄ£¬OIVÊÇÃæÏò¶ÔÏóµÄ,Í¬ÑùµÄÊµÏÖ£¬OIVµÄ´úÂë¿ÉÒÔ×öµ½×î¶Ì£¬¾ÝÎÒËùÖªÊÇËùÓÐÍ¼ÐÎ¿âÖÐ×î¶ÌµÄ¡£
 OpenGLµÄ¿â£ºGLC_LIB  Assimp(Open Asset Import Library )
 
-3DäÖÈ¾Ëã·¨ÓÐºÃ¼¸ÖÖ¡£
+3DäÖÈ¾Ëã·¨ÓÐºÃ¼¸ÖÖ£¬ÕâÒ²¹ØÏµµ½ÁËÍ¶Ó°µ½Æ½ÃæµÄÊ±ºòÊÇÊ²Ã´Ñù×Ó¡£
+ÎªÁË¼ò»¯Ä£ÐÍÅö×²¼ì²â£¬½«Ã¿Ò»¸öÄ£ÐÍµÄ±ß½çÉè¶¨ÎªÒ»¸ö³¤·½Ìå¡£
 
 
 ÊõÓï£º
-Ö®ËùÒÔÈËÄÜ¿´3DÖ÷ÒªÊÇÒòÎªÁ½Ö»ÑÛ¾¦¿´µ½µÄÍ¼Ïñ²»Ò»Ñù£¬È»ºó´óÄÔ½øÐÐºÏ³É¡£Èç¹ûÍ¸¹ýÒ»Ö»ÑÛ¾¦À´¿´¶«Î÷£¬ÄÇÃ´´óÄÔ»¹ÊÇ»á³¢ÊÔ3D»¯£¬µ«ÊÇºÜÃ÷ÏÔÄãµÄ¾àÀë¸ÐÒÑ¾­²»Ì«ºÃÁË¡£Ëæ×ÅÎïÌåÖð½¥±ßÔµ£¬Í¼ÏñÖ®¼äµÄ½Ç¶ÈÒ²»áÔ½À´Ô½Ð¡¡£ÎÒÃÇ¿ÉÒÔÍ¨¹ý¼Ó´óÁ½·ùÍ¼ÏñÖ®¼äµÄ½Ç¶ÈÀ´ÔöÇ¿3DÐ§¹û£¬3DµçÓ°¾ÍÊÇ²ÉÓÃÁËÕâÖÖ·½·¨£¨ÔÚÃ¿Ö»ÑÛ¾¦ÉÏ·ÀÖ¹Ò»¿éµ¥¶ÀµÄ¾µÆ¬»òÕß´÷ÉÏÒ»¸±ÂÌÉ«ÑÛ¾¦´Ó¶ø½«Á½·ù²»Í¬²ã´ÎµØÍ¼Ïñ½øÐÐ·ÖÀë£¬ÎªÁËÄÜ´ïµ½¹ý¶ÈµÄÐ§¹û£¬ÕâÖÖ·½·¨¿ÉÄÜ»áÈÃ²»ÉÙÈË¾õµÃÍ·ÔÎ£©¡£
+Ö®ËùÒÔÈËÄÜ¿´3DÖ÷ÒªÊÇÒòÎªÁ½Ö»ÑÛ¾¦¿´µ½µÄÍ¼Ïñ²»Ò»Ñù£¬È»ºó´óÄÔ½øÐÐºÏ³É¡£Èç¹ûÍ¸¹ýÒ»Ö»ÑÛ¾¦À´¿´¶«Î÷£¬ÄÇÃ´´óÄÔ»¹ÊÇ»á³¢ÊÔ3D»¯£¬µ«ÊÇºÜÃ÷ÏÔÄãµÄ¾àÀë¸ÐÒÑ¾­²»Ì«ºÃÁË¡£Ëæ×ÅÎïÌåÖð½¥±ßÔµ£¬Í¼ÏñÖ®¼äµÄ½Ç¶ÈÒ²»áÔ½À´Ô½Ð¡¡£ÎÒÃÇ¿ÉÒÔÍ¨¹ý¼Ó´óÁ½·ùÍ¼ÏñÖ®¼äµÄ½Ç¶ÈÀ´ÔöÇ¿3DÐ§¹û£¬3DµçÓ°¾ÍÊÇ²ÉÓÃÁËÕâÖÖ·½·¨£¨ÎªÁËÄÜ´ïµ½¹ý¶ÈµÄÐ§¹û£¬ÕâÖÖ·½·¨¿ÉÄÜ»áÈÃ²»ÉÙÈË¾õµÃÍ·ÔÎ£©¡£
 ÒªÏë¶þÎ¬Í¼Ïñ²úÉú3DµÄÐ§¹ûµÄ·½·¨½Ð×öÍ¸ÊÓPerspective£¬ÓÐÉ«²ÊÍ¸ÊÓ£¬ÏßÐÔÍ¸ÊÓ£¨±ÈÈçËµÏß¹¹³ÉµÄÁ¢·½Ìå£©¡£²»¹ý¡¶OpenGL³¬¼¶±¦µä¡·ÖÐËµÍ¸ÊÓÐ§¹û¼ÓÉÏÑÕÉ«µÄ¸Ä±ä¡¢ÎÆÀí¡¢¹âÕÕµÈ¹²Í¬×é³ÉÁË3DµÄÐ§¹û¡£
-Í¨¹ý±ä»»¾ØÕó½øÐÐÎ»ÖÃÉÏµÄÐý×ª¡£
-Í¨¹ýÍ¶Ó°¾ØÕóÍ¶Ó°µ½ÉãÏñ»úÉÏ£¨ÆÁÄ»ÉÏ£©¡£Í¸ÊÓÍ¶Ó°Í¼ÊÇ´ÓÄ³¸öÍ¶ÉäÖÐÐÄ½«ÎïÌåÍ¶Éäµ½µ¥Ò»Í¶Ó°ÃæÉÏËùµÃµ½µÄÍ¼ÐÎ¡£
+Í¨¹ý±ä»»¾ØÕó½øÐÐÎ»ÖÃÉÏµÄÐý×ªµÈ±ä»»¡£
+Í¨¹ýÍ¶Ó°¾ØÕóÍ¶Ó°µ½ÉãÏñ»úÉÏ£¨ÆÁÄ»ÉÏ£©¡£Í¸ÊÓÍ¶Ó°Í¼ÊÇ´ÓÄ³¸öÍ¶ÉäÖÐÐÄ½«ÎïÌåÍ¶Éäµ½µ¥Ò»Í¶Ó°ÃæÉÏËùµÃµ½µÄÍ¼ÐÎ£¨¹ÀÃþ×ÅÊ¹ÓÃÁËÍ¶Ó°ÃæµÄ·¨ÏòÁ¿£©¡£
 ¹âÕ¤»¯£º»æÖÆ¶¨µãÖ®¼äµÄÏñËØÀ´ÐÎ³ÉÏß¶Î
 ×ÅÉ«Æ÷:¼ÓÑÕÉ«ÓëÌùÍ¼µÄ¶«Î÷¡£×îÖÕµÃÒÔäÖÈ¾¡£
 ³ÌÐòÀïÃæ³¬Á¿µÄäÖÈ¾»áµ¼ÖÂ³ÌÐòµÄ±ÀÀ£
 ÓÉÒ»µã·ÅÉäµÄÍ¶ÉäÏßËù²úÉúµÄÍ¶Ó°³ÆÎªÖÐÐÄÍ¶Ó°£¬ÓÉÏà»¥Æ½ÐÐµÄÍ¶ÉäÏßËù²úÉúµÄÍ¶Ó°³ÆÎªÆ½ÐÐÍ¶Ó°¡£Æ½ÐÐÍ¶ÉäÏßÇãÐ±ÓÚÍ¶Ó°ÃæµÄ³ÆÎªÐ±Í¶Ó°£¬Æ½ÐÐÍ¶ÉäÏß´¹Ö±ÓÚÍ¶Ó°ÃæµÄ³ÆÎªÕýÍ¶Ó°¡£Í¸ÊÓÍ¶Ó°¾ÍÀàËÆÓÚÐ±Í¶Ó°¡£
 
 
-OpenGLµÄ×ö·¨ÕæµÄºÜºÃ£¬¼ÈÊÇÒ»ÖÖ±ê×¼£¬Ò²ÔÊÐíÐÐÒµ¾ºÕùµÄ´æÔÚ¡£ÔÊÐíÌá¹©ÉÌÍ¨¹ýÀ©ÕÅ»úÖÆ½øÐÐ´´ÐÂ£º1.ÄÜÏòOpenGL APIÔö¼Ó¿ª·¢ÈËÔ±¿ÉÓÃµÄÐÂº¯Êý£»2.¿ÉÒÔÌí¼ÓÄÜ¹»±»ÒÑ´æÔÚµÄOpenGLº¯ÊýÊÇ±ðµÄ±ê¼ÇToken»òÕßÃ¶¾Ù¡£´ÓÇ°ÓÎÏ·ÐèÒªÎªÌØ¶¨Í¼ÐÎ¿¨½øÐÐÖØÐÂ±àÒë¡£²»Í¬µÄÉÌ¼Ò»áÓÐ²»Í¬µÄÀ©Õ¹±êÊ¶£º±ÈÈçNVIDIA¾ÍÊÇNV_£¬IBM¾ÍÊÇIBM_£¬ARB£¨Ôø¾­¹ÜÀíopenglµÄÉÌÒµ×éÖ¯£¬ºÃ°ÉÏÖÔÚÒ²ÊÇ£©¾ÍÊÇARP_£¬Microsoft¾ÍÊÇWGL_£¬ATI Technologies¾ÍÊÇATI_......³§ÉÌÖ®¼äµÄ¾ºÕù¾ÍÊÇÐÔÄÜ¡¢Í¼ÏñÖÊÁ¿ºÍÇý¶¯³ÌÐòµÄÎÈ¶¨ÐÔÖ®¼äµÄ¾ºÕù¡£
+OpenGLµÄ×ö·¨ÕæµÄºÜºÃ£¬¼ÈÊÇÒ»ÖÖ±ê×¼£¬Ò²ÔÊÐíÐÐÒµ¾ºÕùµÄ´æÔÚ¡£ÔÊÐíÌá¹©ÉÌÍ¨¹ýÀ©ÕÅ»úÖÆ½øÐÐ´´ÐÂ£º1.ÄÜÏòOpenGL APIÔö¼Ó¿ª·¢ÈËÔ±¿ÉÓÃµÄÐÂº¯Êý£»2.¿ÉÒÔÌí¼ÓÄÜ¹»±»ÒÑ´æÔÚµÄOpenGLº¯ÊýÊÇ±ðµÄ±ê¼ÇToken»òÕßÃ¶¾Ù¡£´ÓÇ°ÓÎÏ·ÐèÒªÎªÌØ¶¨Í¼ÐÎ¿¨½øÐÐÖØÐÂ±àÒë¡£²»Í¬µÄÉÌ¼Ò»áÓÐ²»Í¬µÄÀ©Õ¹±êÊ¶£º±ÈÈçNVIDIA¾ÍÊÇNV_£¬IBM¾ÍÊÇIBM_£¬ARB£¨¹ÜÀíopenglµÄÉÌÒµ×éÖ¯£©¾ÍÊÇARP_£¬Microsoft¾ÍÊÇWGL_£¬ATI Technologies¾ÍÊÇATI_......³§ÉÌÖ®¼äµÄ¾ºÕù¾ÍÊÇÐÔÄÜ¡¢Í¼ÏñÖÊÁ¿ºÍÇý¶¯³ÌÐòµÄÎÈ¶¨ÐÔÖ®¼äµÄ¾ºÕù¡£
 ¶ÔOpenGLµÄÊµÏÖ¿ÉÒÔÊÇ·½±ãÈËÃÇµ÷ÓÃµÄº¯Êý¿â£¬Ò²¿ÉÒÔÊÇÒ»¸öÓÃÓÚÍê³ÉÈýÎ¬Í¼ÏñäÖÈ¾ÈÎÎñµÄÓ²¼þÉè±¸µÄÇý¶¯³ÌÐò°ü¡£
 OpenGL3.0½«²»ÉÙ2ÖÐµÄÌØÐÔ±ê¼ÇÎª¡°²»¹ÄÀøÊ¹ÓÃ¡±£¬ÔÚOpenGL3.xÖÐÒÆ³ýÁËÕâÐ©ÌØÐÔ¡£
 OpenGL¸¨Öúº¯Êý¿â£¬ËÆºõÓÃÀ´Ð´GUI£¬´ÓAUX-¡·GLUT£¨opengl utility toolkit£©-¡·freeglut
@@ -47,7 +48,7 @@ int uint 32Î»
 int64 uint64
 sizei/enum/uint ÎÞ·ûºÅ32Î»ÕûÊý
 half ×îÉÙÎ»¿í16 °ë¾«¶È¸¡µãÊý
-clampf [0,1]·¶Î§ÄÚµÄ32Î»Ë«¾«¶È¸¡µãÊý
+clampf [0,1]·¶Î§ÄÚµÄ32Î»µ¥¾«¶È¸¡µãÊý
 clampd [0,1]·¶Î§ÄÚµÄ64Î»Ë«¾«¶È¸¡µãÊý
 float 32Î»¸¡µãÊý
 sizeiptr ÎÞ·ûºÅÕûÊý±¾µØÖ¸Õë´óÐ¡

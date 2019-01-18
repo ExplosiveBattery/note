@@ -2,7 +2,7 @@ tor在linux要求不能用root安装，所以我们就要改安装脚本：
 if [ "`id -u`" -eq 0];then
 	echo "xxxxx"
 把0改成其他数字就就好
-安装后把所有者改回rootchown -r root:root tor安装目录
+安装后把所有者改回root  chown -r root:root tor安装目录
 
 tor Browser使用前先配置，为了使用tor，其开发者在云端构建了网桥节点meek-xxx,最后走不走本地代理或者网络代理都可以。tor Browser只是tor网络+Browser。IRC中要想走浏览器的话，端口是9150。tor使用的也是ss5.所以开了浏览器以后也就开了一个本地tor代理，你所有的程序只要支持ss5就可以走这里过。
 tor项目曾经由美国海军支持，本来是有直接接入tor网络的代理软件使用9050端口，但是后来官网只剩下windows有这种软件叫做Expert Bundle，其他的都是tor browser。怪不得Anonymous的OnionIRC是要求把Tor Browser开着来进入。
