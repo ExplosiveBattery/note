@@ -12,6 +12,7 @@ $ declare [-aixr] variable
 
 $i1 <=> ${i1} 后者在想要直接在变量后面加上字符串的时候有用到
 
+{1..10} 1-10的数组
 使用 [ ] 来对数组进行索引操作：
 $ array[1]=a
 $ array[2]=b
@@ -525,3 +526,36 @@ for i1 in `seq 0 $[$split_sum-1]`;do
   /usr/bin/curl -v -G -d "task_id=$task_id&day=$day&mongo_url=$mongo_url&db=${part_db}${i1}&collection=$collection" $machine_address > /dev/null 2>&1 #curl会输出到标准错误与标准输出
 done
 
+
+
+
+For small requests, it's generally much faster to do 10 requests each on 1 connection, than 1 request each on 10 connections. For Henry's HTTP post test server, the difference is 2.5x:
+$ time for i in {1..10}; do
+    curl -F foo=bar https://posttestserver.com/post.php ;
+  done
+Successfully dumped 1 post variables.
+View it at http://www.posttestserver.com/data/2016/06/09/11.44.48536583865
+Post body was 0 chars long.
+(...)
+real    0m2.429s
+vs
+
+$ time  {
+    array=();
+    for i in {1..10}; do
+      array+=(--next -F foo=bar https://posttestserver.com/post.php ) ; 
+    done; 
+    curl "${array[@]}";
+ }
+Successfully dumped 1 post variables.
+View it at http://www.posttestserver.com/data/2016/06/09/11.45.461371907842
+(...)
+real    0m1.079s
+#使用sem，并限制并发数为4
+for i in {1..20}
+do 
+  sem -j 4 curl -F foo=bar https://posttestserver.com/post.php
+done
+sem --wait
+#我使用
+/usr/bin/curl -v -G -d "task_id=$task_id&day=$day&mongo_url=$mongo_url&db=${part_db}${i1}&collection=$collection" $machine_address > /dev/null 2>&1 & #使用后台进程，取消脚本循环中对curl关于http响应的等待，上面命令其实应该加上一个等待超时与重试  -t 0 -T 3
