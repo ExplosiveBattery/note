@@ -1,5 +1,5 @@
 ¼ÆËã»úÍ¼ÐÎÑ§¸÷¸öÁìÓòµÄÄ¿±ê»òÐí²»Í¬£¬µ«×îÖÕµÄÐÎÊ½¶¼ÊÇäÖÈ¾(¼´»æÖÆ)ÔÚ¶þÎ¬µÄÏÔÊ¾Éè±¸ÉÏµÄÍ¼Ïñ¡£
-MFCÃ»·¹³Ô£¬Ç§Íò²»ÒªÅö¡£·´Õý¶¼ÒªÔÚwindowsÉÏÐ´GUIÁË£¬»¹¿à±ÆµÄÓÃÊ²Ã´C++£¬¾Í¸ÃÈ¥ÓÃC#¡£Ã¿Ò»¸öÓïÑÔ¶¼ÓÐÃ¿Ò»¸öÓïÑÔ¸Ã×ö£¨ÊÊºÏ×ö£©µÄÊÂÇé¡£C#¿ÉÒÔÅäºÏ²»ÉÙÓÎÏ·ÒýÇæÀ´Ê¹ÓÃ£¬±ÈÈçËµunity¡£windowsÏÂwpf/C#£¨·´ÕýÐ´½çÃæ³ÌÐòÍÆ¼öC#£©,ÎÒÓÃqtÊÇÎªÁË¿ìËÙ¿ª·¢Óë·½±ã¿çÆ½Ì¨¡£ÔÚWindowsÉÏ¶¼ÓÃXAML£¬ËûÓÐ²»Í¬µÄÃû×Ö£¬Æ©ÈçËµWPF£¬Silverlight£¬Metro£¬UniversalµÈ£¬¶¼Ò»Ñù¡£wpfÊÇ½çÃæ±àÐ´¿â£¬·Ç³£²»ÊÊºÏÐ´ÓÎÏ·£¬Ð¡ÓÎÏ·¶¼»áºÜ¿¨¡£
+MFCÃ»·¹³Ô£¬Ç§Íò²»ÒªÅö¡£·´Õý¶¼ÒªÔÚwindowsÉÏÐ´GUIÁË£¬»¹¿à±ÆµÄÓÃÊ²Ã´C++£¬¾Í¸ÃÈ¥ÓÃC#¡£Ã¿Ò»¸öÓïÑÔ¶¼ÓÐÃ¿Ò»¸öÓïÑÔ¸Ã×ö£¨ÊÊºÏ×ö£©µÄÊÂÇé¡£C#¿ÉÒÔÅäºÏ²»ÉÙÓÎÏ·ÒýÇæÀ´Ê¹ÓÃ£¬±ÈÈçËµunity¡£windowsÏÂwpf/C#£¨·´ÕýÐ´½çÃæ³ÌÐòÍÆ¼öC#£©,ÎÒÓÃqtÊÇÎªÁË¿ìËÙ¿ª·¢Óë·½±ã¿çÆ½Ì¨¡£ÔÚWindowsÉÏ¶¼ÓÃXAML£¨UIÉè¼ÆÓïÑÔ£©£¬ËûÓÐ²»Í¬µÄÃû×Ö£¬Æ©ÈçËµWPF£¬Silverlight£¬Metro£¬UniversalµÈ£¬¶¼Ò»Ñù¡£wpfÊÇ½çÃæ±àÐ´¿â£¬·Ç³£²»ÊÊºÏÐ´ÓÎÏ·£¬Ð¡ÓÎÏ·¶¼»áºÜ¿¨£¬ÒòÎªË¢ÐÂµÄÊ±ºò¶¼ÊÇÍêÍêÕûÕûµÄÖØÐÂË¢ÐÂ£¨Ã»ÓÐ¸´ÖÆ¹ýÈ¥µÄÊý¾Ý»òÕß²»¶¯¹ýÈ¥µÄÊý¾Ý£©¡£
 CAD(Computer Aided Design£¬¼ÆËã»ú¸¨ÖúÉè¼Æ£©£¬¿ÉÒÔ´ÓÀ´ÖÆ×÷3DÄ£ÐÍ¡£ÍÆ¼öÊ¹ÓÃ3dmax¡¢maya¡¢blender£¨¿ªÔ´Ãâ·Ñ°æ£©£¬»òÕßÉÏÊÖ¸ü¼Ó¼òµ¥µÄsketchup£¨¼ò³Æsu£¬µ±È»´æÔÚ²»Ð¡µÄ²î¾à£©¡£
 3D Studio Max£¬³£¼ò³ÆÎª3d Max£¬ÊÇ»ùÓÚPCÏµÍ³µÄÈýÎ¬¶¯»­äÖÈ¾ºÍÖÆ×÷Èí¼þ¡£
 Î¢ÈíPaint3D ÊÇ¿î3D»æÍ¼Èí¼þ¡£
@@ -17,7 +17,7 @@ objÊÇ3DÄ£ÐÍÎÄ¼þ¸ñÊ½£¨²»°üº¬¶¯»­¡¢²ÄÖÊÌØÐÔ¡¢ÌùÍ¼Â·¾¶¡¢¶¯Á¦Ñ§¡¢Á£×ÓµÈÐÅÏ¢£©£¬ÎÄ¼þÖ
 openGLÊÇÃæÏò¹ý³ÌµÄ£¬OIVÊÇÃæÏò¶ÔÏóµÄ,Í¬ÑùµÄÊµÏÖ£¬OIVµÄ´úÂë¿ÉÒÔ×öµ½×î¶Ì£¬¾ÝÎÒËùÖªÊÇËùÓÐÍ¼ÐÎ¿âÖÐ×î¶ÌµÄ¡£
 OpenGLµÄ¿â£ºGLC_LIB  Assimp(Open Asset Import Library )
 
-3DäÖÈ¾Ëã·¨ÓÐºÃ¼¸ÖÖ£¬ÕâÒ²¹ØÏµµ½ÁËÍ¶Ó°µ½Æ½ÃæµÄÊ±ºòÊÇÊ²Ã´Ñù×Ó¡£
+3DäÖÈ¾Ëã·¨ÓÐºÃ¼¸ÖÖ¡£
 ÎªÁË¼ò»¯Ä£ÐÍÅö×²¼ì²â£¬½«Ã¿Ò»¸öÄ£ÐÍµÄ±ß½çÉè¶¨ÎªÒ»¸ö³¤·½Ìå¡£
 
 
@@ -28,7 +28,7 @@ OpenGLµÄ¿â£ºGLC_LIB  Assimp(Open Asset Import Library )
 Í¨¹ýÍ¶Ó°¾ØÕóÍ¶Ó°µ½ÉãÏñ»úÉÏ£¨ÆÁÄ»ÉÏ£©¡£Í¸ÊÓÍ¶Ó°Í¼ÊÇ´ÓÄ³¸öÍ¶ÉäÖÐÐÄ½«ÎïÌåÍ¶Éäµ½µ¥Ò»Í¶Ó°ÃæÉÏËùµÃµ½µÄÍ¼ÐÎ£¨¹ÀÃþ×ÅÊ¹ÓÃÁËÍ¶Ó°ÃæµÄ·¨ÏòÁ¿£©¡£
 ¹âÕ¤»¯£º»æÖÆ¶¨µãÖ®¼äµÄÏñËØÀ´ÐÎ³ÉÏß¶Î
 ×ÅÉ«Æ÷:¼ÓÑÕÉ«ÓëÌùÍ¼µÄ¶«Î÷¡£×îÖÕµÃÒÔäÖÈ¾¡£
-³ÌÐòÀïÃæ³¬Á¿µÄäÖÈ¾»áµ¼ÖÂ³ÌÐòµÄ±ÀÀ£
+³ÌÐòÀïÃæ³¬Á¿µÄäÖÈ¾»áµ¼ÖÂ³ÌÐòµÄ±ÀÀ££¬Ð¡Ê±ºòµ¥ºËÌ¨Ê½»úÍæÁúÖ®¹ÈÊÇÖ»³öÏÖÁËÏßÌõ£¬¹ý¶ÎÊ±¼äÖ®ºó²Å»á³ÌÐò¿¨ËÀ¡£
 ÓÉÒ»µã·ÅÉäµÄÍ¶ÉäÏßËù²úÉúµÄÍ¶Ó°³ÆÎªÖÐÐÄÍ¶Ó°£¬ÓÉÏà»¥Æ½ÐÐµÄÍ¶ÉäÏßËù²úÉúµÄÍ¶Ó°³ÆÎªÆ½ÐÐÍ¶Ó°¡£Æ½ÐÐÍ¶ÉäÏßÇãÐ±ÓÚÍ¶Ó°ÃæµÄ³ÆÎªÐ±Í¶Ó°£¬Æ½ÐÐÍ¶ÉäÏß´¹Ö±ÓÚÍ¶Ó°ÃæµÄ³ÆÎªÕýÍ¶Ó°¡£Í¸ÊÓÍ¶Ó°¾ÍÀàËÆÓÚÐ±Í¶Ó°¡£
 
 

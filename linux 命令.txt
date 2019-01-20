@@ -129,7 +129,7 @@ There is a screen on:
 [root@pvcent107 ~]# screen -r Urumchi
 [root@pvcent107 ~]# ping www.ibm.com &
 [1] 9488
-[root@pvcent107 ~]# pstree -H 9488  -H pid是进行显示加亮    还有个tree会显示文件结构
+[root@pvcent107 ~]# pstree -p 9488   还有个tree会显示文件结构
 init─┬─Xvnc
    ├─acpid
    ├─atd
@@ -308,6 +308,8 @@ awk 语法详解 https://www.cnblogs.com/xudong-bupt/p/3721210.html
 https://coolshell.cn/articles/9070.html
 awk '{print substr($NF,0,length($NF)-2), $0}' ~/mongodb.lipeinan.log2 | sort -n -k 1 -r 对mongo日志（已经根据最后一个字段筛选出包含ms的记录，为了排序将这个记录移动到新日志的第一列）倒序对大小排序
 awk '{print $1":"$2}' 有一些特殊的字符需要双引号括起来才能拼接
+NR表示从awk开始执行后，按照记录分隔符读取的数据次数，默认的记录分隔符为换行符，因此默认的就是读取的数据行数，NR可以理解为Number of Record的缩写。
+$+数字表示列
 
 https://coolshell.cn/articles/9104.html
 sed -i "s/shan/hua/g"  lishan.txt #正则替换字符串
