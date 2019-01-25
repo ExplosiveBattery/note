@@ -4,6 +4,11 @@ less 查看文件方便 超找对应内容(/xxxx n继续 N反向继续) 文件尾(g)
 which xxxx
 返回执行命令使用的可执行文件路径
 
+history 查询从前用过的指令
+Time xxx 显示任务执行的时间，比如time ls会显示：
+real	0m0.002s
+user	0m0.000s
+sys	0m0.004s
 
 $ tar [-z|-j|-J] [cv] [-f 新建的 tar 文件] filename...  ==打包压缩
 $ tar [-z|-j|-J] [tv] [-f 已有的 tar 文件]              ==查看

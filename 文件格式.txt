@@ -72,5 +72,7 @@ https://jingyan.baidu.com/article/f96699bba221f9894e3c1bf8.html
 .haml HTML abstraction markup language，是某一个html文件的抽象（简化）表示
 	idea打开包含index.haml与index.html的项目的时候会将index.html作为index.haml的子项
 
+.whl 一种zip格式压缩文件，能够在pip install wheel用pip install 安装。
+
 M3U playlist file is a plain text file that contains the locations of one or more media files that the mediaplayer should play.也叫m3u8
 .m3u8  将下载m3u8文件的http url使用M3U8 Downloader.exe即可启动内置的ffmpeg进行下载。
