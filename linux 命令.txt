@@ -303,7 +303,7 @@ date 命令
 php PE_scan.php: no process found
 所以遗憾，不过借助要想在crontab中杀死指定的php进程并不是没有办法：
 kill $(ps -aux | grep "php PE_scan.php" | awk '{print $2}')
-Pkill相当于ps+kill
+pkill相当于ps+kill
 
 vega@vega-Laptop:~$ echo a.a | awk -F. '{ print $1 }' 
  
