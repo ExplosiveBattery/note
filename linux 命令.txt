@@ -349,6 +349,7 @@ php-fpm        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 
 modprobe 内核模块加载工具
 
+Ls .* 在git仓库中使用，可以看到有意思的输出
 ls -d /etc/rc*这样就不会查看到文件夹里面的内容
 ls -lh 查看文件大小
 Ls -t 对输出的内容按照修改时间排序 

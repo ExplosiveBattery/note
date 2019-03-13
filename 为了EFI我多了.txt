@@ -1,5 +1,0 @@
-eif/boot
-Bootx64.efi
-bootmgfw.efi
-Shell.efi
-Apps/

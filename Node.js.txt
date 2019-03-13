@@ -1,3 +1,4 @@
+使用node 版本管理工具安装稳定版node：https://www.jianshu.com/p/aa8933a40b78
 node -v查看安装的nodejs版本，出现版本号，说明刚刚已正确安装nodejs
 
 NPM是随同NodeJS一起安装的包管理工具，能解决NodeJS代码部署上的很多问题，常见的使用场景有以下几种：
@@ -51,7 +52,7 @@ bower info jquery 会看到jquery的bower.json的信息，和可用的版本信息
 bower.json文件中的jquery版本号再bower update  bower就会为你切换jquery的版本了
 bower uninstall jquery
 
-gulp是前端开发过程中对代码进行构建的工具，是自动化项目的构建利器；她不仅能对网站资源进行优化，而且在开发过程中很多重复的任务能够使用正确的工具自动完成gulp是基于Nodejs的自动任务运行器， 她能自动化地完成 javascript/coffee/sass/less/html/image/css 等文件的的测试、检查、合并、压缩、格式化、浏览器自动刷新、部署文件生成，并监听文件在改动后重复指定的这些步骤。
+gulp是前端开发过程中对代码进行构建的工具，是自动化项目的构建利器；她不仅能对网站资源进行优化，而且在开发过程中很多重复的任务能够使用正确的工具自动完成。gulp是基于Nodejs的自动任务运行器， 她能自动化地完成 javascript/coffee/sass/less/html/image/css 等文件的的测试、检查、合并、压缩、格式化、浏览器自动刷新、部署文件生成，并监听文件在改动后重复指定的这些步骤。
 npm install --global gulp	
 cnpm install gulp --save-dev -g
 全局安装gulp是为了执行gulp任务，本地安装gulp则是为了调用gulp插件的功能。
