@@ -37,6 +37,10 @@ C:\Users\Battery>echo 0.0184 - "5 境外股票"
 C:\Users\Battery>echo 0.0004 - "4 自然资源大宗商品，包括石油，天然气，各类矿石，木材"
 0.0004 - "4 自然资源大宗商品，包括石油，天然气，各类矿石，木材"
 
+启动与关闭服务：
+net stop MySQL   
+net start MySQL
+
 创建文件
 C:\Users\Administrator\a>type a >> a.txt
 系统找不到指定的文件。
