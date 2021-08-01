@@ -1,5 +1,5 @@
 计算机图形学各个领域的目标或许不同，但最终的形式都是渲染(即绘制)在二维的显示设备上的图像。
-MFC没饭吃，千万不要碰。反正都要在windows上写GUI了，还苦逼的用什么C++，就该去用C#。每一个语言都有每一个语言该做（适合做）的事情。C#可以配合不少游戏引擎来使用，比如说unity。windows下wpf/C#（反正写界面程序推荐C#）,我用qt是为了快速开发与方便跨平台。在Windows上都用XAML（UI设计语言），他有不同的名字，譬如说WPF，Silverlight，Metro，Universal等，都一样。wpf是界面编写库，非常不适合写游戏，小游戏都会很卡，因为刷新的时候都是完完整整的重新刷新（没有复制过去的数据或者不动过去的数据）。
+MFC没饭吃，千万不要碰。反正都要在windows上写GUI了，还苦逼的用什么C++，就该去用C#。每一个语言都有每一个语言该做（适合做）的事情。C#可以配合不少游戏引擎来使用，比如说unity。windows下wpf/C#（反正写界面程序推荐C#）,我用qt是为了快速开发与方便跨平台。在Windows上都用XAML（UI设计语言），他有不同的名字，譬如说WPF，Silverlight，Metro，Universal等，都一样。wpf是界面编写库，非常不适合写游戏（视觉上的效果上限比较低，但也有成功案例），小游戏都会很卡，因为刷新的时候都是完完整整的重新刷新（没有复制过去的数据或者不动过去的数据）。
 CAD(Computer Aided Design，计算机辅助设计），可以从来制作3D模型。推荐使用3dmax、maya、blender（开源免费版），或者上手更加简单的sketchup（简称su，当然存在不小的差距）。
 3D Studio Max，常简称为3d Max，是基于PC系统的三维动画渲染和制作软件。
 微软Paint3D 是款3D绘图软件。
@@ -32,13 +32,11 @@ OpenGL的库：GLC_LIB  Assimp(Open Asset Import Library )
 由一点放射的投射线所产生的投影称为中心投影，由相互平行的投射线所产生的投影称为平行投影。平行投射线倾斜于投影面的称为斜投影，平行投射线垂直于投影面的称为正投影。透视投影就类似于斜投影。
 
 
-OpenGL的做法真的很好，既是一种标准，也允许行业竞争的存在。允许提供商通过扩张机制进行创新：1.能向OpenGL API增加开发人员可用的新函数；2.可以添加能够被已存在的OpenGL函数是别的标记Token或者枚举。从前游戏需要为特定图形卡进行重新编译。不同的商家会有不同的扩展标识：比如NVIDIA就是NV_，IBM就是IBM_，ARB（管理opengl的商业组织）就是ARP_，Microsoft就是WGL_，ATI Technologies就是ATI_......厂商之间的竞争就是性能、图像质量和驱动程序的稳定性之间的竞争。
-对OpenGL的实现可以是方便人们调用的函数库，也可以是一个用于完成三维图像渲染任务的硬件设备的驱动程序包。
+OpenGL的做法真的很好，既是一种标准，也允许行业竞争的存在。允许提供商通过扩张机制进行创新。从前游戏需要为特定图形卡进行重新编译。不同的商家会有不同的扩展标识：比如NVIDIA就是NV_，IBM就是IBM_，ARB（管理opengl的商业组织）就是ARP_，Microsoft就是WGL_，ATI Technologies就是ATI_......厂商之间的竞争就是性能、图像质量和驱动程序的稳定性之间的竞争。
+对OpenGL的实现可以是方便人们调用的函数库，也可以是一个用于完成三维图像渲染任务的硬件设备（显卡，包括核显）的驱动程序包。
 OpenGL3.0将不少2中的特性标记为“不鼓励使用”，在OpenGL3.x中移除了这些特性。
-OpenGL辅助函数库，似乎用来写GUI，从AUX-》GLUT（opengl utility toolkit）-》freeglut
-GLEW 自动初始化新函数指针并包含所需类型定义、常量和枚举值的扩展依赖库。
-GLTools 基于GLEW，包含一个用于操作矩阵和向量的3D数学库
-OpenGL也可以用来写2D程序，用于渲染。
+OpenGL辅助函数库，似乎用来写GUI（2D），从AUX-》GLUT（opengl utility toolkit）-》freeglut
+
 
 为了做到良好的可移植性，定义了自己的数据类型，所以可以与大部分语言、平台搭配。我这里省略GL开头：
 boolean 
@@ -56,9 +54,6 @@ intptr 有符号整数本地指针大小
 sync 同步对象句柄本地指针大小
 char 至少位宽8 字符串
 
-glGetError（）来获取当前错误标识，获取以后这个全局变量会被清空。没有错误就是GL_NO_ERROR
-GL_OUT_OF_MEMORY 没有足够的内存.....等等
-
+glGetError（）来获取当前错误标识，获取以后这个全局变量会被清空（openGL中的异常处理）。没有错误就是GL_NO_ERROR（猜测是位常量）。
 const GLubyte *glGetString(GLenum name) #返回版本号与厂商的有关信息
-
 void glHint(GLenum target, GLenum mode) opengl的实现常常包含两种方法，分别偏向于速度或是图形质量。target指定希望进行修改的行为类型，mode告知我们关心的是哪个方面。
