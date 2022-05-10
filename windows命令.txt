@@ -369,3 +369,6 @@ ipconfig/all 才能查看到MAC
 通过diskpart进入windows自带的分区工具的交互界面，使用help命令查看帮助
 list然后直接回车就能知道之后的命令是什么，或者类似于Cisco交换机一样的操作，“list ?”回车以后查看帮助
 list volume 能够查看当前存在盘符。但是对于有问题的U盘系统显示已经插入却没有将盘符显示出来这种，是不会出现在这个工具中的，不过会出现在分区助手中的。
+
+
+使用powershell睡眠 schtasks /create /tn my-standby /tr "rundll32.exe powrprof.dll,SetSuspendState" /sc once /st 23:30
