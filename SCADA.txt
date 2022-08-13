@@ -1,8 +1,0 @@
-监控与数据采集系统（Supervisory Control and Data Acquisition）是ICS（Industrial Control System）类型。它是款大软件而不是操作系统。
-组成：
-RTU 远程终端单元 #将测量结果转化为数字信息。模块只是转化为数字信号传递过来，一般进行的会是模数转换。
-PLC 可编程逻辑控制器 #集成了输入输出服务器和实时操作系统。它也可以使用各种网络协议。
-HMI 人机界面
-IED 智能电子设备 #控制器，发送命令
-这个系统一般都是基于windows XP实现的。
-著名攻击事例：Stuxnet bot 震网病毒
