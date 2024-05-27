@@ -1,6 +1,11 @@
 less、more、cat、tac（cat反向）、echo、head、tail、od（十六进制查看）
 less 查看文件方便 超找对应内容(/xxxx n继续 N反向继续) 文件尾(g)     
 
+linux并发命令：
+  # Find all directories and use xargs to run the function in parallel
+  find "$ROOT_DIR" -type d -print0 | xargs -0 -I {} -P $(($(nproc) + 1)) bash -c 'run_kitex "$@"' _ {}
+  parallel
+
 which xxxx
 返回执行命令使用的可执行文件路径
 
